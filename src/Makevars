@@ -1,9 +1,11 @@
 #RCUDA.so: device.o
 NVCC=nvcc
-CUDA_INC=-I/usr/local/cuda/include
-PKG_CPPFLAGS=$(CUDA_INC)
-PKG_LIBS=-L/usr/local/cuda/lib -lcuda -lcudart
+CUDA_DIR=/usr/local/cuda
+CUDA_INC=$(CUDA_DIR)/include
+PKG_CPPFLAGS=-I$(CUDA_INC)
+PKG_LIBS=-L$(CUDA_DIR)/lib -lcuda -lcudart
 
 %.o: %.cu
 	$(NVCC) -c $< $(CUDA_INC) -I$(R_HOME)/include
+
 
