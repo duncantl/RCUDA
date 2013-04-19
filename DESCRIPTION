@@ -1,0 +1,15 @@
+Package: RCUDA
+Version: 0.1-0
+Title: R bindings for CUDA library for GPU computing
+Description: This package provides initial bindings to
+   the CUDA library for working with GPUs. It is similar
+   to Simon Urbanek's OpenCL package. The idea is to be able
+   execute code on the GPU from within R.
+   We have longer term goals which will allow us to compile (simple) R 
+   code into GPU kernels and also compile code that refers to the
+   CUDA routines that work on the host. 
+Maintainer: Duncan Temple Lang <duncan@r-project.org>
+Author: Duncan Temple Lang, Paul Baines
+License: BSD
+
+
