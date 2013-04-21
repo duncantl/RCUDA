@@ -1,0 +1,3 @@
+.onLoad =
+function(...)
+  .C("cuInit")

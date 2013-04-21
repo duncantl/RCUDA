@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<article xmlns:r="http://www.r-project.org"
+         xmlns:xi="http://www.w3.org/2003/XInclude"
+	 xmlns:c="http://www.C.org">
+
+<articleinfo>
+
+<title></title>
+
+<author><firstname>Duncan</firstname><surname>Temple Lang</surname>
+  <affiliation><orgname>University of California at Davis</orgname>
+               <orgdiv>Department of Statistics</orgdiv>
+  </affiliation>
+</author>
+</articleinfo>
+
+<section>
+<title></title>
+
+
+<para>
+We discuss how to generate the code for the CUDA routines.
+</para>
+
+
+<para>
+Consider the routine <c:func>cudaGetDeviceProperties</c:func>.
+We see it as 
+<r:output>
+cudaError_t     cudaGetDeviceProperties ( struct  cudaDeviceProp * 8428 ,  int 8443  )
+</r:output>
+One of the issues here is that we cannot determine whether the cudaDeviceProp
+is an input or just an output. We know it could be changed
+so we need its value back. However, if we knew that its contents
+were never queried, but just set, then we would not make it
+an input parameter.
+</para>
+<para>
+Perhaps an ideal function we would generate for this routine would
+require the caller to specify the device number (via the second
+argument) (it could even make 0 or 1 a default value).  They wouldn't
+need to specify the cudaDeviceProp structure.  The combination of the
+function and routine would create an instance of the struct and pass
+it to the actual routine.  They would then convert the result back to
+an R data type (S4 or S3 list).
+
+<r:function><![CDATA[
+cudaGetDeviceProperties = 
+function(num)
+{
+   .Call(R_cudaGetDeviceProperties, as.integer(num), NULL)
+}
+]]></r:function>
+The <r:null/>  argument indicates that we are not passing a pointer to a 
+The C routine would then 
+
+</para>
+
+</section>
+</article>

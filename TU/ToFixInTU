@@ -1,0 +1,143 @@
+* Should we remove the cuda/cublas prefix from the names of the R functions.
+
+* Allow adding hints to indicate what are input and output variables.
+
+
+* change how we generate the routines
+
+* Get RClangSimple working again and merge code for RGCCTranslationUnit and RClangSimple.
+   
+
+* Copy the converter code from RAutoGenRuntime into the package.
+
+
+* allow files argument in getDataStructures() to be a function to filter. 
+   Like getRoutines()
+
+* The const in parameters, e.g.
+   Did gcc stop giving us this in the TU?
+
+* Create the declarations file and reference it.
+
+* For unsigned integers mapped to numeric, add a validity method. 
+   Define a class and change the R methods that coerce to and from R, etc.
+
+* Allow specifying which functions should be  made private so that we can build on them manually to provide a more R-like interface
+  i.e. with a prefix in the name.
+  Added parameters for createRoutineBinding
+
+* when returning an enum, should we put the name on it in the C code or in the R code.
+   Currently, not doing it in either. e.g. cudaGetDeviceProperties().
+
+* memset structures/memory we allocate.
+
+* the code to call the copyStruct routine uses &*arg unnecessarily.
+
+* identify status variables such as cudaError_t and add code to identify when an error occurred
+   Do this at the library level by allow the R programmer generating
+   the code to specify the name of the status type. Also identify what
+   is okay and what is not. Can also generate classes of errors.
+   Similarly if it is just an int, but we can specify the routines for
+   which this is an error.
+
+* [low] When there are many functions generated, perhaps hide some of them, e.g. the individual accessors for structs. 
+  Do we actually create these?
+
+* make the addDot in createRoutineBinding() more sane.
+   If specify rfuncName, the dot isn't added. Only used in the default
+   value of rfuncName.
+
+* ======================
+
+* [more] In calls to GET_SLOT, ensure that we protect the object and then unprotect it.
+   Just the asInteger() or equivalent - so okay.
+
+* [low] check R code for struct.
+   sources() w/o error.
+   * do we want arrays to have a default/prototype value with the same
+     length, e.g. maxThreadsDim be integer(3), in the R class for the
+     struct.
+
+* ----------------
+* Why is devProp.R example seg faulting if we use .copy = TRUE (the default)
+   We didn't have the declaration of the R_copyStruct routine and so C
+   warned us and used an int.
+
+
+* [Done] Remove call to library(RAutoGenRunTime)
+   Allow the caller to pass a character vector of packages to be
+   loaded. Shouldn't need this.
+   If this is for use in an R session, they can load the packages
+   themselves.
+   If this is for a package, it should be an import.
+
+   Doesn't work for writing proxy functions corresponding to C
+   routines we generate. Easy to add but not worth it really.
+
+
+* [Done] Check size_t being converted correctly, e.g. p$memPitch in devProp.R
+   returned as an integer, but slot is a numeric in the R class.
+   But the code for copying a struct * with this field uses
+   ScalarInteger.  Similarly in get method. And in set method (coerce
+   with asInteger()).
+
+* [Done] Change the names of parameters to be a, b, c, rather than r8428.
+     Do this when we create the descriptions of the routines
+     arg1, arg2, ....
+
+
+* [Done] Fix conversion of character array to an R string. p$name in devProp.R
+
+
+* [Done] Check if finalizers are being called.
+   Yes, they work, but are not enabled by default. They are now.
+   [Done] Allow code generator to specify if this should be true or false. generateStructInterface()
+      library(RCUDA)
+      prop = new_cudaDeviceProp()
+      rm(prop)
+      gc(); gc(); gc()
+ 
+      Trace addFinalizer
+
+* [Done] Remove debugging print statement from finalizer.
+    Can enable it with the preprocessor define DEBUG_R_FINALIZERS
+
+
+* [Done] parsing the +Inf in 'valu: +Inf' attributes
+
+
+* [Done] Put name on the copyStruct C routine created by generateStructInterface
+
+* [Done] Fix warnings & errors from calls to convertIntArrayToR
+   [Done] convertValueToR for parm = ArrayType  (convertValueToR.R:176)
+   [Done] Resolve the differences between convertCharArrayToR() and
+   [Done] convertIntArrayToR(). make the signatures the same.
+   [Done] What is the copy and the dim and the front? - Not used.
+   Can't specify the dims as sequential arguments. Make them [a,b,c]
+
+
+* [Done] Missing ans->fieldName =  and ; when setting an integer.
+  occurring in the coerce_struct_to_struct* method
+     looks like it is getCopyFieldCode
+
+
+* [Done] Remove unused variables
+  i in R_cudaDevicePropPtr_set_name
+   { i; convertRCharacterToCharArray }
+  Part of coerce method for struct to struct * and also in set for field.
+
+* [Done] Don't put backticks on variable names that don't need them, 
+  e.g.  in newInst$r for a struct.
+   dc = DefinitionContainer(tu)
+   ss = generateStructInterface(ds[['cudaDeviceProp']], dc)
+
+* [Done] Option to not generate code for other types recursively.
+  ? or does it actually do this for structs ? No, it just generates
+  a lot of code due to the C routines to set/get the fields, coercion
+  to and from R, pointers and instances, etc.
+
+* [Done] accessors for struct fields getting the initializer for the asInteger() wrong.
+    ; before that code.
+    see makeCFieldAccessorRoutine
+
+* [Done] remove the extra return(r_obj) that is added, at least, in get_<fieldName>
