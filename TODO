@@ -1,0 +1,6 @@
+* Process only the routines and data structures related to the host/CPU
+   ignore the ones for use on the device/GPU
+
+* Should we remove the cuda/cublas prefix from the names of the R functions.
+
+* Copy the converter code from RAutoGenRuntime into the package.
