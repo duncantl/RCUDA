@@ -1,2 +1,8 @@
 useDynLib(RCUDA)
+import(RAutoGenRunTime)
+
 export(getNumDevices)
+export(getDeviceProps)
+
+exportPattern(".*")
+

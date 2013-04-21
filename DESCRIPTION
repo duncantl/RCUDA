@@ -10,6 +10,7 @@ Description: This package provides initial bindings to
    CUDA routines that work on the host. 
 Maintainer: Duncan Temple Lang <duncan@r-project.org>
 Author: Duncan Temple Lang, Paul Baines
+Imports: RAutoGenRunTime
 License: BSD
 
 

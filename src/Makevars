@@ -2,7 +2,7 @@
 NVCC=nvcc
 CUDA_DIR=/usr/local/cuda
 CUDA_INC=$(CUDA_DIR)/include
-PKG_CPPFLAGS=-I$(CUDA_INC)
+PKG_CPPFLAGS=-I$(CUDA_INC) -DDEBUG_R_FINALIZERS
 PKG_LIBS=-L$(CUDA_DIR)/lib -lcuda -lcudart
 
 %.o: %.cu
