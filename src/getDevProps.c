@@ -24,7 +24,7 @@ R_cudaGetDeviceProperties(SEXP r_arg1, SEXP r_arg2, SEXP r__copy, SEXP r_resultL
     
     	 PROTECT(r_ans = NEW_LIST( INTEGER(r_resultLength)[0]));
 	 PROTECT(r_names = NEW_CHARACTER( INTEGER(r_resultLength)[0]));
-	 SET_VECTOR_ELT(r_ans, 0,  ScalarInteger( ans ) );
+	 SET_VECTOR_ELT(r_ans, 0,  Renum_convert_cudaError_t( ans ) );
 	 SET_STRING_ELT(r_names, 0, mkChar(".result"));
 	 r_ctr++;
 	 

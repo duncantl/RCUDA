@@ -1,7 +1,7 @@
 #include "RCUDA.h" 
 
 
-    SEXP Renum_convert_CUipcMem_flags(CUipcMem_flags val)
+    SEXP Renum_convert_CUipcMem_flags ( CUipcMem_flags  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -66,8 +66,9 @@ SEXP R_bitwise_enum_convert_CUctx_flags ( CUctx_flags val)
              }, 8 ,
     "CUctx_flags_enum::CUctx_flags"
       ));
-} 
-    SEXP Renum_convert_CUstream_flags(CUstream_flags val)
+}
+ 
+    SEXP Renum_convert_CUstream_flags ( CUstream_flags  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -127,7 +128,8 @@ SEXP R_bitwise_enum_convert_CUevent_flags ( CUevent_flags val)
              }, 4 ,
     "CUevent_flags_enum::CUevent_flags"
       ));
-} 
+}
+ 
 SEXP R_bitwise_enum_convert_CUarray_format ( CUarray_format val)
 {
       return(
@@ -154,8 +156,9 @@ SEXP R_bitwise_enum_convert_CUarray_format ( CUarray_format val)
              }, 8 ,
     "CUarray_format_enum::CUarray_format"
       ));
-} 
-    SEXP Renum_convert_CUaddress_mode(CUaddress_mode val)
+}
+ 
+    SEXP Renum_convert_CUaddress_mode ( CUaddress_mode  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -203,7 +206,7 @@ SEXP R_bitwise_enum_convert_CUarray_format ( CUarray_format val)
     
 }
  
-    SEXP Renum_convert_CUfilter_mode(CUfilter_mode val)
+    SEXP Renum_convert_CUfilter_mode ( CUfilter_mode  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -245,7 +248,7 @@ SEXP R_bitwise_enum_convert_CUarray_format ( CUarray_format val)
     
 }
  
-    SEXP Renum_convert_CUdevice_attribute(CUdevice_attribute val)
+    SEXP Renum_convert_CUdevice_attribute ( CUdevice_attribute  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -515,7 +518,7 @@ SEXP R_bitwise_enum_convert_CUarray_format ( CUarray_format val)
     
 }
  
-    SEXP Renum_convert_CUpointer_attribute(CUpointer_attribute val)
+    SEXP Renum_convert_CUpointer_attribute ( CUpointer_attribute  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -566,7 +569,7 @@ SEXP R_bitwise_enum_convert_CUarray_format ( CUarray_format val)
     
 }
  
-    SEXP Renum_convert_CUfunction_attribute(CUfunction_attribute val)
+    SEXP Renum_convert_CUfunction_attribute ( CUfunction_attribute  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -626,7 +629,7 @@ SEXP R_bitwise_enum_convert_CUarray_format ( CUarray_format val)
     
 }
  
-    SEXP Renum_convert_CUfunc_cache(CUfunc_cache val)
+    SEXP Renum_convert_CUfunc_cache ( CUfunc_cache  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -674,7 +677,7 @@ SEXP R_bitwise_enum_convert_CUarray_format ( CUarray_format val)
     
 }
  
-    SEXP Renum_convert_CUsharedconfig(CUsharedconfig val)
+    SEXP Renum_convert_CUsharedconfig ( CUsharedconfig  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -719,7 +722,7 @@ SEXP R_bitwise_enum_convert_CUarray_format ( CUarray_format val)
     
 }
  
-    SEXP Renum_convert_CUmemorytype(CUmemorytype val)
+    SEXP Renum_convert_CUmemorytype ( CUmemorytype  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -767,7 +770,7 @@ SEXP R_bitwise_enum_convert_CUarray_format ( CUarray_format val)
     
 }
  
-    SEXP Renum_convert_CUcomputemode(CUcomputemode val)
+    SEXP Renum_convert_CUcomputemode ( CUcomputemode  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -815,7 +818,7 @@ SEXP R_bitwise_enum_convert_CUarray_format ( CUarray_format val)
     
 }
  
-    SEXP Renum_convert_CUjit_option(CUjit_option val)
+    SEXP Renum_convert_CUjit_option ( CUjit_option  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -884,7 +887,7 @@ SEXP R_bitwise_enum_convert_CUarray_format ( CUarray_format val)
     
 }
  
-    SEXP Renum_convert_CUjit_target(CUjit_target val)
+    SEXP Renum_convert_CUjit_target ( CUjit_target  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -944,7 +947,7 @@ SEXP R_bitwise_enum_convert_CUarray_format ( CUarray_format val)
     
 }
  
-    SEXP Renum_convert_CUjit_fallback(CUjit_fallback val)
+    SEXP Renum_convert_CUjit_fallback ( CUjit_fallback  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -1006,8 +1009,9 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
              }, 5 ,
     "CUgraphicsRegisterFlags_enum::CUgraphicsRegisterFlags"
       ));
-} 
-    SEXP Renum_convert_CUgraphicsMapResourceFlags(CUgraphicsMapResourceFlags val)
+}
+ 
+    SEXP Renum_convert_CUgraphicsMapResourceFlags ( CUgraphicsMapResourceFlags  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -1052,7 +1056,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
     
 }
  
-    SEXP Renum_convert_CUarray_cubemap_face(CUarray_cubemap_face val)
+    SEXP Renum_convert_CUarray_cubemap_face ( CUarray_cubemap_face  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -1106,7 +1110,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
     
 }
  
-    SEXP Renum_convert_CUlimit(CUlimit val)
+    SEXP Renum_convert_CUlimit ( CUlimit  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -1157,7 +1161,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
     
 }
  
-    SEXP Renum_convert_CUresourcetype(CUresourcetype val)
+    SEXP Renum_convert_CUresourcetype ( CUresourcetype  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -1205,7 +1209,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
     
 }
  
-    SEXP Renum_convert_CUresult(CUresult val)
+    SEXP Renum_convert_CUresult ( CUresult  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -1391,7 +1395,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
     
 }
  
-    SEXP Renum_convert_CUresourceViewFormat(CUresourceViewFormat val)
+    SEXP Renum_convert_CUresourceViewFormat ( CUresourceViewFormat  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -1532,7 +1536,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
     
 }
  
-    SEXP Renum_convert_cudaError_t(cudaError_t val)
+    SEXP Renum_convert_cudaError_t ( cudaError_t  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -1784,7 +1788,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
     
 }
  
-    SEXP Renum_convert_cudaOutputMode_t(cudaOutputMode_t val)
+    SEXP Renum_convert_cudaOutputMode_t ( cudaOutputMode_t  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -1826,7 +1830,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
     
 }
  
-    SEXP Renum_convert_cublasStatus_t(cublasStatus_t val)
+    SEXP Renum_convert_cublasStatus_t ( cublasStatus_t  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -1886,7 +1890,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
     
 }
  
-    SEXP Renum_convert_cublasFillMode_t(cublasFillMode_t val)
+    SEXP Renum_convert_cublasFillMode_t ( cublasFillMode_t  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -1928,7 +1932,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
     
 }
  
-    SEXP Renum_convert_cublasDiagType_t(cublasDiagType_t val)
+    SEXP Renum_convert_cublasDiagType_t ( cublasDiagType_t  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -1970,7 +1974,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
     
 }
  
-    SEXP Renum_convert_cublasSideMode_t(cublasSideMode_t val)
+    SEXP Renum_convert_cublasSideMode_t ( cublasSideMode_t  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -2012,7 +2016,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
     
 }
  
-    SEXP Renum_convert_cublasPointerMode_t(cublasPointerMode_t val)
+    SEXP Renum_convert_cublasPointerMode_t ( cublasPointerMode_t  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -2054,7 +2058,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
     
 }
  
-    SEXP Renum_convert_cublasOperation_t(cublasOperation_t val)
+    SEXP Renum_convert_cublasOperation_t ( cublasOperation_t  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -2099,7 +2103,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
     
 }
  
-    SEXP Renum_convert_cublasAtomicsMode_t(cublasAtomicsMode_t val)
+    SEXP Renum_convert_cublasAtomicsMode_t ( cublasAtomicsMode_t  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -2141,7 +2145,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
     
 }
  
-    SEXP Renum_convert_cudaRoundMode(enum cudaRoundMode val)
+    SEXP Renum_convert_cudaRoundMode ( enum cudaRoundMode  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -2189,7 +2193,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
     
 }
  
-    SEXP Renum_convert_cudaChannelFormatKind(enum cudaChannelFormatKind val)
+    SEXP Renum_convert_cudaChannelFormatKind ( enum cudaChannelFormatKind  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -2237,7 +2241,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
     
 }
  
-    SEXP Renum_convert_cudaMemoryType(enum cudaMemoryType val)
+    SEXP Renum_convert_cudaMemoryType ( enum cudaMemoryType  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -2279,7 +2283,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
     
 }
  
-    SEXP Renum_convert_cudaMemcpyKind(enum cudaMemcpyKind val)
+    SEXP Renum_convert_cudaMemcpyKind ( enum cudaMemcpyKind  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -2350,8 +2354,9 @@ SEXP R_bitwise_enum_convert_cudaGraphicsRegisterFlags ( enum cudaGraphicsRegiste
              }, 5 ,
     "cudaGraphicsRegisterFlags"
       ));
-} 
-    SEXP Renum_convert_cudaLimit(enum cudaLimit val)
+}
+ 
+    SEXP Renum_convert_cudaLimit ( enum cudaLimit  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -2402,7 +2407,7 @@ SEXP R_bitwise_enum_convert_cudaGraphicsRegisterFlags ( enum cudaGraphicsRegiste
     
 }
  
-    SEXP Renum_convert_cudaGraphicsMapFlags(enum cudaGraphicsMapFlags val)
+    SEXP Renum_convert_cudaGraphicsMapFlags ( enum cudaGraphicsMapFlags  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -2447,7 +2452,7 @@ SEXP R_bitwise_enum_convert_cudaGraphicsRegisterFlags ( enum cudaGraphicsRegiste
     
 }
  
-    SEXP Renum_convert_cudaFuncCache(enum cudaFuncCache val)
+    SEXP Renum_convert_cudaFuncCache ( enum cudaFuncCache  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -2495,7 +2500,7 @@ SEXP R_bitwise_enum_convert_cudaGraphicsRegisterFlags ( enum cudaGraphicsRegiste
     
 }
  
-    SEXP Renum_convert_cudaGraphicsCubeFace(enum cudaGraphicsCubeFace val)
+    SEXP Renum_convert_cudaGraphicsCubeFace ( enum cudaGraphicsCubeFace  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -2549,7 +2554,7 @@ SEXP R_bitwise_enum_convert_cudaGraphicsRegisterFlags ( enum cudaGraphicsRegiste
     
 }
  
-    SEXP Renum_convert_cudaSurfaceBoundaryMode(enum cudaSurfaceBoundaryMode val)
+    SEXP Renum_convert_cudaSurfaceBoundaryMode ( enum cudaSurfaceBoundaryMode  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -2594,7 +2599,7 @@ SEXP R_bitwise_enum_convert_cudaGraphicsRegisterFlags ( enum cudaGraphicsRegiste
     
 }
  
-    SEXP Renum_convert_cudaSharedMemConfig(enum cudaSharedMemConfig val)
+    SEXP Renum_convert_cudaSharedMemConfig ( enum cudaSharedMemConfig  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -2639,7 +2644,7 @@ SEXP R_bitwise_enum_convert_cudaGraphicsRegisterFlags ( enum cudaGraphicsRegiste
     
 }
  
-    SEXP Renum_convert_cudaSurfaceFormatMode(enum cudaSurfaceFormatMode val)
+    SEXP Renum_convert_cudaSurfaceFormatMode ( enum cudaSurfaceFormatMode  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -2681,7 +2686,7 @@ SEXP R_bitwise_enum_convert_cudaGraphicsRegisterFlags ( enum cudaGraphicsRegiste
     
 }
  
-    SEXP Renum_convert_cudaResourceType(enum cudaResourceType val)
+    SEXP Renum_convert_cudaResourceType ( enum cudaResourceType  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -2729,7 +2734,7 @@ SEXP R_bitwise_enum_convert_cudaGraphicsRegisterFlags ( enum cudaGraphicsRegiste
     
 }
  
-    SEXP Renum_convert_cudaTextureAddressMode(enum cudaTextureAddressMode val)
+    SEXP Renum_convert_cudaTextureAddressMode ( enum cudaTextureAddressMode  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -2777,7 +2782,7 @@ SEXP R_bitwise_enum_convert_cudaGraphicsRegisterFlags ( enum cudaGraphicsRegiste
     
 }
  
-    SEXP Renum_convert_cudaResourceViewFormat(enum cudaResourceViewFormat val)
+    SEXP Renum_convert_cudaResourceViewFormat ( enum cudaResourceViewFormat  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -2918,7 +2923,7 @@ SEXP R_bitwise_enum_convert_cudaGraphicsRegisterFlags ( enum cudaGraphicsRegiste
     
 }
  
-    SEXP Renum_convert_cudaTextureFilterMode(enum cudaTextureFilterMode val)
+    SEXP Renum_convert_cudaTextureFilterMode ( enum cudaTextureFilterMode  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -2960,7 +2965,7 @@ SEXP R_bitwise_enum_convert_cudaGraphicsRegisterFlags ( enum cudaGraphicsRegiste
     
 }
  
-    SEXP Renum_convert_cudaTextureReadMode(enum cudaTextureReadMode val)
+    SEXP Renum_convert_cudaTextureReadMode ( enum cudaTextureReadMode  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -3002,7 +3007,7 @@ SEXP R_bitwise_enum_convert_cudaGraphicsRegisterFlags ( enum cudaGraphicsRegiste
     
 }
  
-    SEXP Renum_convert_cudaDeviceAttr(enum cudaDeviceAttr val)
+    SEXP Renum_convert_cudaDeviceAttr ( enum cudaDeviceAttr  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;
@@ -3266,7 +3271,7 @@ SEXP R_bitwise_enum_convert_cudaGraphicsRegisterFlags ( enum cudaGraphicsRegiste
     
 }
  
-    SEXP Renum_convert_cudaComputeMode(enum cudaComputeMode val)
+    SEXP Renum_convert_cudaComputeMode ( enum cudaComputeMode  val)
     {
     const char *elName = NULL;
     SEXP klass, ans;

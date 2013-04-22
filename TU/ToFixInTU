@@ -1,23 +1,25 @@
-* Should we remove the cuda/cublas prefix from the names of the R functions.
-
 * Allow adding hints to indicate what are input and output variables.
-
 
 * change how we generate the routines
 
 * Get RClangSimple working again and merge code for RGCCTranslationUnit and RClangSimple.
-   
 
-* Copy the converter code from RAutoGenRuntime into the package.
+* Seem to be confusing union and struct. 
+  See ds and CUctx_st
+** CUmodule, etc. don't seem to be in the ds list.
+    CUdevice is
 
-
-* allow files argument in getDataStructures() to be a function to filter. 
-   Like getRoutines()
+* process cudaMemcpy3DParms struct type
+   It contains nested structures
+   b = generateStructInterface(ds[["cudaMemcpy3DParms"]], dc)
 
 * The const in parameters, e.g.
    Did gcc stop giving us this in the TU?
 
 * Create the declarations file and reference it.
+   need to include all of the declarations, adding to the declarations
+   file.
+   [Done] declarations.h
 
 * For unsigned integers mapped to numeric, add a validity method. 
    Define a class and change the R methods that coerce to and from R, etc.
@@ -26,12 +28,21 @@
   i.e. with a prefix in the name.
   Added parameters for createRoutineBinding
 
-* when returning an enum, should we put the name on it in the C code or in the R code.
+* [Check] when returning an enum, should we put the name on it in the C code or in the R code.
+   Check other cases where we convert the values, e.g. from a struct field.
    Currently, not doing it in either. e.g. cudaGetDeviceProperties().
+   [No] Need to compute the enums first and make them available to the code
+       already there
+   generating the routines (createRoutineBinding()).
+   [Done] Should we remove the namespace prefix, e.g. cudaError::
+
+* Remove the indentation in the C code we generate for the routine definition.
+    Seems like it is only for the enums, not  the bitwise routines.
+    It is in formatCode().
 
 * memset structures/memory we allocate.
-
-* the code to call the copyStruct routine uses &*arg unnecessarily.
+   and all of their fields.
+   Make it optional?
 
 * identify status variables such as cudaError_t and add code to identify when an error occurred
    Do this at the library level by allow the R programmer generating
@@ -42,6 +53,8 @@
 
 * [low] When there are many functions generated, perhaps hide some of them, e.g. the individual accessors for structs. 
   Do we actually create these?
+
+* [low] the code to call the copyStruct routine uses &*arg unnecessarily.
 
 * make the addDot in createRoutineBinding() more sane.
    If specify rfuncName, the dot isn't added. Only used in the default
@@ -59,7 +72,17 @@
      struct.
 
 * ----------------
-* Why is devProp.R example seg faulting if we use .copy = TRUE (the default)
+
+* [Done] Generating enum converters in C code gets the name wrong for typedef'ed enums.
+   puts the enum in front of the typedef.
+
+* [Done] bitwise_enum_convert routine not in header file RConverters.h
+
+* [Done] allow files argument in getDataStructures() to be a function to filter. 
+   Like getRoutines()
+
+
+* [Done] Why is devProp.R example seg faulting if we use .copy = TRUE (the default)
    We didn't have the declaration of the R_copyStruct routine and so C
    warned us and used an int.
 

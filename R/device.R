@@ -4,16 +4,16 @@ function()
   .Call("R_cudaGetDeviceCount")
 }
 
-getDeviceProps =
+getDeviceProps = getDeviceProperties =
   # Simpler wrapper to get the device properties
   # We use 1-based counting here. libcuda uses
-  #' @example  getDeviceProps(0)
-function(num)
+  #' @example  getDeviceProps(1L)
+function(num = 1L)
 {
-  if(num < 1 || num > getNumDevices())
-    stop("invalid GPU device number")
+  if(num < 1L || num > getNumDevices())
+    stop("invalid GPU device number ", num)
   
-  .cudaGetDeviceProperties(NULL, num - 1L)
+  .cudaGetDeviceProperties(NULL, num - 1L)[[2]]
 }
 
 
