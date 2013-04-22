@@ -7,5 +7,6 @@
 * Copy the converter code from RAutoGenRuntime into the package.
 
 * Change the class of the bitwise enum types that are wrong.
+   only CUarray_format_enum
 
 * Generate routimes.

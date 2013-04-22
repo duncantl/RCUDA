@@ -2,10 +2,22 @@ library(RGCCTranslationUnit)
 tu = parseTU("tu.c.001t.tu")
 
   # need to handle case where src is empty character vector.
-filep = function(src, files, ...) { if(length(src) == 0) TRUE else grepl("^cu", src)}
+  # want to get rid of the ones that are system, leaving only the cuda/cublas ones.
+  #  so not rusage
+filep = function(src, files, ...) { if(length(src) == 0) FALSE else grepl("^cu", src)}
 
-ds = getDataStructures(tu, filep)
+ods = ds = getDataStructures(tu, filep)
 ds = resolveType(ds, tu)
+ # force the stubborn ones!
+ds = lapply(ds, resolveType, tu)
+table(sapply(ds, class))
+types = sapply(ds[sapply(ds, is, "TypedefDefinition")], function(x) class(x@type))
+# 81.
+table(types)
+
+
+names(ds)[!grepl("^(union )?[0-9]+$", names(ds))]
+
 
 dc = DefinitionContainer(tu)
 ss = generateStructInterface(ds[['cudaDeviceProp']], dc)
@@ -18,9 +30,13 @@ a = writeCode(ss, "header", file = "../src/declarations.h")
 
 a = generateStructInterface(ds[["cudaChannelFormatDesc"]], dc)
 b = generateStructInterface(ds[["cudaMemcpy3DParms"]], dc)
+pos = generateStructInterface(ds[["cudaPos"]], dc)
+pitched = generateStructInterface(ds[["cudaPitchedPtr"]], dc)
+extent = generateStructInterface(ds[["cudaExtent"]], dc)
+d3 = writeCode(b, "native", "../src/memcpy3DParms.c", includes = '"RCUDA.h"')
 
 
-
+filep = function(src, files, ...) { if(length(src) == 0) TRUE else grepl("^cu", src)}
 r = getRoutines(tu, checkSourceFile = filep)
 rr = resolveType(r, tu)
 

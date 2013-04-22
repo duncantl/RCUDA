@@ -1,17 +1,27 @@
 * Allow adding hints to indicate what are input and output variables.
 
+* For unsigned integers mapped to numeric, add a validity method. 
+   Define a class and change the R methods that coerce to and from R, etc.
+
+
 * change how we generate the routines
 
-* Get RClangSimple working again and merge code for RGCCTranslationUnit and RClangSimple.
+* Merge code for RGCCTranslationUnit and RClangSimple.
 
 * Seem to be confusing union and struct. 
   See ds and CUctx_st
 ** CUmodule, etc. don't seem to be in the ds list.
     CUdevice is
 
-* process cudaMemcpy3DParms struct type
+* [Check] process cudaMemcpy3DParms struct type
    It contains nested structures
    b = generateStructInterface(ds[["cudaMemcpy3DParms"]], dc)
+**  Need to get dependencies.
+**  [Check] set_srcArray and cudaArray type.
+**  [Done] cudaMemcpyKind missing enum in set_kind in the cast, but it is in  the declaration.
+**  [Done] no ; in coerce struct to ptr:  ans->srcArray = DEREF_REF_PTR( tmp ,  cudaArray_t )
+**  [Done]  no ;  or enum qualifier in cast in:     ans->kind = ( cudaMemcpyKind ) INTEGER( tmp )[0];
+
 
 * The const in parameters, e.g.
    Did gcc stop giving us this in the TU?
@@ -21,20 +31,18 @@
    file.
    [Done] declarations.h
 
-* For unsigned integers mapped to numeric, add a validity method. 
-   Define a class and change the R methods that coerce to and from R, etc.
-
-* Allow specifying which functions should be  made private so that we can build on them manually to provide a more R-like interface
+* Allow specifying which functions should be made private so that we can build on them manually to provide a more R-like interface
   i.e. with a prefix in the name.
   Added parameters for createRoutineBinding
 
 * [Check] when returning an enum, should we put the name on it in the C code or in the R code.
-   Check other cases where we convert the values, e.g. from a struct field.
-   Currently, not doing it in either. e.g. cudaGetDeviceProperties().
+   [Done] Check other cases where we convert the values, e.g. from a struct field.
+   [Done] Currently, not doing it in either. e.g. cudaGetDeviceProperties().
    [No] Need to compute the enums first and make them available to the code
        already there
    generating the routines (createRoutineBinding()).
    [Done] Should we remove the namespace prefix, e.g. cudaError::
+
 
 * Remove the indentation in the C code we generate for the routine definition.
     Seems like it is only for the enums, not  the bitwise routines.
@@ -56,7 +64,7 @@
 
 * [low] the code to call the copyStruct routine uses &*arg unnecessarily.
 
-* make the addDot in createRoutineBinding() more sane.
+* [check] make the addDot in createRoutineBinding() more sane.
    If specify rfuncName, the dot isn't added. Only used in the default
    value of rfuncName.
 
@@ -72,6 +80,8 @@
      struct.
 
 * ----------------
+
+* [Done] Get RClangSimple working again.
 
 * [Done] Generating enum converters in C code gets the name wrong for typedef'ed enums.
    puts the enum in front of the typedef.

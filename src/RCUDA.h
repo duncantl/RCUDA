@@ -14,4 +14,5 @@
 
 #include "declarations.h"
 #include "enumDecls.h"
+#include "manualDecls.h"
 #endif
