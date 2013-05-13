@@ -42,6 +42,7 @@ R_cudaMemcpy(SEXP r_src,  SEXP r_ptr)
 	    fl[i] = REAL(r_src)[i];
 	  data = fl;
     }
+          break;
     default:
 	 PROBLEM "don't know what to do"
 	     ERROR;
@@ -112,17 +113,26 @@ R_cuLaunchKernel(SEXP r_fun, SEXP r_gridDims, SEXP r_blockDims, SEXP r_args, SEX
     blockDims = INTEGER(r_blockDims);
     CUfunction fun = GET_REF(r_fun, CUfunction);
     CUstream stream = NULL;
-    void **args, **args2; //set from r_args
 
     int nargs = Rf_length(r_args), i;
-    args = (void **) R_alloc(nargs, sizeof(void*));  //XXX if we do an asynchronous launch, then this memory will disappear when we exit this call and the code is still running.
-    args2 = (void **) R_alloc(nargs, sizeof(void*));  //XXX if we do an asynchronous launch, then this memory will disappear when we exit this call and the code is still running.
+         //XXX if we do an asynchronous launch, then this memory will disappear when we exit this call and the code is still running.
+#if 1
+    void **args, **args2; //set from r_args
+    args = (void **) R_alloc(nargs, sizeof(void*));  
+    args2 = (void **) R_alloc(nargs, sizeof(void*)); 
+
     for(i = 0; i < nargs; i++) {
 	SEXP arg = VECTOR_ELT(r_args, i);
 	args2[i] = convertRObjToGPU(arg);
-	args[i] = args + i;
+	args[i] = args2 + i;
 	fprintf(stderr, "arg %d = %p\n", i, args[i]);
     }
+#else
+    void *args[1];
+    void *tmp;
+    tmp = R_ExternalPtrAddr(VECTOR_ELT(r_args, 0));
+    args[0] = &tmp;
+#endif
 
     fprintf(stderr, "Launching kernel\n");
     CUresult status = cuLaunchKernel(fun, gridDims[0], gridDims[1], gridDims[2], blockDims[0], blockDims[1], blockDims[2], INTEGER(r_sharedMemBytes)[0], stream, args, NULL);

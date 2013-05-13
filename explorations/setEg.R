@@ -8,15 +8,20 @@ k = m$setValue_kernel
 N = 1e6L
 x = integer(N)
 
-mem = cudaMalloc(N)
-copyToDevice(integer(N), mem)
+if(FALSE) {
+  mem = cudaMalloc(N)
+ copyToDevice(integer(N), mem)
+}
 # or simply
 mem = copyToDevice(x)
+i = copyFromDevice(mem, N, "integer")
+head(i)
 
 #copyToDevice(numeric(N), mem)
-#ans = .cuda(k, mem, inplace = TRUE, gridDim = c(1L, 1L, 1L), blockDim = c(1L, 1L, 1L))
+ans = .cuda(k, mem, inplace = TRUE, gridDim = c(1L, 1L, 1L), blockDim = c(32L, 1L, 1L))
 
 i = copyFromDevice(mem, N, "integer")
+head(i)
 
 #ans = .cuda(k, x, N, inplace = TRUE, gridDim = c(1L, 1L, 1L), blockDim = c(32L, 1L, 1L))
 

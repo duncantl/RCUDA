@@ -13,6 +13,10 @@ setMethod("[[", c("CUmodule", "character", "missing"),
            function(x, i, j, ...) {
               getFunction(x, i)
            })
+setMethod("$", c("CUmodule"),
+           function(x, name) {
+              getFunction(x, name)
+           })
 
 getFunction =
 function(module, name)
@@ -46,7 +50,7 @@ function(status, msg = character(), ...)
 {
  i =  match(status, CUresultValues)
  type = names(CUresultValues)[i]
- e = simpleError(paste(c(msg, type), collapse = " "), ...)
+ e = simpleError(paste(c(msg, "(", type, ")"), collapse = " "), ...)
  class(e) = c(type, class(e))
  stop(e)
 }
@@ -87,8 +91,6 @@ function(numEls, sizeof = 4L)
 }
 
 
-
-
 cuInit =
 function(flags = 0L)
 {  
@@ -115,7 +117,29 @@ function(create = FALSE)
 copyToDevice =
 function(obj, to = cudaMalloc(length(obj), switch(typeof(obj), logical=, integer= 4L, numeric = 8L, stop("don't know size of elements"))))
 {
-  .Call("R_cudaMemcpy", obj, to)
+  ans = .Call("R_cudaMemcpy", obj, to)
+  if(is(ans, "CUresult"))
+    raiseError(ans, "copying data to GPU")
+
+  to
+}
+
+
+copyFromDevice =
+function(obj, nels, type)
+{
+  ans =
+    if(type == "integer")
+      .Call("R_getCudaIntVector", obj, nels)
+    else if(type == "logical")
+      .Call("R_getCudaIntVector", obj, nels)
+    else if(type == "float")
+      .Call("R_getCudaFloatVector", obj, nels)
+
+  if(is(ans, "CUresult"))
+      raiseError(ans, "copying data on device")
+
+  ans
 }
 
 # Allow
