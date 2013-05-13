@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <article xmlns:r="http://www.r-project.org"
-	 xmlns:xi="http://www.w3.org/2003/XInclude">
+	 xmlns:xi="http://www.w3.org/2003/XInclude"
+	 xmlns:sh="http://www.shell.org">
 
 <articleinfo>
 
@@ -32,8 +33,197 @@ and we can also pass pointers to memory allocated on the CUDA
 device. We can copy data backwards and forwards between
 the host and device.
 </para>
+</section>
+<section>
+<title>Querying Devices</title>
 
+<para>
+We can determine  the number of GPUs on a machine with
+<r:code>
+getNumDevices()
+</r:code>
+The devices are then numbered 0, 1, etc.
+We use 1-based counting in <r/> and so do so for 
+<omg:pkg>RCUDA</omg:pkg> also. 
+</para>
+<para>
+We can query the properties of any of these devices
+with <r:func>getDeviceProperties</r:func>, and passing
+it the device number. For the first device, we get
+<r:code>
+getDeviceProperties(1)
+<r:output><![CDATA[
+An object of class "cudaDeviceProp"
+Slot "name":
+[1] "GeForce GT 330M"
 
+Slot "totalGlobalMem":
+[1] 536543232
+
+Slot "sharedMemPerBlock":
+[1] 16384
+
+Slot "regsPerBlock":
+[1] 16384
+
+Slot "warpSize":
+[1] 32
+
+Slot "memPitch":
+[1] 2147483647
+
+Slot "maxThreadsPerBlock":
+[1] 512
+
+Slot "maxThreadsDim":
+[1] 512 512  64
+
+Slot "maxGridSize":
+[1] 65535 65535     1
+
+Slot "clockRate":
+[1] 1100000
+
+Slot "totalConstMem":
+[1] 65536
+
+Slot "major":
+[1] 1
+
+Slot "minor":
+[1] 2
+
+Slot "textureAlignment":
+[1] 256
+
+Slot "texturePitchAlignment":
+[1] 32
+
+Slot "deviceOverlap":
+[1] 1
+
+Slot "multiProcessorCount":
+[1] 6
+
+Slot "kernelExecTimeoutEnabled":
+[1] 1
+
+Slot "integrated":
+[1] 0
+
+Slot "canMapHostMemory":
+[1] 1
+
+Slot "computeMode":
+[1] 0
+
+Slot "maxTexture1D":
+[1] 8192
+
+Slot "maxTexture1DMipmap":
+[1] 8192
+
+Slot "maxTexture1DLinear":
+[1] 134217728
+
+Slot "maxTexture2D":
+[1] 65536 32768
+
+Slot "maxTexture2DMipmap":
+[1] 8192 8192
+
+Slot "maxTexture2DLinear":
+[1]   65000   65000 1048544
+
+Slot "maxTexture2DGather":
+[1] 0 0
+
+Slot "maxTexture3D":
+[1] 2048 2048 2048
+
+Slot "maxTextureCubemap":
+[1] 8192
+
+Slot "maxTexture1DLayered":
+[1] 8192  512
+
+Slot "maxTexture2DLayered":
+[1] 8192 8192  512
+
+Slot "maxTextureCubemapLayered":
+[1] 0 0
+
+Slot "maxSurface1D":
+[1] 4096
+
+Slot "maxSurface2D":
+[1]  4096 65536
+
+Slot "maxSurface3D":
+[1] 0 0 0
+
+Slot "maxSurface1DLayered":
+[1] 0 0
+
+Slot "maxSurface2DLayered":
+[1] 0 0 0
+
+Slot "maxSurfaceCubemap":
+[1] 0
+
+Slot "maxSurfaceCubemapLayered":
+[1] 0 0
+
+Slot "surfaceAlignment":
+[1] 256
+
+Slot "concurrentKernels":
+[1] 0
+
+Slot "ECCEnabled":
+[1] 0
+
+Slot "pciBusID":
+[1] 1
+
+Slot "pciDeviceID":
+[1] 0
+
+Slot "pciDomainID":
+[1] 0
+
+Slot "tccDriver":
+[1] 0
+
+Slot "asyncEngineCount":
+[1] 1
+
+Slot "unifiedAddressing":
+[1] 0
+
+Slot "memoryClockRate":
+[1] 790000
+
+Slot "memoryBusWidth":
+[1] 128
+
+Slot "l2CacheSize":
+[1] 0
+
+Slot "maxThreadsPerMultiProcessor":
+[1] 1024
+]]></r:output>
+</r:code>
+</para>
+
+<para>
+Currently, we don't have bindings for setting aspects of the device and so on.
+We will programmatically generate them soon.
+</para>
+</section>
+
+<section>
+<title>Memory on the GPU</title>
 <para>
 We can explicitly allocate memory on the GPU with <r:func>cudaMalloc</r:func>
 (or its alias <r:func>cudaAlloc</r:func>).
@@ -63,9 +253,68 @@ x.cu[] = rnorm(1e5L)
 We currently don't support assigning to specific subsets or individual
 elements, but we can. Speed is a concern for these situations.
 </para>
-
-
 </section>
+
+
+<section>
+<title>Modules</title>
+
+<para>
+To use a GPU to do some computation, you will need a kernel.  In the
+near future, we expect to be able to compile <r/> code directly
+(i.e. within <r/> and only relying on the LLVM C++ API) to a form that
+can run on a Nvidia GPU. However, in the meantime, you have to write a
+kernel in C code and compile it to a form that we can then read into
+memory and use.  You compile the code with <sh:exec>nvcc</sh:exec> to
+generate either a PTX, a cubin or a fatbin file. The latter two are
+binary versions, while the PTX is somewhat portable and is a text
+file.  There are some make rules for creating these files in
+inst/sampleKernels along with some simple sample kernels.
+</para>
+<para>
+We load one of these files into memory, like a DLL/DSO,
+with <r:func>loadModule</r:func>.
+This returns an opaque <r:class>CUmodule</r:class> object.
+We can think of this as a container, but we have to know the
+names of the elements. We can access a kernel function/routine
+in the module with the <r:op>$</r:op> or <r:op>[[</r:op> operators in <r/>,
+e.g. 
+<r:code>
+m = loadModule(system.file("sampleKernels", "dnorm.ptx", package = "RCUDA"))
+f = m$dnorm_kernel
+</r:code>
+(Note that we named the kernel routine <c:routine>dnorm_kernel</c:routine> when
+writing the <c/> code and also made certain the name
+wasn't mangled by declaring it with <c:expr>extern "C"</c:expr>.)
+</para>
+</section>
+<section>
+<title>Calling a Kernel</title>
+<para>
+Once we have the <r:class>CUfunction</r:class> object from a module,
+we can invoke it on a GPU via the <r:func>.cuda</r:func> function.
+This takes the kernel to be invoked, zero or more arguments to be
+passed in each call to the kernel, a vector specifying the dimensions
+of the grid and another for the blocks.  The arguments can be <r/>
+scalars or pointers to memory allocated on the GPU.
+To compute the Normal density of each point in an <r/> vector
+<r:code>
+library(RCUDA)
+m = loadModule("inst/sampleKernels/dnorm.ptx")
+k = m$dnorm_kernel
+
+N = 1e6L
+x = rnorm(N)
+mu = 0
+sigma = 1
+
+cx = copyToDevice(x)
+.cuda(k, cx, N, mu, sigma, gridDim = c(64L, 32L, 1L), blockDim = c(512L))
+ans = cx[]
+</r:code>
+</para>
+</section>
+
 <section>
 <title>Profiling</title>
 

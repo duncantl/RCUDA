@@ -58,7 +58,7 @@ function(status, msg = character(), ...)
 {
  i =  match(status, CUresultValues)
  type = names(CUresultValues)[i]
- e = simpleError(paste(c(msg, "(", type, ")"), collapse = " "), ...)
+ e = simpleError(paste(c(msg, names(status), "(", type, ")"), collapse = " "), ...)
  class(e) = c(type, class(e))
  stop(e)
 }

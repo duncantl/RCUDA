@@ -4,7 +4,7 @@
 	// nvopencc 4.1 built on 2012-09-28
 
 	//-----------------------------------------------------------
-	// Compiling /tmp/tmpxft_0000bbe2_00000000-9_set.cpp3.i (/var/folders/f8/2dd5rdyx1bjbw4jttt0x1hm80000gn/T/ccBI#.xiAwrr)
+	// Compiling /tmp/tmpxft_00012a36_00000000-9_set.cpp3.i (/var/folders/f8/2dd5rdyx1bjbw4jttt0x1hm80000gn/T/ccBI#.x3zOuT)
 	//-----------------------------------------------------------
 
 	//-----------------------------------------------------------
@@ -17,7 +17,7 @@
 	//-----------------------------------------------------------
 
 	.file	1	"<command-line>"
-	.file	2	"/tmp/tmpxft_0000bbe2_00000000-8_set.cudafe2.gpu"
+	.file	2	"/tmp/tmpxft_00012a36_00000000-8_set.cudafe2.gpu"
 	.file	3	"/usr/llvm-gcc-4.2/bin/../lib/gcc/i686-apple-darwin11/4.2.1/include/stddef.h"
 	.file	4	"/usr/local/cuda/bin/../include/crt/device_runtime.h"
 	.file	5	"/usr/local/cuda/bin/../include/host_defines.h"
@@ -53,9 +53,40 @@
 		.param .u32 __cudaparm_setValue_kernel_vals,
 		.param .s32 __cudaparm_setValue_kernel_N)
 	{
+	.reg .u16 %rh<7>;
+	.reg .u32 %r<20>;
+	.reg .pred %p<3>;
 	.loc	14	2	0
 $LDWbegin_setValue_kernel:
-	.loc	14	8	0
+	mov.u16 	%rh1, %nctaid.x;
+	mov.u16 	%rh2, %ctaid.y;
+	mul.wide.u16 	%r1, %rh1, %rh2;
+	mov.u16 	%rh3, %ntid.x;
+	mov.u16 	%rh4, %ntid.y;
+	mul.wide.u16 	%r2, %rh4, %rh3;
+	mov.u16 	%rh5, %tid.y;
+	mul.wide.u16 	%r3, %rh5, %rh3;
+	cvt.u32.u16 	%r4, %ctaid.x;
+	add.u32 	%r5, %r4, %r1;
+	cvt.u32.u16 	%r6, %ntid.z;
+	mul.lo.u32 	%r7, %r6, %r2;
+	cvt.u32.u16 	%r8, %tid.z;
+	mul.lo.u32 	%r9, %r8, %r2;
+	mul.lo.s32 	%r10, %r5, %r7;
+	add.u32 	%r11, %r3, %r9;
+	cvt.u32.u16 	%r12, %tid.x;
+	add.u32 	%r13, %r12, %r11;
+	add.s32 	%r14, %r10, %r13;
+	ld.param.s32 	%r15, [__cudaparm_setValue_kernel_N];
+	setp.le.s32 	%p1, %r15, %r14;
+	@%p1 bra 	$Lt_0_1026;
+	.loc	14	17	0
+	ld.param.u32 	%r16, [__cudaparm_setValue_kernel_vals];
+	mul.lo.u32 	%r17, %r14, 4;
+	add.u32 	%r18, %r16, %r17;
+	st.global.s32 	[%r18+0], %r14;
+$Lt_0_1026:
+	.loc	14	19	0
 	exit;
 $LDWend_setValue_kernel:
 	} // setValue_kernel

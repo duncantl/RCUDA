@@ -4,7 +4,7 @@
 	// nvopencc 4.1 built on 2012-09-28
 
 	//-----------------------------------------------------------
-	// Compiling /tmp/tmpxft_00011ecb_00000000-9_dnorm.cpp3.i (/var/folders/f8/2dd5rdyx1bjbw4jttt0x1hm80000gn/T/ccBI#.MpHlUN)
+	// Compiling /tmp/tmpxft_00012a57_00000000-9_dnorm.cpp3.i (/var/folders/f8/2dd5rdyx1bjbw4jttt0x1hm80000gn/T/ccBI#.wNbdKY)
 	//-----------------------------------------------------------
 
 	//-----------------------------------------------------------
@@ -17,7 +17,7 @@
 	//-----------------------------------------------------------
 
 	.file	1	"<command-line>"
-	.file	2	"/tmp/tmpxft_00011ecb_00000000-8_dnorm.cudafe2.gpu"
+	.file	2	"/tmp/tmpxft_00012a57_00000000-8_dnorm.cudafe2.gpu"
 	.file	3	"/usr/llvm-gcc-4.2/bin/../lib/gcc/i686-apple-darwin11/4.2.1/include/stddef.h"
 	.file	4	"/usr/local/cuda/bin/../include/crt/device_runtime.h"
 	.file	5	"/usr/local/cuda/bin/../include/host_defines.h"
@@ -55,26 +55,40 @@
 		.param .f32 __cudaparm_dnorm_kernel_mu,
 		.param .f32 __cudaparm_dnorm_kernel_sigma)
 	{
-	.reg .u16 %rh<4>;
-	.reg .u32 %r<9>;
+	.reg .u16 %rh<7>;
+	.reg .u32 %r<20>;
 	.reg .f32 %f<36>;
 	.reg .f64 %fd<9>;
 	.reg .pred %p<5>;
 	.loc	14	2	0
 $LDWbegin_dnorm_kernel:
-	mov.u16 	%rh1, %ctaid.x;
-	mov.u16 	%rh2, %ntid.x;
+	mov.u16 	%rh1, %nctaid.x;
+	mov.u16 	%rh2, %ctaid.y;
 	mul.wide.u16 	%r1, %rh1, %rh2;
-	cvt.u32.u16 	%r2, %tid.x;
-	add.u32 	%r3, %r2, %r1;
-	ld.param.s32 	%r4, [__cudaparm_dnorm_kernel_N];
-	setp.le.s32 	%p1, %r4, %r3;
+	mov.u16 	%rh3, %ntid.x;
+	mov.u16 	%rh4, %ntid.y;
+	mul.wide.u16 	%r2, %rh4, %rh3;
+	mov.u16 	%rh5, %tid.y;
+	mul.wide.u16 	%r3, %rh5, %rh3;
+	cvt.u32.u16 	%r4, %ctaid.x;
+	add.u32 	%r5, %r4, %r1;
+	cvt.u32.u16 	%r6, %ntid.z;
+	mul.lo.u32 	%r7, %r6, %r2;
+	cvt.u32.u16 	%r8, %tid.z;
+	mul.lo.u32 	%r9, %r8, %r2;
+	mul.lo.s32 	%r10, %r5, %r7;
+	add.u32 	%r11, %r3, %r9;
+	cvt.u32.u16 	%r12, %tid.x;
+	add.u32 	%r13, %r12, %r11;
+	add.s32 	%r14, %r10, %r13;
+	ld.param.s32 	%r15, [__cudaparm_dnorm_kernel_N];
+	setp.le.s32 	%p1, %r15, %r14;
 	@%p1 bra 	$Lt_0_2562;
-	.loc	14	6	0
-	mul.lo.u32 	%r5, %r3, 4;
-	ld.param.u32 	%r6, [__cudaparm_dnorm_kernel_vals];
-	add.u32 	%r7, %r6, %r5;
-	ld.global.f32 	%f1, [%r7+0];
+	.loc	14	14	0
+	mul.lo.u32 	%r16, %r14, 4;
+	ld.param.u32 	%r17, [__cudaparm_dnorm_kernel_vals];
+	add.u32 	%r18, %r17, %r16;
+	ld.global.f32 	%f1, [%r18+0];
 	ld.param.f32 	%f2, [__cudaparm_dnorm_kernel_mu];
 	sub.f32 	%f3, %f1, %f2;
 	.loc	16	8429	0
@@ -116,15 +130,15 @@ $LDWbegin_dnorm_kernel:
 	selp.f32 	%f32, %f22, %f30, %p3;
 	.loc	16	8429	0
 	ld.param.f32 	%f4, [__cudaparm_dnorm_kernel_sigma];
-	.loc	14	8	0
+	.loc	14	16	0
 	cvt.f64.f32 	%fd5, %f4;
 	mov.f64 	%fd6, 0d40040d9320000000;	// 2.50663
 	mul.f64 	%fd7, %fd5, %fd6;
 	cvt.rn.f32.f64 	%f33, %fd7;
 	div.full.f32 	%f34, %f32, %f33;
-	st.global.f32 	[%r7+0], %f34;
+	st.global.f32 	[%r18+0], %f34;
 $Lt_0_2562:
-	.loc	14	10	0
+	.loc	14	18	0
 	exit;
 $LDWend_dnorm_kernel:
 	} // dnorm_kernel

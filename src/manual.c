@@ -1,11 +1,14 @@
 #include "RCUDA.h"
 
+SEXP R_cudaGetLastError();
+
 SEXP
 R_cudaErrorInfo(CUresult val)
 {
     SEXP ans;
     PROTECT(ans = ScalarInteger(val));
     SET_CLASS(ans, mkString("CUresult"));
+    SET_NAMES(ans, R_cudaGetLastError());
     UNPROTECT(1);
     return(ans);
 }
