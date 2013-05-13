@@ -13,7 +13,7 @@ if test -z "$CUDA_INC_DIR" ; then
   CUDA_INC_DIR=${CUDA_DIR}/include
 fi
 if test -z "$CUDA_LIB_DIR" ; then
-  CUDA_LIB_DIR=${CUDA_DIR}/include
+  CUDA_LIB_DIR=${CUDA_DIR}/lib
 fi
 
 export PATH=$CUDA_DIR/bin:$PATH
@@ -37,8 +37,9 @@ AC_TRY_LINK([
 #include <cuda_runtime_api.h>  
 ],
 [
- cudaDriverGetVersion()
- cudaRuntimeGetVersion()
+ int ver;
+ cudaDriverGetVersion(&ver);
+ cudaRuntimeGetVersion(&ver);
 ], echo "linking okay", [echo "cannot link with libcuda" ; exit 1])
 
 
@@ -46,4 +47,9 @@ echo "CUDA_INC_DIR = $CUDA_INC_DIR"
 echo "CUDA_LIB_DIR = $CUDA_LIB_DIR" 
 echo "nvcc = $NVCC_BIN"
 
-AC_OUTPUT(Makevars)
+AC_SUBST(CUDA_INC_DIR)
+AC_SUBST(CUDA_LIB_DIR)
+AC_SUBST(CUDA_DIR)
+AC_SUBST(NVCC_BIN)
+
+AC_OUTPUT(src/Makevars R/nvcc.R)
