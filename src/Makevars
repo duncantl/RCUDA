@@ -1,11 +1,13 @@
 #RCUDA.so: device.o
-NVCC=nvcc
+NVCC=/usr/local/cuda/bin/nvcc
 CUDA_DIR=/usr/local/cuda
 CUDA_INC=$(CUDA_DIR)/include
-PKG_CPPFLAGS=-I$(CUDA_INC) -DDEBUG_R_FINALIZERS
+PKG_CPPFLAGS=-I$(CUDA_INC) -DUSE_S4_ENUMS=1
 PKG_LIBS=-L$(CUDA_DIR)/lib -lcuda -lcudart
 
 %.o: %.cu
-	$(NVCC) -c $< $(CUDA_INC) -I$(R_HOME)/include
+	$(NVCC) -c $< -I$(CUDA_INC) -I$(R_HOME)/include
 
-
+#  enumConverters.o
+#RCUDA.so: RConverters.o cudaDeviceProp.o manual.o getDevProps.o createRef.o device.o simpleTest.o
+#	(export CC=$(NVCC) ; $(R_HOME)/bin/R CMD SHLIB -o $@ $^)

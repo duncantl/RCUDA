@@ -1,5 +1,7 @@
 #include "RCUDA.h" 
 
+#if 0
+
 
 #ifdef __cplusplus
 extern "C"
@@ -314,3 +316,6 @@ R_duplicate_cudaMemcpy3DParms (SEXP r_value, SEXP r_copy, SEXP r_alloc)
     r_ans = R_createNativeReference( (void *)  ans ,  "cudaMemcpy3DParmsPtr" , "cudaMemcpy3DParmsPtr" ) ;
     return(r_ans);
 } 
+
+
+#endif

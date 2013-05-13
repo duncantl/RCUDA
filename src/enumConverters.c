@@ -16,7 +16,7 @@
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("CUipcMem_flags"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -86,7 +86,7 @@ SEXP R_bitwise_enum_convert_CUctx_flags ( CUctx_flags val)
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("CUstream_flags"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -182,7 +182,7 @@ SEXP R_bitwise_enum_convert_CUarray_format ( CUarray_format val)
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("CUaddress_mode"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -224,7 +224,7 @@ SEXP R_bitwise_enum_convert_CUarray_format ( CUarray_format val)
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("CUfilter_mode"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -494,7 +494,7 @@ SEXP R_bitwise_enum_convert_CUarray_format ( CUarray_format val)
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("CUdevice_attribute"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -545,7 +545,7 @@ SEXP R_bitwise_enum_convert_CUarray_format ( CUarray_format val)
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("CUpointer_attribute"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -605,7 +605,7 @@ SEXP R_bitwise_enum_convert_CUarray_format ( CUarray_format val)
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("CUfunction_attribute"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -653,7 +653,7 @@ SEXP R_bitwise_enum_convert_CUarray_format ( CUarray_format val)
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("CUfunc_cache"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -698,7 +698,7 @@ SEXP R_bitwise_enum_convert_CUarray_format ( CUarray_format val)
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("CUsharedconfig"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -746,7 +746,7 @@ SEXP R_bitwise_enum_convert_CUarray_format ( CUarray_format val)
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("CUmemorytype"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -794,7 +794,7 @@ SEXP R_bitwise_enum_convert_CUarray_format ( CUarray_format val)
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("CUcomputemode"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -863,7 +863,7 @@ SEXP R_bitwise_enum_convert_CUarray_format ( CUarray_format val)
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("CUjit_option"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -923,7 +923,7 @@ SEXP R_bitwise_enum_convert_CUarray_format ( CUarray_format val)
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("CUjit_target"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -965,7 +965,7 @@ SEXP R_bitwise_enum_convert_CUarray_format ( CUarray_format val)
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("CUjit_fallback"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -1032,7 +1032,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("CUgraphicsMapResourceFlags"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -1086,7 +1086,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("CUarray_cubemap_face"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -1137,7 +1137,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("CUlimit"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -1185,7 +1185,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("CUresourcetype"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -1371,7 +1371,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("CUresult"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -1512,7 +1512,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("CUresourceViewFormat"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -1764,7 +1764,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("cudaError_t"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -1806,7 +1806,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("cudaOutputMode_t"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -1866,7 +1866,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("cublasStatus_t"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -1908,7 +1908,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("cublasFillMode_t"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -1950,7 +1950,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("cublasDiagType_t"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -1992,7 +1992,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("cublasSideMode_t"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -2034,7 +2034,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("cublasPointerMode_t"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -2079,7 +2079,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("cublasOperation_t"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -2121,7 +2121,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("cublasAtomicsMode_t"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -2169,7 +2169,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("cudaRoundMode"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -2217,7 +2217,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("cudaChannelFormatKind"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -2259,7 +2259,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("cudaMemoryType"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -2310,7 +2310,7 @@ SEXP R_bitwise_enum_convert_CUgraphicsRegisterFlags ( CUgraphicsRegisterFlags va
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("cudaMemcpyKind"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -2383,7 +2383,7 @@ SEXP R_bitwise_enum_convert_cudaGraphicsRegisterFlags ( enum cudaGraphicsRegiste
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("cudaLimit"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -2428,7 +2428,7 @@ SEXP R_bitwise_enum_convert_cudaGraphicsRegisterFlags ( enum cudaGraphicsRegiste
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("cudaGraphicsMapFlags"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -2476,7 +2476,7 @@ SEXP R_bitwise_enum_convert_cudaGraphicsRegisterFlags ( enum cudaGraphicsRegiste
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("cudaFuncCache"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -2530,7 +2530,7 @@ SEXP R_bitwise_enum_convert_cudaGraphicsRegisterFlags ( enum cudaGraphicsRegiste
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("cudaGraphicsCubeFace"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -2575,7 +2575,7 @@ SEXP R_bitwise_enum_convert_cudaGraphicsRegisterFlags ( enum cudaGraphicsRegiste
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("cudaSurfaceBoundaryMode"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -2620,7 +2620,7 @@ SEXP R_bitwise_enum_convert_cudaGraphicsRegisterFlags ( enum cudaGraphicsRegiste
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("cudaSharedMemConfig"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -2662,7 +2662,7 @@ SEXP R_bitwise_enum_convert_cudaGraphicsRegisterFlags ( enum cudaGraphicsRegiste
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("cudaSurfaceFormatMode"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -2710,7 +2710,7 @@ SEXP R_bitwise_enum_convert_cudaGraphicsRegisterFlags ( enum cudaGraphicsRegiste
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("cudaResourceType"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -2758,7 +2758,7 @@ SEXP R_bitwise_enum_convert_cudaGraphicsRegisterFlags ( enum cudaGraphicsRegiste
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("cudaTextureAddressMode"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -2899,7 +2899,7 @@ SEXP R_bitwise_enum_convert_cudaGraphicsRegisterFlags ( enum cudaGraphicsRegiste
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("cudaResourceViewFormat"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -2941,7 +2941,7 @@ SEXP R_bitwise_enum_convert_cudaGraphicsRegisterFlags ( enum cudaGraphicsRegiste
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("cudaTextureFilterMode"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -2983,7 +2983,7 @@ SEXP R_bitwise_enum_convert_cudaGraphicsRegisterFlags ( enum cudaGraphicsRegiste
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("cudaTextureReadMode"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -3247,7 +3247,7 @@ SEXP R_bitwise_enum_convert_cudaGraphicsRegisterFlags ( enum cudaGraphicsRegiste
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("cudaDeviceAttr"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));
@@ -3295,7 +3295,7 @@ SEXP R_bitwise_enum_convert_cudaGraphicsRegisterFlags ( enum cudaGraphicsRegiste
 
     #if defined(USE_S4_ENUMS)
     
-    SEXP tmp
+    SEXP tmp;
     PROTECT(klass = MAKE_CLASS("cudaComputeMode"));
     PROTECT(ans = NEW(klass));
     PROTECT(tmp = ScalarInteger(val));

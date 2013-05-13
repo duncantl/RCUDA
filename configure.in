@@ -1,0 +1,7 @@
+AC_INIT(src/RCUDA.h)
+
+# find the cuda.h file.
+# Find nvcc
+AC_TRY_COMPILE()
+
+AC_OUTPUT(Makevars)

@@ -1,4 +1,111 @@
+* In RClangSimple
+** clang_getExpansionLocation raises an error
+    e = createRoutineBinding(rr[["clang_getExpansionLocation"]], typeMap = map)
+
+** In if (sameType(m[["target"]], type)) return(m) :
+       the condition has length > 1 and only the first element will be
+       used
+       Run all of them.
+
+** When accessing an R string, try to declare const.char *
+     clang_getFile it actually is so this would work nicely.
+     RGCCTU doesn't get to see this. RCIndex will.
+     Added in getNativeDeclaration method for PointerType.
+
+** generating struct code for CXSourceLocation
+    ArrayType method of getRTypeName().
+    const void * [] for ptr_data field has a bogus (R) type.
+    tripped in exists() for logical(0) in defineStructClass
+    getRTypeName() is return logical(0) for this type. But it also
+    emits a warning "Needs to be fixed".
+    So we just make it a vector of the element type. In this case,
+    raw() is fine.
+    But want to do this more generally, e.g.   complesType foo[2].
+    This should be a list. We should have a validity method for
+    checking the length. So define a new class and put the length
+    there.
+*** Compile the structs to remove the warnings about routines to convert structs to R
+    Needs a good bit of work
+    Avoid recreating and insert the same code for the same data types.
+     !!Problem is that getDataStructures() is returning duplicates
+      ? Is this because we have typedef and struct declarations and
+        ending up with  the same.
+
+*  writing to an array requires a memcpy, not setting the array variable to point to our value.
+
+** Don't generate a copyStruct for CXString
+
+** Problem writing code for CXComment struct
+     r code and in the classDefs.
+     For some reason, the generateStructInterface() return the defn
+     for CXTranslationUnit (a field in the struct) in classDefs.
+     This is a dependency, but it shouldn't be in classDefs.
+     Seem to be generated in defineStructClass().
+
+* remove the new_unsigned_int() call in the R code for a pointer to a unsigned_int. 
+    Make it NULL.
+   If the caller wants to do this, then they can.
+
+* Implement getCharArrayPtr(SEXP) in RConverters.c
+
+* [Done] char ** is charPtr in createTranslationUnitFromSourceFile
+
+    getRemappingsFromFileList
+    Why isn't this an out parameter. It isn't in this case, but could be.
+
+* getOverriddenCursors   & tokenize
+    CXCursor **, CXTokenPtrPtr
+    wrong type being passed 
+
+* [Done] getDefinitionSpellingAndExtent
+     2 pointer args not declared.
+     wrong types
+
+*  void type for local variable 
+    The TU parsing code isn't chasing down the name correctly.
+    in clang_getExpansionLocation()
+    Looks like for the CXFile *file parameter (#2)
+    Also, NA for dereferncing r_arg2 type in getExpansionLocation 
+
+
+    Type in GCCTU description is void **.
+    Should we wait until we have RClangSimple working to read these,
+    i.e. bootstrap itself.
+ 
+
+**    [Working] Also, pointer types to REAL() for unsigned int are wrong.
+      Need to  use a local variable and then insert into the numeric/REAL if
+      it is passed by the caller.  So different strategy in the code
+      for unsigned int.
+      We can just create the ScalarReal() ourselves rather than using
+      the one that was passed to us.
+      Perhaps extra case is that we are given an R object which is an
+      external ptr and we want to use that. In that case, we might
+      want to leave the copy stuff
+
+* Should we reset the length of r_ans to r_ctr when we are finished collecting the out parameters 
+   if there are NAs in r__copy, this will too long.
+
+* undeclared pointer variable acting as a proxy.
+    indexSourceFile
+
+* generate code for all the enum types
+    specifically the C converter code to allow tmp.c to be compiled.
+
+* struct convert for IndexerCallbacks.
+    indexSourceFile()
+
+* ============= 
+
+* Allow user to mark some types as being read-only, not ones we can create from R
+    e.g. CXCursor types, etc. in RCIndex.
+
 * Allow adding hints to indicate what are input and output variables.
+  Can we just add const to inputs that are pointers.
+
+* Allow user to specify opaque data types for which we don't want to generate accessors 
+    CXTranslationUnit in RCIndex is an example of wherethe struct is
+    not visible.
 
 * For unsigned integers mapped to numeric, add a validity method. 
    Define a class and change the R methods that coerce to and from R, etc.
@@ -174,3 +281,12 @@
     see makeCFieldAccessorRoutine
 
 * [Done] remove the extra return(r_obj) that is added, at least, in get_<fieldName>
+
+* [Done] output on console of void * ptr_data [ n ]  (n is  a literal number)
+   related to having a type map.
+   Seems to be for CXFileUniquID struct and other structs.
+   In show.R for StructDefinition method for character.
+
+
+* [Done] CXTranslationUnit not getting dereferenced correctly
+      DEREF_PTR() issue also found in RCUDA.

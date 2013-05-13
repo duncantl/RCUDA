@@ -1,3 +1,5 @@
+* Turn on USE_S4_ENUMS in src/Makevars.in
+
 * Process only the routines and data structures related to the host/CPU
    ignore the ones for use on the device/GPU
    Are all of the routines in the library for the host?
@@ -9,4 +11,6 @@
 * Change the class of the bitwise enum types that are wrong.
    only CUarray_format_enum
 
-* Generate routimes.
+* Generate routines.
+
+

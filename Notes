@@ -1,0 +1,10 @@
+To create a module, we use nvcc --ptx.
+This generates an ASCII file with "assembler" code.
+
+ctx = createContext(0L)
+m = loadModule("inst/sampleKernels/cos.ptx")
+m[["cos_main"]]
+
+Need to avoid name mangling, so use extern "C" for the routine.
+
+
