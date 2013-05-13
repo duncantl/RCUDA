@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<article xmlns:r="http://www.r-project.org"
+         xmlns:xi="http://www.w3.org/2003/XInclude">
+
+<articleinfo>
+
+<title></title>
+
+<author><firstname>Duncan</firstname><surname>Temple Lang</surname>
+  <affiliation><orgname>University of California at Davis</orgname>
+               <orgdiv>Department of Statistics</orgdiv>
+  </affiliation>
+</author>
+</articleinfo>
+
+<section>
+<title></title>
+
+<para>
+The package provides the basics for working with CUDA from within
+<r/>.  Soon we will have complete bindings to all of the routines in the CUDA SDK.
+</para>
+<para>
+The basic concepts are described in the SDK documentation and we
+provide a slightly more <r/>-like interface to them.  We can query the
+available devices on the machine and get their properties.  We can
+load a module containing PTX code (or other compatible formats).  We
+can access the routines in a module and then invoke with the
+<r:func>.cuda</r:func> function in <r/>.
+We can pass scalar values from <r/> in calls to CUDA kernels,
+and we can also pass pointers to memory allocated on the CUDA
+device. We can copy data backwards and forwards between
+the host and device.
+</para>
+<para>
+
+</para>
+
+</section>
+</article>

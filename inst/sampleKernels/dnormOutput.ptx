@@ -1,0 +1,134 @@
+	.version 1.4
+	.target sm_10, map_f64_to_f32
+	// compiled with /usr/local/cuda/bin/../open64/lib//be
+	// nvopencc 4.1 built on 2012-09-28
+
+	//-----------------------------------------------------------
+	// Compiling /tmp/tmpxft_0000de16_00000000-9_dnormOutput.cpp3.i (/var/folders/f8/2dd5rdyx1bjbw4jttt0x1hm80000gn/T/ccBI#.aOrv1J)
+	//-----------------------------------------------------------
+
+	//-----------------------------------------------------------
+	// Options:
+	//-----------------------------------------------------------
+	//  Target:ptx, ISA:sm_10, Endian:little, Pointer Size:32
+	//  -O3	(Optimization level)
+	//  -g0	(Debug level)
+	//  -m2	(Report advisories)
+	//-----------------------------------------------------------
+
+	.file	1	"<command-line>"
+	.file	2	"/tmp/tmpxft_0000de16_00000000-8_dnormOutput.cudafe2.gpu"
+	.file	3	"/usr/llvm-gcc-4.2/bin/../lib/gcc/i686-apple-darwin11/4.2.1/include/stddef.h"
+	.file	4	"/usr/local/cuda/bin/../include/crt/device_runtime.h"
+	.file	5	"/usr/local/cuda/bin/../include/host_defines.h"
+	.file	6	"/usr/local/cuda/bin/../include/builtin_types.h"
+	.file	7	"/usr/local/cuda/bin/../include/device_types.h"
+	.file	8	"/usr/local/cuda/bin/../include/driver_types.h"
+	.file	9	"/usr/local/cuda/bin/../include/surface_types.h"
+	.file	10	"/usr/local/cuda/bin/../include/texture_types.h"
+	.file	11	"/usr/local/cuda/bin/../include/vector_types.h"
+	.file	12	"/usr/local/cuda/bin/../include/device_launch_parameters.h"
+	.file	13	"/usr/local/cuda/bin/../include/crt/storage_class.h"
+	.file	14	"dnormOutput.cu"
+	.file	15	"/usr/local/cuda/bin/../include/common_functions.h"
+	.file	16	"/usr/local/cuda/bin/../include/math_functions.h"
+	.file	17	"/usr/local/cuda/bin/../include/math_constants.h"
+	.file	18	"/usr/local/cuda/bin/../include/device_functions.h"
+	.file	19	"/usr/local/cuda/bin/../include/sm_11_atomic_functions.h"
+	.file	20	"/usr/local/cuda/bin/../include/sm_12_atomic_functions.h"
+	.file	21	"/usr/local/cuda/bin/../include/sm_13_double_functions.h"
+	.file	22	"/usr/local/cuda/bin/../include/sm_20_atomic_functions.h"
+	.file	23	"/usr/local/cuda/bin/../include/sm_35_atomic_functions.h"
+	.file	24	"/usr/local/cuda/bin/../include/sm_20_intrinsics.h"
+	.file	25	"/usr/local/cuda/bin/../include/sm_30_intrinsics.h"
+	.file	26	"/usr/local/cuda/bin/../include/sm_35_intrinsics.h"
+	.file	27	"/usr/local/cuda/bin/../include/surface_functions.h"
+	.file	28	"/usr/local/cuda/bin/../include/texture_fetch_functions.h"
+	.file	29	"/usr/local/cuda/bin/../include/texture_indirect_functions.h"
+	.file	30	"/usr/local/cuda/bin/../include/surface_indirect_functions.h"
+	.file	31	"/usr/local/cuda/bin/../include/math_functions_dbl_ptx1.h"
+
+
+	.entry dnorm_kernel (
+		.param .u32 __cudaparm_dnorm_kernel_vals,
+		.param .s32 __cudaparm_dnorm_kernel_N,
+		.param .f32 __cudaparm_dnorm_kernel_mu,
+		.param .f32 __cudaparm_dnorm_kernel_sigma,
+		.param .u32 __cudaparm_dnorm_kernel_out)
+	{
+	.reg .u16 %rh<4>;
+	.reg .u32 %r<11>;
+	.reg .f32 %f<36>;
+	.reg .f64 %fd<9>;
+	.reg .pred %p<5>;
+	.loc	14	2	0
+$LDWbegin_dnorm_kernel:
+	mov.u16 	%rh1, %ctaid.x;
+	mov.u16 	%rh2, %ntid.x;
+	mul.wide.u16 	%r1, %rh1, %rh2;
+	cvt.u32.u16 	%r2, %tid.x;
+	add.u32 	%r3, %r2, %r1;
+	ld.param.s32 	%r4, [__cudaparm_dnorm_kernel_N];
+	setp.le.s32 	%p1, %r4, %r3;
+	@%p1 bra 	$Lt_0_2562;
+	.loc	14	6	0
+	mul.lo.u32 	%r5, %r3, 4;
+	ld.param.u32 	%r6, [__cudaparm_dnorm_kernel_vals];
+	add.u32 	%r7, %r6, %r5;
+	ld.global.f32 	%f1, [%r7+0];
+	ld.param.f32 	%f2, [__cudaparm_dnorm_kernel_mu];
+	sub.f32 	%f3, %f1, %f2;
+	.loc	16	8429	0
+	ld.param.f32 	%f4, [__cudaparm_dnorm_kernel_sigma];
+	div.full.f32 	%f5, %f3, %f4;
+	cvt.f64.f32 	%fd1, %f5;
+	mov.f64 	%fd2, 0dbfe0000000000000;	// -0.5
+	mul.f64 	%fd3, %fd1, %fd2;
+	mul.f64 	%fd4, %fd1, %fd3;
+	cvt.rn.f32.f64 	%f6, %fd4;
+	mov.f32 	%f7, 0f3fb8aa3b;     	// 1.4427
+	mul.f32 	%f8, %f6, %f7;
+	cvt.rzi.f32.f32 	%f9, %f8;
+	mov.f32 	%f10, %f9;
+	mov.f32 	%f11, 0fbf317200;    	// -0.693146
+	mov.f32 	%f12, %f11;
+	mov.f32 	%f13, %f6;
+	mad.f32 %f14, %f10, %f12, %f13;
+	mov.f32 	%f15, %f14;
+	mov.f32 	%f16, %f9;
+	mov.f32 	%f17, 0fb5bfbe8e;    	// -1.42861e-06
+	mov.f32 	%f18, %f17;
+	mov.f32 	%f19, %f15;
+	mad.f32 %f20, %f16, %f18, %f19;
+	mov.f32 	%f21, %f20;
+	.loc	16	8781	0
+	mov.f32 	%f22, 0f7f800000;    	// ((1.0F)/(0.0F))
+	mov.f32 	%f23, 0f00000000;    	// 0
+	ex2.approx.f32 	%f24, %f9;
+	mov.f32 	%f25, 0f3fb8aa3b;    	// 1.4427
+	mul.f32 	%f26, %f21, %f25;
+	ex2.approx.f32 	%f27, %f26;
+	mul.f32 	%f28, %f24, %f27;
+	mov.f32 	%f29, 0fc2d20000;    	// -105
+	setp.lt.f32 	%p2, %f6, %f29;
+	selp.f32 	%f30, %f23, %f28, %p2;
+	mov.f32 	%f31, 0f42d20000;    	// 105
+	setp.gt.f32 	%p3, %f6, %f31;
+	selp.f32 	%f32, %f22, %f30, %p3;
+	.loc	16	8429	0
+	ld.param.f32 	%f4, [__cudaparm_dnorm_kernel_sigma];
+	.loc	14	8	0
+	cvt.f64.f32 	%fd5, %f4;
+	mov.f64 	%fd6, 0d40040d9320000000;	// 2.50663
+	mul.f64 	%fd7, %fd5, %fd6;
+	cvt.rn.f32.f64 	%f33, %fd7;
+	div.full.f32 	%f34, %f32, %f33;
+	ld.param.u32 	%r8, [__cudaparm_dnorm_kernel_out];
+	add.u32 	%r9, %r8, %r5;
+	st.global.f32 	[%r9+0], %f34;
+$Lt_0_2562:
+	.loc	14	10	0
+	exit;
+$LDWend_dnorm_kernel:
+	} // dnorm_kernel
+

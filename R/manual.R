@@ -84,7 +84,7 @@ function(fun, ..., gridDim, blockDim, sharedMemBytes = 0L, stream = NULL, inplac
 
 
 
-cudaMalloc =
+cudaAlloc = cudaMalloc =
 function(numEls, sizeof = 4L)
 {
   .Call("R_cudaMalloc", as.integer(numEls * sizeof))
@@ -128,13 +128,13 @@ function(obj, to = cudaMalloc(length(obj), switch(typeof(obj), logical=, integer
 copyFromDevice =
 function(obj, nels, type)
 {
-  ans =
-    if(type == "integer")
-      .Call("R_getCudaIntVector", obj, nels)
-    else if(type == "logical")
-      .Call("R_getCudaIntVector", obj, nels)
-    else if(type == "float" || type == "numeric")
-      .Call("R_getCudaFloatVector", obj, nels)
+  nels = as.integer(nels)
+  ans = if(type == "integer")
+          .Call("R_getCudaIntVector", obj, nels)
+        else if(type == "logical")
+          .Call("R_getCudaIntVector", obj, nels)
+        else if(type == "float" || type == "numeric")
+          .Call("R_getCudaFloatVector", obj, nels)
 
   if(is(ans, "CUresult"))
       raiseError(ans, "copying data on device")

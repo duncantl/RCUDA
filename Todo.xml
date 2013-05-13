@@ -1,0 +1,27 @@
+<?xml-stylesheet type="text/xsl" href="XSL/Todo.xsl" ?> 
+<topics
+	 xmlns:r="http://www.r-project.org"
+	 xmlns:omg="http://www.omegahat.org">
+
+<topic>
+<title>
+</title>
+<items>
+<item>
+Generate bindings via TU and Clang
+</item>
+
+<item>
+Class information on the cudaAlloc() returns so that
+we know how to retrieve the result later.
+Put length information on it also.
+Make them RC++Reference and not just external pointers.
+</item>
+
+
+<item>
+Use structs in PTX code and pass them from R
+</item>
+</items>
+</topic>
+</topics>
