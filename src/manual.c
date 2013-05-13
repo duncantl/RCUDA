@@ -57,18 +57,21 @@ R_cudaMemcpy(SEXP r_src,  SEXP r_ptr)
 }
 
 void *
-convertRObjToGPU(SEXP arg)
+convertRObjToGPU(SEXP arg, float *floatLoc, void **argLoc)
 {
     int ty = TYPEOF(arg);
     if(ty == EXTPTRSXP) {
 fprintf(stderr, "converting external ptr %p\n", R_ExternalPtrAddr(arg));
-	return(R_ExternalPtrAddr(arg));
+        argLoc[0] =  R_ExternalPtrAddr(arg);
+	return(argLoc);
     }
 
     int len = Rf_length(arg), i;
     if(ty == REALSXP) {
-	if(len == 1)
-	    return(REAL(arg));	
+	if(len == 1) {
+	    *floatLoc =  REAL(arg)[0];
+	    return(floatLoc);
+	}
 
 	float *fl = (float *) malloc(len * sizeof(float));
 	float *gpu_fl;
@@ -120,18 +123,26 @@ R_cuLaunchKernel(SEXP r_fun, SEXP r_gridDims, SEXP r_blockDims, SEXP r_args, SEX
     void **args, **args2; //set from r_args
     args = (void **) R_alloc(nargs, sizeof(void*));  
     args2 = (void **) R_alloc(nargs, sizeof(void*)); 
-
+    float *floats = (float *) R_alloc(nargs, sizeof(float)); 
     for(i = 0; i < nargs; i++) {
 	SEXP arg = VECTOR_ELT(r_args, i);
-	args2[i] = convertRObjToGPU(arg);
-	args[i] = args2 + i;
-	fprintf(stderr, "arg %d = %p\n", i, args[i]);
+	/* If we have a scalar, we pass the address of that scalar. For a REAL, we have to put it into a float and use the address of that float */
+	args[i] = convertRObjToGPU(arg, floats + i, args2 + i);
+//	args[i] = args2 + i;
+	fprintf(stderr, "arg %d = %p, %p\n", i, args[i], args2[i]);
     }
 #else
-    void *args[1];
+    void *args[4];
     void *tmp;
+    float fl[2];
     tmp = R_ExternalPtrAddr(VECTOR_ELT(r_args, 0));
     args[0] = &tmp;
+    args[1] = INTEGER(VECTOR_ELT(r_args, 1));
+    fl[0] = REAL(VECTOR_ELT(r_args, 2))[0];
+    args[2] = fl;
+    fl[1] = REAL(VECTOR_ELT(r_args, 3))[0];
+    args[3] = fl + 1;
+
 #endif
 
     fprintf(stderr, "Launching kernel\n");
@@ -188,7 +199,7 @@ R_createContext(SEXP r_flags, SEXP r_dev)
 }
 
 
-
+#if 0
 SEXP
 R_test(SEXP r_func)
 {
@@ -199,6 +210,7 @@ R_test(SEXP r_func)
 //    cuLaunchKernel(fun, )
     return(R_NilValue);
 }
+#endif
 
 
 void
@@ -312,6 +324,31 @@ R_getCudaIntVector(SEXP r_ptr, SEXP r_len)
     CUresult status = cudaMemcpy(INTEGER(ans), ptr, len * sizeof(int), cudaMemcpyDeviceToHost);
     if(status) 
 	return(R_cudaErrorInfo(status));
+
+    return(ans);
+}
+
+
+SEXP
+R_getCudaFloatVector(SEXP r_ptr, SEXP r_len)
+{
+    int len = INTEGER(r_len)[0];
+    SEXP ans;
+    void *ptr = getRReference(r_ptr);
+    fprintf(stderr, "memory = %p\n", ptr);
+
+    float *fl = (float *) R_alloc(len, sizeof(float));
+    if(!fl) {
+	PROBLEM "..." ERROR;
+    }
+
+    CUresult status = cudaMemcpy(fl, ptr, len * sizeof(int), cudaMemcpyDeviceToHost);
+    if(status) 
+	return(R_cudaErrorInfo(status));
+
+    ans = NEW_NUMERIC(len);
+    for(int i = 0; i < len; i++)
+	REAL(ans)[i] = fl[i];
 
     return(ans);
 }
