@@ -13,14 +13,17 @@ getRReference(SEXP val)
 
 
 SEXP
-R_createReference(const void *ptr, const char * const className, const char * tag)
+R_createReference(const void *ptr, const char * const className, const char * tag, R_CFinalizer_t finalizer)
 {
-    SEXP ans, klass;
+    SEXP ans, klass, tmp;
     PROTECT(klass = MAKE_CLASS(className));
     PROTECT(ans = NEW_OBJECT(klass));
     if(!tag)
         tag = className;
-    SET_SLOT(ans, Rf_install("ref"), R_MakeExternalPtr((void*)ptr, Rf_install(tag), R_NilValue));
+    SET_SLOT(ans, Rf_install("ref"), tmp = R_MakeExternalPtr((void*)ptr, Rf_install(tag), R_NilValue));
+    if(finalizer)
+       R_RegisterCFinalizer(tmp, finalizer);
+
     UNPROTECT(2);
     return(ans);
 }

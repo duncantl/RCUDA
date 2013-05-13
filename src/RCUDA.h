@@ -19,9 +19,9 @@
 
 
 void *getRReference(SEXP val);
-SEXP R_createReference(const void *ptr, const char * const className, const char *tagName);
+SEXP R_createReference(const void *ptr, const char * const className, const char * tag, R_CFinalizer_t finalizer);
 
-#define R_createRef(val, type)  R_createReference(val, type, type)
+#define R_createRef(val, type)  R_createReference(val, type, type, NULL)
 
 #define GET_REF(val, type) \
     (type) (getRReference(val))

@@ -32,8 +32,36 @@ and we can also pass pointers to memory allocated on the CUDA
 device. We can copy data backwards and forwards between
 the host and device.
 </para>
-<para>
 
+
+<para>
+We can explicitly allocate memory on the GPU with <r:func>cudaMalloc</r:func>
+(or its alias <r:func>cudaAlloc</r:func>).
+We can then copy data from <r/> to this space via <r:func>copyToDevice</r:func>.
+We can combine the two steps - allocating and populating -
+with <r:func>copyToDevice</r:func>:
+<r:code>
+x = rnorm(1e5L)
+x.cu = copyToDevice(x)
+</r:code>
+The result is a reference to the GPU memory, along 
+with information about its type and the number of elements.
+This allows <r/> to take care of details for us such as
+retrieving the values with 
+<r:code>
+vals = x.cu[]
+</r:code>
+This copies the contents of the GPU memory back to the host and into an <r/>
+vector.
+We can also assign values from <r/> to the 
+GPU memory, e.g.,
+<r:code>
+x.cu[] = rnorm(1e5L)
+</r:code>
+</para>
+<para>
+We currently don't support assigning to specific subsets or individual
+elements, but we can. Speed is a concern for these situations.
 </para>
 
 </section>

@@ -2,6 +2,48 @@ AC_INIT(src/RCUDA.h)
 
 # find the cuda.h file.
 # Find nvcc
-AC_TRY_COMPILE()
+
+if test -z "$CUDA_DIR" ; then
+  if test -r "/usr/local/cuda" ; then
+     CUDA_DIR=/usr/local/cuda
+  fi
+fi
+
+if test -z "$CUDA_INC_DIR" ; then
+  CUDA_INC_DIR=${CUDA_DIR}/include
+fi
+if test -z "$CUDA_LIB_DIR" ; then
+  CUDA_LIB_DIR=${CUDA_DIR}/include
+fi
+
+export PATH=$CUDA_DIR/bin:$PATH
+AC_PATH_PROGS(NVCC_BIN, nvcc)
+
+
+CPPFLAGS="-I${CUDA_INC_DIR} $CPPFLAGS"
+
+AC_CHECK_HEADER(cuda.h, FOUND_CUDA_H=1)
+
+#AC_TRY_COMPILE([
+##include <cuda.h>
+##include <cuda_runtime_api.h>
+#])
+
+LDFLAGS="-L${CUDA_LIB_DIR} ${LDFLAGS}"
+LIBS="-lcuda -lcudart ${LIBS}"
+
+AC_TRY_LINK([
+#include <cuda.h>  
+#include <cuda_runtime_api.h>  
+],
+[
+ cudaDriverGetVersion()
+ cudaRuntimeGetVersion()
+], echo "linking okay", [echo "cannot link with libcuda" ; exit 1])
+
+
+echo "CUDA_INC_DIR = $CUDA_INC_DIR" 
+echo "CUDA_LIB_DIR = $CUDA_LIB_DIR" 
+echo "nvcc = $NVCC_BIN"
 
 AC_OUTPUT(Makevars)

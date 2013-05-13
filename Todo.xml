@@ -8,6 +8,14 @@
 </title>
 <items>
 <item>
+Configure script.
+</item>
+
+<item>
+Find out what the problem is with cubin files and not being able to load them.
+</item>
+
+<item>
 Generate bindings via TU and Clang
 </item>
 
@@ -18,6 +26,13 @@ Put length information on it also.
 Make them RC++Reference and not just external pointers.
 </item>
 
+<item>
+Subsetting and assigning to parts of a cudaPtrWithLength.
+</item>
+
+<item>
+streams.
+</item>
 
 <item>
 Use structs in PTX code and pass them from R

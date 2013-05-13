@@ -56,10 +56,22 @@ R_cudaMemcpy(SEXP r_src,  SEXP r_ptr)
     return(ans);
 }
 
+int
+isRCReference(SEXP obj)
+{
+    return(IS_S4_OBJECT(obj)); //XXX check the class
+}
+
 void *
 convertRObjToGPU(SEXP arg, float *floatLoc, void **argLoc)
 {
+
+    if(isRCReference(arg)) {
+	arg = GET_SLOT(arg, Rf_install("ref"));
+    }
+
     int ty = TYPEOF(arg);
+
     if(ty == EXTPTRSXP) {
         argLoc[0] =  R_ExternalPtrAddr(arg);
 	return(argLoc);
@@ -227,10 +239,7 @@ R_cudaMalloc(SEXP r_numBytes)
     if(status) {
 	return(ScalarInteger(status));
     }
-    SEXP ans  = R_MakeExternalPtr( ptr, Rf_install("cudaPtr"), R_NilValue);
-//Finalizer
-    R_RegisterCFinalizer(ans, R_cudaFree);
-    return(ans);
+    return(R_createReference(ptr, "cudaPtr", "cudaPtr", R_cudaFree));
 }
 
 
@@ -278,6 +287,17 @@ R_cuCtxGetCurrent()
   return(R_createRef(ctx, "CUcontext"));  
 }
 
+SEXP
+R_cuGetVersion()
+{
+  SEXP ans = NEW_INTEGER(2);
+  int version;
+  CUresult status = cudaDriverGetVersion(&version);
+  INTEGER(ans)[0] = version;
+  status = cudaRuntimeGetVersion(&version);
+  INTEGER(ans)[1] = version;
+  return(ans);
+}
 
 SEXP
 R_cuDriverGetVersion()
@@ -352,3 +372,11 @@ R_getCudaFloatVector(SEXP r_ptr, SEXP r_len)
 
 
 
+
+SEXP
+R_cudaGetLastError()
+{
+    cudaError_t err = cudaGetLastError();
+    const char *str = cudaGetErrorString(err);
+    return(mkString(str ? str : ""));
+}

@@ -1,5 +1,5 @@
 library(RCUDA)
-m = loadModule("inst/sampleKernels/dnormOutput.ptx")
+m = loadModule("inst/sampleKernels/dnormOutput.cubin")
 k = m$dnorm_kernel
 
 N = 1e6L
