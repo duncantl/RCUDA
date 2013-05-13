@@ -7,19 +7,37 @@
 <title>
 </title>
 <items>
-<item>
+<item status="test">
 Configure script.
 </item>
 
-<item>
+<item status="done">
 Find out what the problem is with cubin files and not being able to load them.
+<br/>
+Need to get the nvcc flags to generate code for the correct device.
 </item>
 
 <item>
 Generate bindings via TU and Clang
+<br/>
+Ignore the deprecated ones. How can we tell in clang.
 </item>
 
 <item>
+Functions to manipulate module.
+Anyway  to find names in a module?
+In a C++ API - http://adsm.googlecode.com/svn/trunk/libgmac/src/api/cudadrv/Module.h.
+</item>
+
+<item>
+Write function for reading profiler in key=value  form.
+</item>
+
+<item status="done">
+Profiler
+</item>
+
+<item status="check">
 Class information on the cudaAlloc() returns so that
 we know how to retrieve the result later.
 Put length information on it also.

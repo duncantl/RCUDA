@@ -4,7 +4,7 @@
 	// nvopencc 4.1 built on 2012-09-28
 
 	//-----------------------------------------------------------
-	// Compiling /tmp/tmpxft_0000b894_00000000-9_dnorm.cpp3.i (/var/folders/f8/2dd5rdyx1bjbw4jttt0x1hm80000gn/T/ccBI#.7tGukt)
+	// Compiling /tmp/tmpxft_00011ecb_00000000-9_dnorm.cpp3.i (/var/folders/f8/2dd5rdyx1bjbw4jttt0x1hm80000gn/T/ccBI#.MpHlUN)
 	//-----------------------------------------------------------
 
 	//-----------------------------------------------------------
@@ -17,7 +17,7 @@
 	//-----------------------------------------------------------
 
 	.file	1	"<command-line>"
-	.file	2	"/tmp/tmpxft_0000b894_00000000-8_dnorm.cudafe2.gpu"
+	.file	2	"/tmp/tmpxft_00011ecb_00000000-8_dnorm.cudafe2.gpu"
 	.file	3	"/usr/llvm-gcc-4.2/bin/../lib/gcc/i686-apple-darwin11/4.2.1/include/stddef.h"
 	.file	4	"/usr/local/cuda/bin/../include/crt/device_runtime.h"
 	.file	5	"/usr/local/cuda/bin/../include/host_defines.h"

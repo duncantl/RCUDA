@@ -380,3 +380,28 @@ R_cudaGetLastError()
     const char *str = cudaGetErrorString(err);
     return(mkString(str ? str : ""));
 }
+
+#include <cudaProfiler.h>
+
+SEXP
+R_cudaProfilerToggle(SEXP r_start)
+{
+    CUresult status;
+
+    status =  LOGICAL(r_start)[0] ? cuProfilerStart() : cuProfilerStop();
+    if(status) 
+	return(R_cudaErrorInfo(status));
+
+    return(ScalarInteger(status));
+}
+
+SEXP
+R_cudaProfilerInitialize(SEXP r_config, SEXP r_file, SEXP r_fmt)
+{
+    const char *config = Rf_length(r_config) ? CHAR(STRING_ELT(r_config, 0)) : NULL;
+    CUresult status = cuProfilerInitialize(config, CHAR(STRING_ELT(r_file, 0)), INTEGER(r_fmt)[0]);
+    if(status) 
+	return(R_cudaErrorInfo(status));
+
+    return(ScalarInteger(status));
+}

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <article xmlns:r="http://www.r-project.org"
-         xmlns:xi="http://www.w3.org/2003/XInclude">
+	 xmlns:xi="http://www.w3.org/2003/XInclude">
 
 <articleinfo>
 
@@ -63,6 +63,54 @@ x.cu[] = rnorm(1e5L)
 We currently don't support assigning to specific subsets or individual
 elements, but we can. Speed is a concern for these situations.
 </para>
+
+
+</section>
+<section>
+<title>Profiling</title>
+
+<para>
+We can use the CUDA profiling tools to gather information about what
+parts of our code take how much time.  We can do this atomically on an
+entire task (or sequence of expressions) or we can interleave calls to
+start and stop the profiler to monitor or ignore parts of our
+computations.  The <r:func>profileCUDA</r:func> function is the atomic
+version. We give it the R expression we want to evaluate, presumably
+involving some interaction with CUDA, and any other information and it
+initializes and starts the profiler, runs the code, stops the profiler
+and collects the results for us as a data frame.
+<r:code>
+<xi:include href="../../tests/profiler.R" parse="text"/>
+</r:code>
+</para>
+<para>
+We can specify a configuration file for the profiler,
+either directly via the <r:arg>config</r:arg> argument or 
+indirectly by setting the <r/> option <r:opt>CUDAProfilerConfig</r:opt>.
+This 
+<xi:include href="../../tests/prof.conf" parse="text"/>
+</para>
+
+<para>
+We can also perform the steps listed above in separate 
+<r/> calls.
+<r:func>cudaProfiler</r:func> initializes
+the profiler and we can specify the output file,
+a configuration file and the desired format of 
+the output - either CSV or key=value pairs.
+Then we use <r:func>cudaStartProfiler</r:func>
+and <r:func>cudaStopProfiler</r:func> to toggle the profiler's activities.
+<r:code eval="false">
+fname = cudaProfiler()
+cudaStartProfiler()
+ ....
+cudaStopProfiler()
+</r:code>
+We can restart the profiler later 
+and the turn it off again.
+
+</para>
+
 
 </section>
 </article>

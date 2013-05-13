@@ -6,13 +6,11 @@ N = 1e6L
 x = rnorm(N)
 
 mem = copyToDevice(x)
-i = copyFromDevice(mem, N, "numeric")
-head(i)
+if(FALSE) {
+  i = copyFromDevice(mem, N, "numeric")
+  head(i)
+}
 
-mu = 0.3
-sigma = 1.5
-
-ans = .cuda(k, mem, N, mu, sigma, inplace = TRUE, gridDim = c(32L, 2L, 1L), blockDim = c(32L, 1L, 1L))
 
 i = copyFromDevice(mem, N, "numeric")
 head(i)
