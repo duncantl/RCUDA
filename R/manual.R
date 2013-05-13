@@ -115,7 +115,7 @@ function(create = FALSE)
 
 
 copyToDevice =
-function(obj, to = cudaMalloc(length(obj), switch(typeof(obj), logical=, integer= 4L, numeric = 8L, stop("don't know size of elements"))))
+function(obj, to = cudaMalloc(length(obj), switch(typeof(obj), logical=, integer= 4L, double=, numeric = 8L, stop("don't know size of elements"))))
 {
   ans = .Call("R_cudaMemcpy", obj, to)
   if(is(ans, "CUresult"))
@@ -133,7 +133,7 @@ function(obj, nels, type)
       .Call("R_getCudaIntVector", obj, nels)
     else if(type == "logical")
       .Call("R_getCudaIntVector", obj, nels)
-    else if(type == "float")
+    else if(type == "float" || type == "numeric")
       .Call("R_getCudaFloatVector", obj, nels)
 
   if(is(ans, "CUresult"))

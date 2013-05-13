@@ -18,7 +18,7 @@ i = copyFromDevice(mem, N, "integer")
 head(i)
 
 #copyToDevice(numeric(N), mem)
-ans = .cuda(k, mem, inplace = TRUE, gridDim = c(1L, 1L, 1L), blockDim = c(32L, 1L, 1L))
+ans = .cuda(k, mem, inplace = TRUE, gridDim = c(32L, 2L, 1L), blockDim = c(32L, 1L, 1L))
 
 i = copyFromDevice(mem, N, "integer")
 head(i)
