@@ -5,4 +5,6 @@ prof.out
 TU/.*\.tu
 \.cubin
 \.fatbin
+autom4te\.cache
+checkSDKVersion$
 

@@ -43,6 +43,14 @@ AC_TRY_LINK([
 ], echo "linking okay", [echo "cannot link with libcuda" ; exit 1])
 
 
+$CC -o checkSDKVersion checkSDKVersion.c $CPPFLAGS $LDFLAGS $LIBS
+./checkSDKVersion
+if ! test $? = 0 ; then
+  echo "You appear to have an older CUDA SDK. We require CUDA SDK 5.0 or higher"
+  exit 2;
+fi
+
+
 echo "CUDA_INC_DIR = $CUDA_INC_DIR" 
 echo "CUDA_LIB_DIR = $CUDA_LIB_DIR" 
 echo "nvcc = $NVCC_BIN"
