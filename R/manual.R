@@ -220,3 +220,17 @@ function()
   .Call("R_cudaGetLastError")
 
 
+
+
+cudaMemInfo =
+function()
+{
+  ans = .Call("R_cuMemGetInfo")
+  if(is.integer(ans))
+     raiseError(ans, "failed to get current CUDA context")
+
+  ans[3] = ans[1]/ans[2]
+  names(ans) = c("free", "total", "% free")
+  ans
+}
+

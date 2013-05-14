@@ -1,6 +1,11 @@
 library(RCUDA)
-m = loadModule("inst/sampleKernels/dnormOutput.cubin")
+#
+# This version doesn't write the result over the inputs.
+# Instead it writes to a separate vector.
+#
+m = loadModule("inst/sampleKernels/dnormOutput.ptx")
 k = m$dnorm_kernel
+
 
 N = 1e6L
 mu = 0.3
@@ -8,9 +13,11 @@ sigma = 1.5
 x = rnorm(N)
 
 cx = copyToDevice(x)
-out = cudaMalloc(N)
-ans = .cuda(k, cx, N, mu, sigma, out, gridDim = c(32L, 2L, 1L), blockDim = c(32L, 1L, 1L))
+out = cudaMalloc(N, elType = "numeric")
+.cuda(k, cx, N, mu, sigma, out, gridDim = c(64L, 32L), blockDim = 512L)
 
+vals = out[]
+# or explicitly
 vals = copyFromDevice(out, N, "float")
 head(vals)
 

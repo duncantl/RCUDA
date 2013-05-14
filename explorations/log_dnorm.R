@@ -22,8 +22,10 @@ cx = copyToDevice(x)
 i = cx[]
 }))
 
- # Yes we can use dnorm( log = TRUE)
+ # Yes we can use dnorm( log = TRUE)!
 r.tm = system.time(replicate(10, log(dnorm(x, mu, sigma))))
+
+cu.tm/r.tm
 
 head(i)
 

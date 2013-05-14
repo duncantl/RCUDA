@@ -8,6 +8,7 @@ Description: This package provides initial bindings to
    We have longer term goals which will allow us to compile (simple) R 
    code into GPU kernels and also compile code that refers to the
    CUDA routines that work on the host. 
+SystemRequirements: CUDA SDK(>= 5.0)
 Maintainer: Duncan Temple Lang <duncan@r-project.org>
 Author: Duncan Temple Lang, Paul Baines
 Imports: RAutoGenRunTime

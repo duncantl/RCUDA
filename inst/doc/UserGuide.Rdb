@@ -315,6 +315,22 @@ ans = cx[]
 </para>
 </section>
 
+
+<section>
+<title>Run-time Info</title>
+
+<para>
+Along with getting information about the devices and their
+characteristics, we can query the amount of free and overall available
+memory.  <r:func>cudaMemInfo</r:func> returns this information, along
+with the percentage free.  One needs to have initialized a context for
+this.  To do this, one can use <r:func>cuGetContext(TRUE)</r:func>.
+The argument <r:true/> causes one to be created if none exists.
+
+</para>
+</section>
+
+
 <section>
 <title>Profiling</title>
 

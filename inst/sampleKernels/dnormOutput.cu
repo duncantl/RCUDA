@@ -1,7 +1,15 @@
 extern "C"
 __global__ void dnorm_kernel(float *vals, int N, float mu, float sigma, float *out)
 {
-	int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+               // Taken from geco.mines.edu/workshop/aug2010/slides/fri/cuda1.pd
+        int myblock = blockIdx.x + blockIdx.y * gridDim.x;
+           /* how big is each block within a grid */
+	int blocksize = blockDim.x * blockDim.y * blockDim.z;
+            /* get thread within a block */
+        int subthread = threadIdx.z*(blockDim.x * blockDim.y) + threadIdx.y*blockDim.x + threadIdx.x;
+
+        int idx = myblock * blocksize + subthread;
 	if(idx < N) {
             float std = (vals[idx] - mu)/sigma;
 	    float e = exp( - 0.5 * std * std);

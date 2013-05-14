@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<link rel="stylesheet" href="http://www.omegahat.org/OmegaTech.css">
+<title>RCUDA</title>
+</head>
+
+<body>
+<h1>RCUDA - Bindings for R to the CUDA API</h1>
+
+<p align="right"><a href="RCUDA_0.1-0.tar.gz">RCUDA_0.1-0.tar.gz source</a></p>
+<p align="right"><a href="https://github.com/duncantl/RCUDA.git">RCUDA
+on github</a></p>
+<p>
+
+This R package is an interface to the CUDA API and libraries. It
+allows R programmers to invoke code on a Nvidia (GP)GPU.
+This gives extensive parallelism on ALUs.
+
+<p/>
+
+This package is similar to Simon Urbanek's <a
+href="http://cran.r-project.org/web/packages/OpenCL/">OpenCL</a>
+package, but specifically targets CUDA and Nvidia.  These packages
+provide the building blocks for people to use the GPUs from within R
+in arbitrary ways. They allow one to write code in R that manipulates
+the GPU.  This is different from packages such as gputools or rgpu
+which provide R functions for particular algorithms which are
+programmed in C and leverage the GPU through that C code.  OpenCL and
+RCUDA aim to make writing that code feasible in R.  This is allows us
+to use higher-level programming languages and also makes it much
+easier to experiment with GPUs.
+
+<h2>Plans</h2>
+<p>
+In the near future, we will complete the bindings by
+programmatically generating the R and C code for each of the routines.
+(The enums are already present, along with some of the structs, etc.)
+
+<p> Also in the near future, we will connect the <a
+href="../Rllvm">Rllvm</a> and <a
+href="../RLLVMCompile">RLLVMCompile</a> packages with this so that we
+can directly compile R functions to act as kernels on the GPU.
+This will both make it easier to write kernels and remove
+the need for nvcc (a reasonably trivial issue).
+
+<h2>Examples</h2>
+<dl>
+  <dt>
+  <li> <a href="explorations/dnorm.R">normal density</a>
+  <dd> This avoids excess memory by writing the results into the same
+      vector as the inputs.
+
+  <dt>
+  <li> <a href="explorations/dnormOutput.R">normal density</a>
+  <dd> This uses a separate input and output vector.
+
+  <dt>
+  <li> <a href="explorations/grid.R">grid.R</a>
+  <dd> Exploring using different geometries or dimensions for the grid
+     and blocks.
+      
+  <dt>
+  <li> <a href="UserGuide.Rdb">brief user's guide</a> in development.
+  <dd>
+</dl>
+
+<hr>
+<address><a href="http://www.stat.ucdavis.edu/~duncan">Duncan Temple Lang</a>
+<a href=mailto:dtemplelang@ucdavis.edu>&lt;dtemplelang@ucdavis.edu&gt;</a></address>
+<!-- hhmts start -->
+Last modified: Mon May 13 22:22:27 PDT 2013
+<!-- hhmts end -->
+</body> </html>

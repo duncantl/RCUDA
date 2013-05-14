@@ -408,3 +408,20 @@ R_cudaProfilerInitialize(SEXP r_config, SEXP r_file, SEXP r_fmt)
 
     return(ScalarInteger(status));
 }
+
+
+
+SEXP
+R_cuMemGetInfo()
+{
+    size_t free;  
+    size_t total;  
+    CUresult status = cuMemGetInfo(&free, &total);  
+
+    if(status)
+	return(R_cudaErrorInfo(status));
+    SEXP ans = NEW_NUMERIC(2);
+    REAL(ans)[0] = free;
+    REAL(ans)[1] = total;
+    return(ans);
+}

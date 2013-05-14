@@ -11,13 +11,20 @@ x = rnorm(N)
 mu = 0
 sigma = 1
 
+cx = copyToDevice(x)
+.cuda(k, cx, N, mu, sigma, gridDim = c(64L, 32L), blockDim = 512L)
+i = cx[]
+
 cu.tm = system.time(replicate(10, {
 cx = copyToDevice(x)
-.cuda(k, cx, N, mu, sigma, gridDim = c(64L, 32L, 1L), blockDim = c(512L))
+.cuda(k, cx, N, mu, sigma, gridDim = c(64L, 32L), blockDim = 512L)
 i = cx[]
 }))
 
 r.tm = system.time(replicate(10, dnorm(x, mu, sigma)))
+
+cu.tm/r.tm
+
 
 head(i)
 
