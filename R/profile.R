@@ -22,7 +22,7 @@ function()
 
 cudaProfiler =
 function(file = tempfile(),
-         config = getOption("CUDAProfilerConfig", system.file('prof.conf', package = 'RCUDA')),
+         config = getOption("CUDAProfilerConfig", system.file('prof.config', package = 'RCUDA')),
          format = "csv", start = TRUE)
 {
   if(is.character(format)) {
@@ -67,6 +67,6 @@ function(file, csv = TRUE)
 }
 
 readCUDAProfileKeys =
-function()
-  stop("not implemented yet")
+function(file)
+  stop("can't read ", file, ". reading this format not implemented yet")
 

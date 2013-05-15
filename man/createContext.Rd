@@ -8,7 +8,7 @@
 }
 \usage{
 createContext(flags = 0L, device = 1L)
-cuGetContext(create = FALSE)
+cuGetContext(create = TRUE)
 }
 \arguments{
   \item{flags}{an integer vector specifying the configuration options
@@ -21,8 +21,16 @@ cuGetContext(create = FALSE)
   Both functions return an object of class \code{CUcontext}.
 }
 \references{
+  \url{http://docs.nvidia.com/cuda/cuda-driver-api/index.html#group__CUDA__CTX}
 }
 \author{Duncan Temple Lang}
-\seealso{}
-\examples{}
+\seealso{
+  \code{\link{.cuda}}
+}
+\examples{
+if(getNumDevices() > 0) {
+   ctx = createContext()
+   cuGetContext()
+}
+}
 \keyword{programming}

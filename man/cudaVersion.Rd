@@ -13,11 +13,12 @@ cudaVersion()
   driver and runtime. 
 }
 \references{
+  \url{http://docs.nvidia.com/cuda/cuda-driver-api/index.html#group__CUDA__VERSION}
 }
 \author{
 Duncan Temple Lang
 }
-\seealso{}
+%\seealso{}
 \examples{
 cudaVersion()
 }

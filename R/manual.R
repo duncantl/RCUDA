@@ -122,7 +122,7 @@ function(obj, type = typeof(obj))
 {  
    switch(type,
            logical=, integer= 4L,
-           double=, numeric = 8L,
+           float=, double=, numeric = 8L,
            stop("don't know size of elements"))
 }
 
@@ -155,8 +155,20 @@ function(obj, to = cudaMalloc(length(obj), elType = typeof(obj)))
   to
 }
 
+setGeneric("copyFromDevice",
+            function(obj, nels, type)
+              standardGeneric("copyFromDevice"))
 
-copyFromDevice =
+setMethod("copyFromDevice", "cudaFloatArray",
+            function(obj, nels, type)
+                copyFromDevice(obj@ref, obj@nels, "float"))
+
+setMethod("copyFromDevice", "cudaIntArray",
+            function(obj, nels, type)
+                copyFromDevice(obj@ref, obj@nels, "integer"))
+
+
+setMethod("copyFromDevice", c("ANY"),
 function(obj, nels, type)
 {
   nels = as.integer(nels)
@@ -171,7 +183,7 @@ function(obj, nels, type)
       raiseError(ans, "copying data on device")
 
   ans
-}
+})
 
 # Allow
 #  p = cudaMalloc()
@@ -249,7 +261,7 @@ function(flags = 0L)
 }
 
 cuGetContext =
-function(create = FALSE)
+function(create = TRUE)
 {  
   ans = .Call("R_cuCtxGetCurrent")
   if(is.integer(ans))

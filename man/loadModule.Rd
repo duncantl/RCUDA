@@ -14,7 +14,7 @@
 loadModule(filename, ctx = cuGetContext(TRUE), ...)
 getFunction(module, name) 
 }
-%- maybe also 'usage' for other objects documented here.
+
 \arguments{
   \item{filename}{the name of the file containing the GPU module. This
     can be in PTX, cubin or fatbin format. It is important that the code
@@ -39,13 +39,21 @@ getFunction(module, name)
   this routine.
 }
 \references{
+\url{http://docs.nvidia.com/cuda/cuda-driver-api/index.html#group__CUDA__MODULE}
 }
 \author{Duncan Temple Lang}
 
 \seealso{
 \code{\link{.cuda}}
 }
-%\examples{}
+\examples{
+if(getNumDevices() > 0) {
+  ctx = cuGetContext(TRUE)
+  ptx = system.file("sampleKernels", "dnormOutput.ptx", package = "RCUDA")
+  m = loadModule(ptx)
+  kernel = m$dnorm_kernel
+}
+}
 \keyword{programming}
 \concept{parallel}
 \concept{GPU}

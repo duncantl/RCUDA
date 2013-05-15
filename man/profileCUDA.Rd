@@ -26,7 +26,9 @@
 }
 \usage{
 profileCUDA(expr, file = tempfile(), ...)
-cudaProfiler(file = tempfile(), config = getOption("CUDAProfilerConfig", character()), format = "csv", start = FALSE)
+cudaProfiler(file = tempfile(),
+              config = getOption("CUDAProfilerConfig", system.file('prof.config', package = 'RCUDA')),
+               format = "csv", start = TRUE)
 cudaStartProfiler()
 cudaStopProfiler()
 }
@@ -54,13 +56,32 @@ cudaStopProfiler()
  \code{profileCUDA} returns a data frame.
 }
 \references{
-
+  \url{http://docs.nvidia.com/cuda/profiler-users-guide/index.html}
+  
   A sample configuration file is available at
   \url{https://svn.ece.lsu.edu/svn/gp/cuda/matrix-mult/.cuda-profile-config}
 }
 \author{Duncan Temple Lang}
 
-\seealso{}
+\seealso{\code{\link{.cuda}}}
 \examples{
+if(getNumDevices() > 0) {
+
+ createContext()
+
+ info = profileCUDA( {
+     ptx = system.file("sampleKernels", "dnormOutput.ptx", package = "RCUDA")
+     m = loadModule(ptx)
+     kernel = m$dnorm_kernel
+
+     N = 1e6L
+     x = rnorm(N)
+
+     ans = .cuda(kernel, x, N, .5, 1.5, numeric(N),
+                  gridDim = c(64L, 32L), blockDim = 512L, outputs = "out")
+   })
+
+  info
+}
 }
 \keyword{programming}

@@ -6,6 +6,16 @@
   This function allows us to launch a CUDA kernel
   on a GPU and so run many instances of the call
   in parallel.
+
+  It is similar in spirit to \code{.C} in that it
+  transfers control to outside of the R interpreter
+  and also copies some of the results to memory
+  and then back from memory in case the external code changes
+  them. Unlike \code{.C}, the \code{outputs} parameter
+  allows us to control what arguments are copied back
+  to R so that we can avoid redundant computations.
+  
+  The function \code{.gpu} is another name for \code{.cuda}.
 }
 \usage{
 .cuda(fun, ..., .args = list(...), gridDim, blockDim, sharedMemBytes = 0L, stream = NULL, inplace = FALSE, outputs = logical(), .gc = TRUE, .gpu = 0L)
@@ -70,6 +80,38 @@ Duncan Temple Lang
 \seealso{
  \code{\link{cudaAlloc}},  \code{\link{copyToDevice}}, \code{\link{copyFromDevice}}
 }
-\examples{}
+\examples{
+
+if(getNumDevices() > 0) {
+
+  ptx = system.file("sampleKernels", "dnormOutput.ptx", package = "RCUDA")
+  m = loadModule(ptx)
+  kernel = m$dnorm_kernel
+
+  N = 1e6L
+  x = rnorm(N)
+  mu = .5
+  sigma = 1.1
+
+  ans = .cuda(kernel, x, N, mu, sigma, numeric(N),
+               gridDim = c(64L, 32L), blockDim = 512L, outputs = 5)
+
+  ans = .cuda(kernel, x, N, mu, sigma, out = numeric(N),
+               gridDim = c(64L, 32L), blockDim = 512L, outputs = "out")
+
+  head(ans)
+  dnorm(x[1:5], mu, sigma)
+
+  summary(abs(ans - dnorm(x, mu, sigma)))
+
+
+  # explicitly allocating data on the GPU and passing these as inputs.
+  cx = copyToDevice(x)
+  vals = cudaAlloc(N, elType = "numeric")
+  .cuda(kernel, cx, N, mu, sigma, vals, gridDim = c(64L, 32L), blockDim = 512L)
+
+  max(vals[])
+}
+}
 \keyword{programming}
 \concept{GPU}

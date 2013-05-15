@@ -17,7 +17,7 @@ vals = profileCUDA(
    sigma = 1.5
 
    .cuda(k, mem, N, mu, sigma, gridDim = c(64L, 64L, 1L), blockDim = c(512L, 1L, 1L))
- }, "prof.out", "prof.config")
+ }, "prof.out")
 
 
 

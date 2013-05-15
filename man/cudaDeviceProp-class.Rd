@@ -82,7 +82,8 @@ via calls to functions such as \code{\link{getDeviceProperties}}.
 Class \code{"\linkS4class{CStruct}"}, directly.
 }
 \section{Methods}{
-No methods defined with class "cudaDeviceProp" in the signature.
+  No methods defined with class "cudaDeviceProp" in the signature.
+  For the pointer version, there are methods for accessing and setting fields.
 }
 \references{
 \url{http://developer.download.nvidia.com/compute/cuda/4_1/rel/toolkit/docs/online/structcudaDeviceProp.html}
@@ -95,6 +96,9 @@ Duncan Temple Lang
 \code{\link{getDeviceProperties}}
 }
 \examples{
-showClass("cudaDeviceProp")
+if(getNumDevices() > 0)  {
+  info = getDeviceProperties()
+  info
+}
 }
 \keyword{classes}

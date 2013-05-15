@@ -5,9 +5,16 @@
 \alias{copyToDevice}
 \alias{[,cudaFloatArray,missing,missing-method}
 \alias{[,cudaIntArray,missing,missing-method}
+\alias{[,cudaFloatArray,numeric,missing-method}
+\alias{[,cudaIntArray,numeric,missing-method}
+\alias{[,cudaPtrWithLength,logical,missing-method}
 \alias{[<-,cudaFloatArray,missing,missing-method}
 \alias{[<-,cudaIntArray,missing,missing-method}
 \alias{[<-,cudaPtrWithLength,missing,missing-method}
+
+\alias{copyFromDevice,cudaFloatArray-method}
+\alias{copyFromDevice,cudaIntArray-method}
+\alias{copyFromDevice,ANY-method}
 
 \title{Copy data betwen R and GPU}
 \description{
@@ -42,13 +49,30 @@ cudaMalloc(numEls, sizeof = 4L, elType = NA)
   \code{copyFromDevice} returns the R vector corresponding to the
   data on the GPU.
 }
-\references{}
+%\references{}
 \author{Duncan Temple Lang}
 
 \seealso{
   \code{\link{.cuda}}
 }
 \examples{
+if(getNumDevices() > 0) {
+
+ cuGetContext()
+
+ N = 1e5
+ x = rnorm(N)
+
+ cx = copyToDevice(x)
+ length(cx[])
+   # or explicitly with
+ vals = copyFromDevice(cx)
+ length(vals)
+
+ i = sample(1:N, 100)
+   # subsetting on the GPU
+ cx[i]
+}
 }
 \keyword{programming}
 \keyword{interface}
