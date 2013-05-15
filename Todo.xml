@@ -46,6 +46,8 @@ Make them RC++Reference and not just external pointers.
 
 <item>
 Subsetting and assigning to parts of a cudaPtrWithLength.
+subsetting done - integer, logical indices.
+Subset assignment not done
 </item>
 
 <item>

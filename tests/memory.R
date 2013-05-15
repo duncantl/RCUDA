@@ -1,4 +1,5 @@
 library(RCUDA)
+if(FALSE) {
 prop = new_cudaDeviceProp()
 rm(prop)
 gc() ; gc()
@@ -9,4 +10,4 @@ gc(); gc()
 
 
 free(prop) # need method for this
-
+}

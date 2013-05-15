@@ -348,12 +348,11 @@ R_getCudaIntVector(SEXP r_ptr, SEXP r_len)
 
 
 SEXP
-R_getCudaFloatVector(SEXP r_ptr, SEXP r_len)
+R_getCudaFloatVector(SEXP r_ptr, SEXP r_len, SEXP r_indices)
 {
     int len = INTEGER(r_len)[0];
     SEXP ans;
     void *ptr = getRReference(r_ptr);
-
 
     float *fl = (float *) R_alloc(len, sizeof(float));
     if(!fl) {
@@ -364,9 +363,18 @@ R_getCudaFloatVector(SEXP r_ptr, SEXP r_len)
     if(status) 
 	return(R_cudaErrorInfo(status));
 
-    ans = NEW_NUMERIC(len);
-    for(int i = 0; i < len; i++)
-	REAL(ans)[i] = fl[i];
+    
+    if(Rf_length(r_indices)) {
+	len = Rf_length(r_indices);
+	ans = NEW_NUMERIC(len);
+	for(int i = 0; i < len; i++) {
+	    REAL(ans)[i] = fl[ INTEGER(r_indices)[i]  ];
+	}
+    } else {
+	ans = NEW_NUMERIC(len);
+	for(int i = 0; i < len; i++)
+	    REAL(ans)[i] = fl[i];
+    }
 
     return(ans);
 }

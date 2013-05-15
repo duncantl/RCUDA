@@ -10,8 +10,9 @@ Description: This package provides initial bindings to
    CUDA routines that work on the host. 
 SystemRequirements: CUDA SDK(>= 5.0)
 Maintainer: Duncan Temple Lang <duncan@r-project.org>
+Depends: methods
 Author: Duncan Temple Lang, Paul Baines
-Imports: RAutoGenRunTime
+Imports: RAutoGenRunTime, methods
 License: BSD
 
 

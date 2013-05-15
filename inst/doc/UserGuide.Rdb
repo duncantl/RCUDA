@@ -296,22 +296,117 @@ we can invoke it on a GPU via the <r:func>.cuda</r:func> function.
 This takes the kernel to be invoked, zero or more arguments to be
 passed in each call to the kernel, a vector specifying the dimensions
 of the grid and another for the blocks.  The arguments can be <r/>
-scalars or pointers to memory allocated on the GPU.
-To compute the Normal density of each point in an <r/> vector
+vectors, <r/> scalars or pointers to memory allocated on the GPU.
+These are marshalled to the GPU for us. 
+</para>
+<para>
+As an example, let's compute the Normal density of each point in an <r/> vector.
+We have a kernel that takes a vector of inputs, its length,
+the mean and standard deviation and a vector into which to put the results.
+We load the module with
 <r:code>
 library(RCUDA)
-m = loadModule("inst/sampleKernels/dnorm.ptx")
+m = loadModule("inst/sampleKernels/dnormOutput.ptx")
 k = m$dnorm_kernel
-
+</r:code>
+Now we create our data
+<r:code>
 N = 1e6L
 x = rnorm(N)
 mu = 0
 sigma = 1
-
-cx = copyToDevice(x)
-.cuda(k, cx, N, mu, sigma, gridDim = c(64L, 32L, 1L), blockDim = c(512L))
-ans = cx[]
 </r:code>
+We can perform the calculations with the following call
+<r:code>
+ans = .cuda(k, x, N, mu, sigma, numeric(N), gridDim = c(64L, 32L, 1L), blockDim = c(512L))
+</r:code>
+Somewhat similarly to the <r:func>.C</r:func> interface in <r/>,
+this returns some of the inputs.
+In this case, we get back the two input vectors, i.e.
+the first and fifth arguments.
+<r:func>.cuda</r:func> knows that it had to copy these to the
+GPU for us and that their contents may have changed.
+So it copies them back and returns these two as a list.
+</para>
+<para>
+Like the <r:func>.C</r:func> function,  if we wanted just the fifth
+value, we could use
+<r:code>
+ans = .cuda(k, x, N, mu, sigma, numeric(N), gridDim = c(64L, 32L, 1L), blockDim = c(512L))[[5]]
+</r:code>
+or
+<r:code>
+ans = .cuda(k, x, N, mu, sigma, out = numeric(N), gridDim = c(64L, 32L, 1L), blockDim = c(512L))$out
+</r:code>
+However, this is not as efficient as it could be.
+<r:func>.cuda</r:func> will copy both <r:var>x</r:var> and <r:var>numeric(N)</r:var> (the <r:arg>out</r:arg>
+value) to the GPU device and then copy them both back.
+We then discard the first one. 
+Instead, we want to skip copying it in the first place and only copy the
+second of these.
+So we can do this very similarly using the <r:arg>outputs</r:arg> parameter for <r:func>.cuda</r:func>:
+<r:code>
+ans = .cuda(k, x, N, mu, sigma, out = numeric(N), outputs = "out",
+               gridDim = c(64L, 32L), blockDim = c(512L))
+</r:code>
+Here we are identifying the arguments we want returned by name,
+corresponding to the argument names.
+We can also use a position or a logical vector, e.g.
+<r:code>
+ans = .cuda(k, x, N, mu, sigma, out = numeric(N), outputs = 5, gridDim = c(64L, 32L), blockDim = c(512L))
+ans = .cuda(k, x, N, mu, sigma, out = numeric(N), outputs = c(FALSE, FALSE, FALSE, FALSE, TRUE), gridDim = c(64L, 32L), blockDim = c(512L))
+</r:code>
+<footnote><para>If we knew that a parameter was marked as const, we could avoid
+copying it back. We might be able to get this information from
+the PTX function or by reading the C code ourselves using <omg:pkg>RCIndex</omg:pkg></para></footnote>
+</para>
+
+<para>
+We should note that when <r:func>.cuda</r:func> copies data from an
+<r/> vector to the GPU, it arranges to release that memory.  It does
+this with <r/>'s garbage collector.  The <r:arg>.gc</r:arg> parameter
+allows us to control whether to force the garbage collector when
+<r:func>.cuda</r:func> starts its work. This can release memory on the
+GPU that we may need. If we want to avoid this overhead within a call, we use
+<r:expr>.gc = FALSE</r:expr> in that call to <r:func>.cuda</r:func>.
+</para>
+
+
+<para>
+<r:func>.cuda</r:func>'s ability to copy <r/> vectors to is convenient
+but not always efficient. We have seen that it may copy data back to
+<r/> even though we are not interested in it.  If we pass an <r/>
+vector, it is copied to the device and then possibly copied back
+unless we are careful.  If we want to use the same set of values in
+an <r/> vector in multiple successive calls to different kernels, we are better off
+explicitly copying it to the device once and then passing the
+reference to that GPU memory as an argument.  For example,
+consider the code
+<r:code>
+cx = copyToDevice(x)
+ans = copyToDevice(numeric(N))
+.cuda(k, cx, N, mu, sigma, ans, gridDim = c(64L, 32L), blockDim = c(512L), outputs = NULL)
+ans[]
+</r:code>
+Here we have created two new arrays on the GPU and have references to
+them in the <r/> variables <r:var>cx</r:var> and <r:var>ans</r:var>.
+We then make the call to <r:func>.cuda</r:func>, passing these
+references as arguments and explicitly telling it we want no return
+value(s).  <r:func>.cuda</r:func> recognizes the references are to
+data already on the GPU so it just passes these on to the kernel.  The
+<r:arg>output</r:arg> argument avoids any unnecessary copying.  We can
+then copy the results back to <r/> with <r:expr>ans[]</r:expr>.  Since
+we have a reference to the both of these GPU-based memory arrays, they
+won't be garbage collected. Therefore, we can use them again in
+subsequent calls without copying them back to the GPU.
+If this is useful in the computations, it is important for the performance.
+A simple example of this is when we have two data sets - training and test -
+and we want to compute the distance between each pair of observations
+across the two. If we then get another test data set, we
+can compute the distances between its observations and the training
+data. We can leave the training data on the GPU and reuse it.
+This might happen in streaming data when we collect 
+test data sets in chunks. 
 </para>
 </section>
 

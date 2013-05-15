@@ -1,8 +1,28 @@
 useDynLib(RCUDA)
+
+import(methods)
 import(RAutoGenRunTime)
 
-export(getNumDevices)
-export(getDeviceProperties)
+# exportPattern(".*")
 
-exportPattern(".*")
+export(.gpu, .cuda)
 
+export(copyFromDevice, copyToDevice)
+export(createContext, cuGetContext)
+export(cudaAlloc, cudaMalloc)
+
+export(loadModule, getFunction)
+
+export(getNumDevices, getDeviceProps, getDeviceProperties)
+
+export(cuInit)
+
+export(cudaCSV, cudaKeyValuePair, cudaOutputMode_tValues)
+export(cudaMemInfo)
+export(cudaProfiler, profileCUDA, cudaStartProfiler, cudaStopProfiler, readCUDAProfile)
+
+#export(cudaErrorString)
+
+export(cudaVersion)
+
+exportClasses(cudaDeviceProp, cudaDevicePropPtr)

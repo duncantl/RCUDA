@@ -2,7 +2,7 @@ library(RCUDA)
 
 cuGetContext(TRUE)
 
-vals = profileCuda(
+vals = profileCUDA(
  {
    m = loadModule(system.file("sampleKernels", "dnorm.ptx", package = "RCUDA"))
    k = m$dnorm_kernel
