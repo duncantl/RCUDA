@@ -53,7 +53,11 @@ cudaStopProfiler()
 \value{
  \code{profileCUDA} returns a data frame.
 }
-\references{}
+\references{
+
+  A sample configuration file is available at
+  \url{https://svn.ece.lsu.edu/svn/gp/cuda/matrix-mult/.cuda-profile-config}
+}
 \author{Duncan Temple Lang}
 
 \seealso{}

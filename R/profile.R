@@ -21,7 +21,9 @@ function()
   .Call("R_cudaProfilerToggle", TRUE)
 
 cudaProfiler =
-function(file = tempfile(), config = getOption("CUDAProfilerConfig", character()), format = "csv", start = FALSE)
+function(file = tempfile(),
+         config = getOption("CUDAProfilerConfig", system.file('prof.conf', package = 'RCUDA')),
+         format = "csv", start = TRUE)
 {
   if(is.character(format)) {
      i = grep(format, names(cudaOutputMode_tValues), ignore.case = TRUE)
