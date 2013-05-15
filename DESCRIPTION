@@ -1,5 +1,5 @@
 Package: RCUDA
-Version: 0.1-0
+Version: 0.2-0
 Title: R bindings for CUDA library for GPU computing
 Description: This package provides initial bindings to
    the CUDA library for working with GPUs. It is similar

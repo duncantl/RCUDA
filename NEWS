@@ -1,0 +1,16 @@
+Version 0.2-0
+
+   *  copyFromDevice() a generic
+
+   *  .cuda() (and alias .gpu()) will copy R vectors to the device and back
+
+   *  .cuda() has an outputs parameter to control what is copied back from the GPU
+      and returned.
+
+   *  Documentation for the exported objects
+
+   *  Package's profiler configuration file used by default.
+
+
+
+   
