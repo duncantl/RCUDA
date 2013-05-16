@@ -1,3 +1,7 @@
+setClass("size_t", contains = "numeric")
+setClass("CUdevice", contains = "integer")
+
+
 setClass("CUmodule", contains = "RC++Reference")
 setClass("CUfunction", contains = "RC++Reference")
 setClass("CUcontext", contains = "RC++Reference")

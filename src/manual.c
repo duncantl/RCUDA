@@ -247,17 +247,6 @@ R_cudaMalloc(SEXP r_numBytes)
 
 
 
-SEXP 
-R_cuDeviceGet(SEXP which)
-{
-    CUdevice cu_device;
-    CUresult err = cuDeviceGet(&cu_device, INTEGER(which)[0]);
-    if(err) {
-	PROBLEM "problem getting device"
-	    ERROR;
-    }
-    return(ScalarInteger(cu_device));
-}
 
 
 SEXP
@@ -276,19 +265,6 @@ R_cuInit(SEXP r_flags)
 }
 
 
-SEXP
-R_cuCtxGetCurrent()
-{
-  CUcontext ctx = NULL;
-  CUresult status = cuCtxGetCurrent(&ctx);
-  if(status) 
-      return(ScalarInteger(status));
-  
-  if(!ctx)
-      return(R_NilValue);
-
-  return(R_createRef(ctx, "CUcontext"));  
-}
 
 SEXP
 R_cuGetVersion()
@@ -316,20 +292,6 @@ R_cuDriverGetVersion()
 
 
 
-SEXP
-R_cuCtxDestroy(SEXP r_ctx)
-{
-    if(TYPEOF(r_ctx) == EXTPTRSXP) {
-	r_ctx = GET_SLOT(r_ctx, Rf_install("ref"));
-    }
-
-    CUcontext ctx = (CUcontext) R_ExternalPtrAddr(r_ctx);
-    if(ctx) {
-	cuCtxDestroy(ctx);
-	R_SetExternalPtrAddr(r_ctx, NULL);
-    }
-    return(R_NilValue);
-}
 
 
 SEXP
@@ -433,3 +395,57 @@ R_cuMemGetInfo()
     REAL(ans)[1] = total;
     return(ans);
 }
+
+
+
+
+
+#if 0  				/* Now in context.c */
+SEXP
+R_cuCtxDestroy(SEXP r_ctx)
+{
+    if(TYPEOF(r_ctx) == EXTPTRSXP) {
+	r_ctx = GET_SLOT(r_ctx, Rf_install("ref"));
+    }
+
+    CUcontext ctx = (CUcontext) R_ExternalPtrAddr(r_ctx);
+    if(ctx) {
+	cuCtxDestroy(ctx);
+	R_SetExternalPtrAddr(r_ctx, NULL);
+    }
+    return(R_NilValue);
+}
+
+SEXP
+R_cuCtxGetCurrent()
+{
+  CUcontext ctx = NULL;
+  CUresult status = cuCtxGetCurrent(&ctx);
+  if(status) 
+      return(ScalarInteger(status));
+  
+  if(!ctx)
+      return(R_NilValue);
+
+  return(R_createRef(ctx, "CUcontext"));  
+}
+
+
+SEXP 
+R_cuDeviceGet(SEXP which)
+{
+    CUdevice cu_device;
+    CUresult err = cuDeviceGet(&cu_device, INTEGER(which)[0]);
+    if(err) {
+	PROBLEM "problem getting device"
+	    ERROR;
+    }
+    return(ScalarInteger(cu_device));
+}
+
+#endif
+
+
+
+
+

@@ -26,6 +26,10 @@ SEXP R_createReference(const void *ptr, const char * const className, const char
 #define GET_REF(val, type) \
     (type) (getRReference(val))
 
+
+
+SEXP R_cudaErrorInfo(CUresult val);
+
 #endif
 
 
