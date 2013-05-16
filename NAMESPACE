@@ -32,6 +32,8 @@ export(CUlimitValues)
 
 ########
 
+# Context
+
 export(
 cuCtxCreate,
 cuCtxDestroy,
@@ -52,6 +54,7 @@ cuCtxEnablePeerAccess,
 cuCtxDisablePeerAccess
 )
 
+# Device
 
 export(
 cuDeviceGet,
@@ -61,6 +64,7 @@ cuDeviceGetAttribute,
 cuDeviceCanAccessPeer
 )
 
+# Module
 export(
 cuModuleLoad,
 cuModuleLoadData,
@@ -73,7 +77,7 @@ cuModuleGetTexRef,
 cuModuleGetSurfRef
 )
 
-
+# Func
 export(
 cuFuncGetAttribute,
 cuFuncSetCacheConfig,
@@ -82,7 +86,7 @@ cuFuncSetBlockShape,
 cuFuncSetSharedSize
 )
 
-
+# Event
 export(
 cuEventCreate,
 cuEventRecord,

@@ -1,6 +1,12 @@
 setClass("size_t", contains = "numeric")
 setClass("CUdevice", contains = "integer")
 
+tmp = function(from)
+        new("CUdevice", as.integer(from - 1L))
+setAs("numeric", "CUdevice", tmp)
+setAs("integer", "CUdevice", tmp)
+
+
 
 setClass("CUmodule", contains = "RC++Reference")
 setClass("CUfunction", contains = "RC++Reference")

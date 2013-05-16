@@ -1680,8 +1680,18 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 if test -z "$CUDA_DIR" ; then
   if test -r "/usr/local/cuda" ; then
      CUDA_DIR=/usr/local/cuda
+  elif test -r "/usr/local/cuda-5.0" ; then
+     CUDA_DIR=/usr/local/cuda-5.0
+  else
+     echo "the CUDA development files are not in the typical locations."
+     echo "Please rerun having set the environment variable CUDA_DIR to"
+     echo "the path of the directory that contains both the include/ and lib/ directories"
+     echo "of the CUDA installation"
+     exit 1;
   fi
 fi
+
+
 
 if test -z "$CUDA_INC_DIR" ; then
   CUDA_INC_DIR=${CUDA_DIR}/include

@@ -445,7 +445,25 @@ R_cuDeviceGet(SEXP which)
 
 #endif
 
-
-
+/* Test to see if this doesn't work in C code either!, i.e the auto-generated R code gives the same error. 
+Seems to! 
+*/
+SEXP
+R_test_cuCtxGetLimit()
+{
+    CUcontext ctx;
+    CUresult status = cuCtxGetCurrent(&ctx);
+    if(status) {
+	PROBLEM "can't get current %s", cudaGetErrorString(cudaGetLastError())
+	    ERROR;
+    }
+    size_t size;
+    status = cuCtxGetLimit(&size, CU_LIMIT_STACK_SIZE);
+    if(status) {
+	PROBLEM "can't get limit: %s", cudaGetErrorString(cudaGetLastError())
+	    ERROR;
+    }
+    return(ScalarReal(size));
+}
 
 

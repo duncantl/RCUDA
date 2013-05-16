@@ -31,27 +31,15 @@ fn = sapply(ds, function(x) getFileName(x$def))
 ds.cu = ds[grepl(incs, fn)]
 
 
-########
+###################################################################################################
 #
 # Context routines
 ctx = grep("^cuCtx", names(r.cu), value = TRUE)
-
-# Get rid of the _v2
 # deprecated ones are cuCtxAttach and cuCtxDetach.
 ctx = setdiff(ctx, c("cuCtxAttach", "cuCtxDetach"))
-# What about cuDeviceCanAccessPeer - not a context thing
-#
+# What about cuDeviceCanAccessPeer - not a context thing, in cuDevice
 
-ctx.Ccode = lapply(r.cu[ctx], cuda.createNativeProxy)
-ctx.Rcode = lapply(r.cu[ctx], cuda.createRProxy)
-
-writeCode(ctx.Ccode, "../src/context.c")
-writeCode(ctx.Rcode, "../R/context.R")
-
-
-cat("export(", paste(sapply(ctx.Rcode, slot, "name"), collapse = ",\n"), ")", sep = "\n")
-
-
+generateCode(r.cu[ctx], "Device")
 
 ################
 
@@ -59,38 +47,37 @@ dev = grep("^cuDevice", names(r.cu), value = TRUE)
 # Ignore GetName for now.
 dev = setdiff(dev, c("cuDeviceGetName", "cuDeviceComputeCapability", "cuDeviceGetProperties", "cuDeviceGetByPCIBusId", "cuDeviceGetPCIBusId"))
 
-dev.Ccode = lapply(r.cu[dev], cuda.createNativeProxy)
-dev.Rcode = lapply(r.cu[dev], cuda.createRProxy)
-
-writeCode(dev.Ccode, "../src/autoDevice.c")
-writeCode(dev.Rcode, "../R/autoDevice.R")
-
-cat("export(", paste(sapply(dev.Rcode, slot, "name"), collapse = ",\n"), ")", sep = "\n")
-
+generateCode(r.cu[dev], "Device")
 
 ######
 
 mod = grep("^cuModule", names(r.cu), value = TRUE)
 mod = setdiff(mod, c("cuModuleLoadDataEx"))
-cuda.createNativeProxy(r.cu$cuModuleLoad)
+#cuda.createNativeProxy(r.cu$cuModuleLoad)
 
 generateCode(r.cu[mod], "Module")
 
 
 #######
-
 func = grep("^cuFunc", names(r.cu), value = TRUE)
 generateCode(r.cu[func], "Function")
 
-#
+########
 
 ev = grep("^cuEvent", names(r.cu), value = TRUE)
 generateCode(r.cu[ev], "Event")
 
+#########
+
+ev = grep("^cuStream", names(r.cu), value = TRUE)
+generateCode(r.cu[ev], "Stream")
 
 
+############
 
+mem = grep("^cuMem", names(r.cu), value = TRUE)
+lapply(r.cu[mem], cuda.createNativeProxy)
 
-
-
-# memory, event, stream, 
+# [Done] event, stream, 
+# memory - richer types e.g. array,...
+# texture, surface
