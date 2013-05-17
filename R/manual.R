@@ -1,3 +1,13 @@
+setClass("size_t", contains = "numeric")
+setClass("CUdevice", contains = "integer")
+
+tmp = function(from)
+        new("CUdevice", as.integer(from - 1L))
+setAs("numeric", "CUdevice", tmp)
+setAs("integer", "CUdevice", tmp)
+
+
+
 setClass("CUmodule", contains = "RC++Reference")
 setClass("CUfunction", contains = "RC++Reference")
 setClass("CUcontext", contains = "RC++Reference")
@@ -76,18 +86,44 @@ function(flags = 0L, device = 1L)
 
 
 
-.cuda =
-function(fun, ..., gridDim, blockDim, sharedMemBytes = 0L, stream = NULL, inplace = FALSE)
+.gpu = .cuda =
+function(fun, ..., .args = list(...), gridDim, blockDim,
+         sharedMemBytes = 0L, stream = NULL, inplace = FALSE,
+          outputs = logical(), .gc = TRUE,
+          .gpu = 0L)
 {
+   if(.gc)
+     gc()
+   
    fun = as(fun, "CUfunction")
 
    if(length(gridDim) < 3)
-     gridDim = c(gridDim, c(1L, 1L, 1L))[1:3]
+      gridDim = c(gridDim, c(1L, 1L, 1L))[1:3]
    if(length(blockDim) < 3)
-     blockDim = c(blockDim, c(1L, 1L, 1L))[1:3]   
-   args = list(...)
+      blockDim = c(blockDim, c(1L, 1L, 1L))[1:3]
    
-   .Call("R_cuLaunchKernel", fun, as.integer(gridDim), as.integer(blockDim), args, as.integer(sharedMemBytes), stream)
+   .args = list(...)
+
+   mustCopy = sapply(.args, function(x) is.atomic(x) && length(x) > 1)
+   if(any(mustCopy))
+     .args[mustCopy] = lapply(.args[mustCopy], copyToDevice)
+   
+   ans = .Call("R_cuLaunchKernel", fun, as.integer(gridDim), as.integer(blockDim), .args, as.integer(sharedMemBytes), stream)
+   if(is.integer(ans))  #  !is(ans, "RC++Reference"))
+      raiseError(ans, msg = c("failed to create context"))
+
+   if(!missing(outputs)) {
+     if(length(outputs) == 0 || is.logical(outputs) && !any(outputs))
+         return(NULL)
+     vals = .args[outputs]
+     ans = lapply(vals, function(x) if(is(x, "cudaPtrWithLength")) x[] else x)
+     return(if(length(ans) == 1) ans[[1]] else ans)
+   }
+   
+   if(any(mustCopy))
+     lapply(.args[mustCopy], `[`)
+   else
+     ans
 }
 
 
@@ -96,7 +132,7 @@ function(obj, type = typeof(obj))
 {  
    switch(type,
            logical=, integer= 4L,
-           double=, numeric = 8L,
+           float=, double=, numeric = 8L,
            stop("don't know size of elements"))
 }
 
@@ -129,8 +165,20 @@ function(obj, to = cudaMalloc(length(obj), elType = typeof(obj)))
   to
 }
 
+setGeneric("copyFromDevice",
+            function(obj, nels, type)
+              standardGeneric("copyFromDevice"))
 
-copyFromDevice =
+setMethod("copyFromDevice", "cudaFloatArray",
+            function(obj, nels, type)
+                copyFromDevice(obj@ref, obj@nels, "float"))
+
+setMethod("copyFromDevice", "cudaIntArray",
+            function(obj, nels, type)
+                copyFromDevice(obj@ref, obj@nels, "integer"))
+
+
+setMethod("copyFromDevice", c("ANY"),
 function(obj, nels, type)
 {
   nels = as.integer(nels)
@@ -139,13 +187,13 @@ function(obj, nels, type)
         else if(type == "logical")
           .Call("R_getCudaIntVector", obj, nels)
         else if(type == "float" || type == "numeric")
-          .Call("R_getCudaFloatVector", obj, nels)
+          .Call("R_getCudaFloatVector", obj, nels, NULL)
 
   if(is(ans, "CUresult"))
       raiseError(ans, "copying data on device")
 
   ans
-}
+})
 
 # Allow
 #  p = cudaMalloc()
@@ -161,6 +209,35 @@ setMethod("[", c("cudaIntArray", "missing", "missing"),
            function(x, i, j, ...) {
              copyFromDevice(x, x@nels, type = "integer")
            })
+
+setMethod("[", c("cudaFloatArray", "numeric", "missing"),
+           function(x, i, j, ...) {
+             if(all(i < 0))
+               return(x[][i])
+
+             i = as.integer(i - 1L)
+             # do we need to add 1 to max(i)
+             .Call("R_getCudaFloatVector", x, max(i) + 1L, i)
+           })
+
+setMethod("[", c("cudaIntArray", "numeric", "missing"),
+           function(x, i, j, ...) {
+             if(all(i < 0))
+               return(x[][i])
+
+             i = as.integer(i)
+             ans = .Call("R_getCudaIntVector", x, max(i))
+             ans[i]
+           })
+
+
+
+setMethod("[", c("cudaPtrWithLength", "logical", "missing"),
+           function(x, i, j, ...) {
+             x[which(i)]
+           })
+
+################
 
 
 setMethod("[<-", c("cudaPtrWithLength", "missing", "missing"),
@@ -194,7 +271,7 @@ function(flags = 0L)
 }
 
 cuGetContext =
-function(create = FALSE)
+function(create = TRUE)
 {  
   ans = .Call("R_cuCtxGetCurrent")
   if(is.integer(ans))

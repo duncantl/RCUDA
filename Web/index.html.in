@@ -7,7 +7,7 @@
 <body>
 <h1>RCUDA - Bindings for R to the CUDA API</h1>
 
-<p align="right"><a href="RCUDA_0.1-0.tar.gz">RCUDA_0.1-0.tar.gz source</a></p>
+<p align="right"><a href="@TAR_FILE@">@TAR_FILE@</a></p>
 <p align="right"><a href="https://github.com/duncantl/RCUDA.git">RCUDA
 on github</a></p>
 <p>
@@ -68,6 +68,6 @@ the need for nvcc (a reasonably trivial issue).
 <address><a href="http://www.stat.ucdavis.edu/~duncan">Duncan Temple Lang</a>
 <a href=mailto:dtemplelang@ucdavis.edu>&lt;dtemplelang@ucdavis.edu&gt;</a></address>
 <!-- hhmts start -->
-Last modified: Mon May 13 22:22:27 PDT 2013
+Last modified: Wed May 15 07:03:56 PDT 2013
 <!-- hhmts end -->
 </body> </html>

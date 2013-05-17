@@ -1,0 +1,98 @@
+useDynLib(RCUDA)
+
+import(methods)
+import(RAutoGenRunTime)
+
+# exportPattern(".*")
+
+export(.gpu, .cuda)
+
+export(copyFromDevice, copyToDevice)
+export(createContext, cuGetContext)
+export(cudaAlloc, cudaMalloc)
+
+export(loadModule, getFunction)
+
+export(getNumDevices, getDeviceProps, getDeviceProperties)
+
+export(cuInit)
+
+export(cudaCSV, cudaKeyValuePair, cudaOutputMode_tValues)
+export(cudaMemInfo)
+export(cudaProfiler, profileCUDA, cudaStartProfiler, cudaStopProfiler, readCUDAProfile)
+
+#export(cudaErrorString)
+
+export(cudaVersion)
+
+exportClasses(cudaDeviceProp, cudaDevicePropPtr)
+
+
+export(CUlimitValues)
+
+########
+
+# Context
+
+export(
+cuCtxCreate,
+cuCtxDestroy,
+cuCtxPushCurrent,
+cuCtxPopCurrent,
+cuCtxSetCurrent,
+cuCtxGetCurrent,
+cuCtxGetDevice,
+cuCtxSynchronize,
+cuCtxSetLimit,
+cuCtxGetLimit,
+cuCtxGetCacheConfig,
+cuCtxSetCacheConfig,
+cuCtxGetSharedMemConfig,
+cuCtxSetSharedMemConfig,
+cuCtxGetApiVersion, # problem
+cuCtxEnablePeerAccess,
+cuCtxDisablePeerAccess
+)
+
+# Device
+
+export(
+cuDeviceGet,
+cuDeviceGetCount,
+cuDeviceTotalMem,
+cuDeviceGetAttribute,
+cuDeviceCanAccessPeer
+)
+
+# Module
+export(
+cuModuleLoad,
+cuModuleLoadData,
+#cuModuleLoadDataEx,
+cuModuleLoadFatBinary,
+cuModuleUnload,
+cuModuleGetFunction,
+cuModuleGetGlobal,
+cuModuleGetTexRef,
+cuModuleGetSurfRef
+)
+
+# Func
+export(
+cuFuncGetAttribute,
+cuFuncSetCacheConfig,
+cuFuncSetSharedMemConfig,
+cuFuncSetBlockShape,
+cuFuncSetSharedSize
+)
+
+# Event
+export(
+cuEventCreate,
+cuEventRecord,
+cuEventQuery,
+cuEventSynchronize,
+cuEventDestroy,
+cuEventElapsedTime
+)
+

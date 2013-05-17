@@ -1,7 +1,10 @@
 library(RCUDA)
-.C("cuInit")
+cuInit()
 
 d = getNumDevices()
+getDeviceProps()
+
+if(FALSE) {
 prop = new_cudaDeviceProp()
 
 ans = cudaGetDeviceProperties(prop, 0L, .copy = FALSE)
@@ -17,7 +20,7 @@ ans = cudaGetDeviceProperties(prop, 0L, .copy = FALSE)
 
 #XXX fails.
 ans = cudaGetDeviceProperties(NULL, 0L)
-
+}
 
 
 

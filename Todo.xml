@@ -7,14 +7,24 @@
 <title>
 </title>
 <items>
-<item status="test">
-Configure script.
+<item>
+integer to CUdevice should subtract 1.
+And when reutrn a CUdevice, put a class on it
+so that we keep it as is when we pass it to an
+R function/C routine.
+Put this in the typeMap.
 </item>
 
-<item status="done">
-Find out what the problem is with cubin files and not being able to load them.
-<br/>
-Need to get the nvcc flags to generate code for the correct device.
+<item>
+Make certain to clean up so don't run out of memory across sessions.
+</item>
+<item>
+Examples - perhaps taken from gputools or rgpu
+but done directly  from R code, not with C wrappers.
+</item>
+
+<item status="test">
+Configure script.
 </item>
 
 <item>
@@ -46,6 +56,8 @@ Make them RC++Reference and not just external pointers.
 
 <item>
 Subsetting and assigning to parts of a cudaPtrWithLength.
+subsetting done - integer, logical indices.
+Subset assignment not done
 </item>
 
 <item>
@@ -55,6 +67,14 @@ streams.
 <item>
 Use structs in PTX code and pass them from R
 </item>
+
+<item status="done">
+Find out what the problem is with cubin files and not being able to load them.
+<br/>
+Need to get the nvcc flags to generate code for the correct device.
+</item>
+
+
 </items>
 </topic>
 </topics>

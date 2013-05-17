@@ -247,17 +247,6 @@ R_cudaMalloc(SEXP r_numBytes)
 
 
 
-SEXP 
-R_cuDeviceGet(SEXP which)
-{
-    CUdevice cu_device;
-    CUresult err = cuDeviceGet(&cu_device, INTEGER(which)[0]);
-    if(err) {
-	PROBLEM "problem getting device"
-	    ERROR;
-    }
-    return(ScalarInteger(cu_device));
-}
 
 
 SEXP
@@ -276,19 +265,6 @@ R_cuInit(SEXP r_flags)
 }
 
 
-SEXP
-R_cuCtxGetCurrent()
-{
-  CUcontext ctx = NULL;
-  CUresult status = cuCtxGetCurrent(&ctx);
-  if(status) 
-      return(ScalarInteger(status));
-  
-  if(!ctx)
-      return(R_NilValue);
-
-  return(R_createRef(ctx, "CUcontext"));  
-}
 
 SEXP
 R_cuGetVersion()
@@ -316,20 +292,6 @@ R_cuDriverGetVersion()
 
 
 
-SEXP
-R_cuCtxDestroy(SEXP r_ctx)
-{
-    if(TYPEOF(r_ctx) == EXTPTRSXP) {
-	r_ctx = GET_SLOT(r_ctx, Rf_install("ref"));
-    }
-
-    CUcontext ctx = (CUcontext) R_ExternalPtrAddr(r_ctx);
-    if(ctx) {
-	cuCtxDestroy(ctx);
-	R_SetExternalPtrAddr(r_ctx, NULL);
-    }
-    return(R_NilValue);
-}
 
 
 SEXP
@@ -348,12 +310,11 @@ R_getCudaIntVector(SEXP r_ptr, SEXP r_len)
 
 
 SEXP
-R_getCudaFloatVector(SEXP r_ptr, SEXP r_len)
+R_getCudaFloatVector(SEXP r_ptr, SEXP r_len, SEXP r_indices)
 {
     int len = INTEGER(r_len)[0];
     SEXP ans;
     void *ptr = getRReference(r_ptr);
-
 
     float *fl = (float *) R_alloc(len, sizeof(float));
     if(!fl) {
@@ -364,9 +325,18 @@ R_getCudaFloatVector(SEXP r_ptr, SEXP r_len)
     if(status) 
 	return(R_cudaErrorInfo(status));
 
-    ans = NEW_NUMERIC(len);
-    for(int i = 0; i < len; i++)
-	REAL(ans)[i] = fl[i];
+    
+    if(Rf_length(r_indices)) {
+	len = Rf_length(r_indices);
+	ans = NEW_NUMERIC(len);
+	for(int i = 0; i < len; i++) {
+	    REAL(ans)[i] = fl[ INTEGER(r_indices)[i]  ];
+	}
+    } else {
+	ans = NEW_NUMERIC(len);
+	for(int i = 0; i < len; i++)
+	    REAL(ans)[i] = fl[i];
+    }
 
     return(ans);
 }
@@ -425,3 +395,75 @@ R_cuMemGetInfo()
     REAL(ans)[1] = total;
     return(ans);
 }
+
+
+
+
+
+#if 0  				/* Now in context.c */
+SEXP
+R_cuCtxDestroy(SEXP r_ctx)
+{
+    if(TYPEOF(r_ctx) == EXTPTRSXP) {
+	r_ctx = GET_SLOT(r_ctx, Rf_install("ref"));
+    }
+
+    CUcontext ctx = (CUcontext) R_ExternalPtrAddr(r_ctx);
+    if(ctx) {
+	cuCtxDestroy(ctx);
+	R_SetExternalPtrAddr(r_ctx, NULL);
+    }
+    return(R_NilValue);
+}
+
+SEXP
+R_cuCtxGetCurrent()
+{
+  CUcontext ctx = NULL;
+  CUresult status = cuCtxGetCurrent(&ctx);
+  if(status) 
+      return(ScalarInteger(status));
+  
+  if(!ctx)
+      return(R_NilValue);
+
+  return(R_createRef(ctx, "CUcontext"));  
+}
+
+
+SEXP 
+R_cuDeviceGet(SEXP which)
+{
+    CUdevice cu_device;
+    CUresult err = cuDeviceGet(&cu_device, INTEGER(which)[0]);
+    if(err) {
+	PROBLEM "problem getting device"
+	    ERROR;
+    }
+    return(ScalarInteger(cu_device));
+}
+
+#endif
+
+/* Test to see if this doesn't work in C code either!, i.e the auto-generated R code gives the same error. 
+Seems to! 
+*/
+SEXP
+R_test_cuCtxGetLimit()
+{
+    CUcontext ctx;
+    CUresult status = cuCtxGetCurrent(&ctx);
+    if(status) {
+	PROBLEM "can't get current %s", cudaGetErrorString(cudaGetLastError())
+	    ERROR;
+    }
+    size_t size;
+    status = cuCtxGetLimit(&size, CU_LIMIT_STACK_SIZE);
+    if(status) {
+	PROBLEM "can't get limit: %s", cudaGetErrorString(cudaGetLastError())
+	    ERROR;
+    }
+    return(ScalarReal(size));
+}
+
+
