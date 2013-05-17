@@ -1,10 +1,10 @@
-extern "C"
-{
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <cuda.h>
 #include <curand_kernel.h>
+
+extern "C"
+{
 
 __global__ void setup_kernel(curandState  *state)
 {
