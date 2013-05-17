@@ -6,4 +6,14 @@ RError.h
 *.Rhistory
 *.RData
 *.DS_Store
+config.log
+config.status
 
+
+inst/sampleKernels/dnorm.ptx
+
+NAMESPACE
+
+*.ptx
+
+inst/sampleKernels/dnorm.ptx
