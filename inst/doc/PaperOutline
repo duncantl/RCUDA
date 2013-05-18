@@ -8,7 +8,8 @@ Introduction
    Want to be able run code faster on GPUs but also access to the full API so that we can perform these experiments
      e.g. try pinned versus non-pinned memory, streams, 
 
-  Contrast with gputools, rgpu - individuals program specific algorithms in C and GPU kernels.
+  Contrast with gputools, rgpu - individuals program specific algorithms in C and GPU kernels;
+    general purpose interpreter of R expressions, limited bindings to API.
 
   Why CUDA and not OpenCL
     What about R's OpenCL package - full bindings and to CUDA.
@@ -27,6 +28,9 @@ Examples/Case Studies
      (Not too complex, but readily comprehensible and results are improvements
        I love the particle filters, EMMC, etc. but wondering if they are too advanced....)
 
+      gputools distance
+          example of leaving results on the GPU for hierarchical clustering.
+          Do this in R, not C code.
  
 Lower-level Interface and its Design
    1 - 1 mapping with SDK routines

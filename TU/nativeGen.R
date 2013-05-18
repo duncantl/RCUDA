@@ -217,7 +217,7 @@ function(code, file, includes = '"RCUDA.h"', mode = "w")
   if(length(includes))
     cat(sprintf('#include %s', includes), sep = "\n", file = con)
   
-  invisible(lapply(code, addToFile, con) )
+  invisible(lapply(as(code, "character"), addToFile, con) )
 }
 
 

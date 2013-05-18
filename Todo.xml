@@ -8,8 +8,10 @@
 </title>
 <items>
 
-<item>
+<item status="move">
 In cuGetContext(), check if cuCtxGetCurrent returns a NULL pointer, not a NULL object.
+<br/>
+Move C code and R function to RAutoGenRunTime.
 </item>
 
 <item status="check">
@@ -22,6 +24,7 @@ Put this in the typeMap.
 
 <item>
 Make certain to clean up so don't run out of memory across sessions.
+If quit R, want to release resources.
 </item>
 
 <item>

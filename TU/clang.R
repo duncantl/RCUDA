@@ -1,5 +1,4 @@
 library(RCIndex)
-
 invisible(sapply(list.files("~/GitWorkingArea/RClangSimple/inst/generateCode/", pattern = "R$", full = TRUE), source)); source("nativeGen.R")
 
 #Identify routines that are deprecated
@@ -99,3 +98,30 @@ grep("^cu.+Mem", names(r.cu), value = TRUE)
 # [Done] event, stream, 
 # memory - richer types e.g. array,...
 # texture, surface
+
+
+
+###############
+ds.cuTypes = ds.cu[ grep("^(cu|CU)", names(ds.cu), value = TRUE) ]
+ds.cuTypes = ds.cuTypes[  !sapply(ds.cuTypes, function(x) x$def$kind == CXCursor_EnumDecl || length(x$fields) == 0) ]
+
+
+# All structs.
+
+
+sizeofCode = CRoutineDefinition("R_getSizeofStructs", 
+               c("SEXP R_getSizeofStructs()", "{",
+                 "SEXP r_ans, names;",
+                 sprintf("unsigned int i, n = %d;", length(ds.cuTypes)),
+                 "PROTECT(r_ans = NEW_INTEGER(n));",
+                 "PROTECT(names = NEW_CHARACTER(n));",
+                 "",
+                 sprintf('INTEGER(r_ans)[i] = sizeof(%s);\n    SET_STRING_ELT(names, i++, mkChar("%s"));',
+                          sapply(ds.cuTypes, function(x) getName(getType(x$def))), names(ds.cuTypes)),
+                 "",
+                 "SET_NAMES(r_ans, names);",
+                 "UNPROTECT(2);",
+                 "return(r_ans);", "}"))#, declaration = "SEXP R_getSizeofStructs()")
+
+writeCode(as(sizeofCode, "character"), "../src/sizeofStructs.c",
+            c('"RCUDA.h"', sprintf("<%s>", basename(unique(sapply(ds.cuTypes, function(x) getFileName(x$def)))))))
