@@ -49,7 +49,7 @@ if (nthreads < N){
 
 # Need to setup RNG (this doesn't work yet since
 # getElementSize() isn't defined for curandState...
-rng_states <- cudaMalloc(elType="curandState",numEls=N)
+rng_states <- cudaMalloc(elType = "curandState", numEls=N)
 
 # Need to allocate space for results:
 x_double <- vector("double",N)

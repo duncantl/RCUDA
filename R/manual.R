@@ -277,10 +277,16 @@ function(create = TRUE)
   if(is.integer(ans))
      raiseError(ans, "failed to get current CUDA context")
 
-  if(is.null(ans) && create)
+  if(is.nullExtPtr(ans) && create)
     ans = createContext()
   
   ans
+}
+
+is.nullExtPtr =
+function(obj)
+{
+  .Call("R_isNullExtPtr", obj)
 }
 
 

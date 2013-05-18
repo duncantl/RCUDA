@@ -467,3 +467,11 @@ R_test_cuCtxGetLimit()
 }
 
 
+
+
+SEXP
+R_isNullExtPtr(SEXP r_obj)
+{
+    void *ptr =  GET_REF(r_obj, void *);
+    return(ScalarLogical(ptr == NULL));
+}  

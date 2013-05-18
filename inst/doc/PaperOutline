@@ -1,0 +1,51 @@
+
+Introduction
+  Why GPUs are increasingly important.
+    One aspect of increased parallelism and significant potential.
+
+  Different computational model.  Want to enable R programmers to explore them w/o resorting to writing everything in C code.
+   Want to prototype and perform experiments in high-level language to understand their characteristics.
+   Want to be able run code faster on GPUs but also access to the full API so that we can perform these experiments
+     e.g. try pinned versus non-pinned memory, streams, 
+
+  Contrast with gputools, rgpu - individuals program specific algorithms in C and GPU kernels.
+
+  Why CUDA and not OpenCL
+    What about R's OpenCL package - full bindings and to CUDA.
+
+Basics of the Interface
+  High-level examples 
+     dnorm, perhaps distance.
+
+  Modules and loading kernels
+    Compile kernel 
+      allude to compiling R functions as kernels
+  Copying to and from device
+
+Examples/Case Studies 
+   1 or 2 reasonable examples with timing results to show performance gains
+     (Not too complex, but readily comprehensible and results are improvements
+       I love the particle filters, EMMC, etc. but wondering if they are too advanced....)
+
+ 
+Lower-level Interface and its Design
+   1 - 1 mapping with SDK routines
+   Enums
+  
+   Write higher level R functionality in terms of these primitives.
+
+   Talk about how we generated the bindings programmatically
+     modified cuda.h to add const declarations on some parameters
+  
+
+Compiling R functions as kernels
+  (maybe in future work)
+  Use Rllvm and RLLVMCompile to generate IR.
+  Use PTX backend (e.g. support from libNVVM)
+  Load the PTX code into memory and get pointer to kernel. Then same as before.
+
+Future work.
+
+ thrust and other aspects of the interface
+   we will programmatically generate these interfaces.
+

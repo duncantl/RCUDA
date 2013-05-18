@@ -7,7 +7,12 @@
 <title>
 </title>
 <items>
+
 <item>
+In cuGetContext(), check if cuCtxGetCurrent returns a NULL pointer, not a NULL object.
+</item>
+
+<item status="check">
 integer to CUdevice should subtract 1.
 And when reutrn a CUdevice, put a class on it
 so that we keep it as is when we pass it to an
@@ -18,6 +23,7 @@ Put this in the typeMap.
 <item>
 Make certain to clean up so don't run out of memory across sessions.
 </item>
+
 <item>
 Examples - perhaps taken from gputools or rgpu
 but done directly  from R code, not with C wrappers.
@@ -27,10 +33,12 @@ but done directly  from R code, not with C wrappers.
 Configure script.
 </item>
 
-<item>
+<item status="InProgress">
 Generate bindings via TU and Clang
 <br/>
 Ignore the deprecated ones. How can we tell in clang.
+<br/>
+Add default arguments for types such as the device to be 1L or new("CUdevice", 0L).
 </item>
 
 <item>

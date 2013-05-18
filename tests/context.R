@@ -35,3 +35,5 @@ cuCtxSetLimit(RCUDA:::CU_LIMIT_DEV_RUNTIME_SYNC_DEPTH, 1.406987e+10)
 class(tryCatch(cuCtxSetLimit(RCUDA:::CU_LIMIT_DEV_RUNTIME_SYNC_DEPTH, 1.406987e+10), error = function(e) e))
 
 
+ctx = cuCtxCreate(0, 1)
+

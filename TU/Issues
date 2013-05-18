@@ -1,0 +1,30 @@
+[Done] cuArrayCreate takes a pointer for the result and another pointer to a struct
+ describing the array.  The second is being treated as an output parameter
+ If it were const, we'd be fine. 
+    It actually is. So how is RCIndex losing this information.
+ We can special case it, but it is a legitimate output variable in 
+   cuArray3DGetDescriptor
+
+cuMemHostGetDevicePointer  has a void * that is not an output variable.
+   if const. 
+   
+cuMemcpyDtoH  first arg is a pointer, but needs to be passed 
+   can we use const?
+
+cuMemFree needs a const. Should be  (void * const), but Clang seems to reverse the const. 
+   See const.c - Does get it right for foo1
+
+In cuMemHostGetFlags, outputting character() for setting the second element of the list, i.e. converting void *
+  Will this go away with the const!
+
+Put const on
+  cuMemFree
+  cuMemFreeHost
+  cuMemHostGetFlags
+  R_cuMemHostGetDevicePointer
+
+
+Do we care about the  interfaces:
+ PCI?
+ IPC?
+ Mip

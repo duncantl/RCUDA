@@ -1,26 +1,30 @@
 # This is different from the code generation functions in ~/GitWorkingArea/RClangSimple/inst/generateCode/
 # as we are writing these for CUDA.
 
+# Deal with CUdeviceptr
+#    dereferncing it as an R argument.
+#    It is an unsigned long long, but really a pointer
+#    cuModuleGetGlobal() is on routine where we get a CUdeviceptr.
+#    uMemsetD2D32Async is where we pass one to a routine.
+#     Need to understand what is needed before we figure out how to generate the code.
+#     When we do, we can use the typeMap.
+#
+# Mem routines
 #
 # for routines with name *Can*, return a logical. e.g. cuDeviceCanAccessPeer
 #
 # Apply the coerce R result type map when more than one argument being returned in nativeGen.R
 #   low priority
 #
-# Deal with CUdeviceptr
-#    dereferncing it as an R argument.
-#    It is an unsigned long long, but really a pointer
-#    cuModuleGetGlobal() is on routine where we get a CUdeviceptr.
-#    uMemsetD2D32Async is where we pass one to a routine.
-#
-#
-# Mem routines
-#
 # Doesn't handle cuDeviceGetName - string
+#
+#  Pointers may be legitimate inputs, e.g. cuMemFreeHost.
 #
 # modify isOutPointerType - just a pointer?
 #    But have to combine the string and the length to ignore both for the R code
 ##############
+# [Done] Get R class name for references which are pointers, e.g. cuMemHostAlloc() uses void *!
+#      Changed to voidPtr. Replace any * with Ptr. So could end up with, e.g., voidPtrPtr
 # [Done] Generate the R code
 #  [Done] for functions returning CUresult, raise the error if not success.
 #   [No]  Actually, do this in C code?
@@ -43,28 +47,26 @@
 #
 
 TypeMap = list(CUdeviceptr = list(convertValueToR = function(name, ..., type = type) sprintf('R_createRef((void*) %s, "CUdeviceptr")', name)),
-                CUdevice = list(RcoerceResult = function(name, ..., type) sprintf("as(%s, 'CUdevice')", name)))
+               CUdevice = list(RcoerceResult = function(name, ..., type) sprintf("as(%s, 'CUdevice')", name)))
 
 returnsValueViaArg =
-function(fun)
+function(fun, routineName = "")
 {
-  if(length(fun$params) == 0 || !getName(fun$returnType) %in% c("CUresult"))
+  if(length(fun$params) == 0 || !getName(fun$returnType) %in% c("CUresult", "cudaError_t"))
     return(integer())
-  which(sapply(fun$params, isOutPointerType))
+  which(sapply(fun$params, isOutPointerType, routineName))
 }
 
 cuda.createNativeProxy =
-function(fun, name = sprintf("R_%s", funName), typeMap = TypeMap, funName = gsub("_v[0-9]$", "", getName(fun)))
+function(fun, name = sprintf("R_auto_%s", funName), typeMap = TypeMap, funName = gsub("_v[0-9]$", "", getName(fun)))
 {
-   returnArg = returnsValueViaArg(fun)
-if(length(returnArg) > 1) browser()   
+   returnArg = returnsValueViaArg(fun, getName(fun))
+#if(length(returnArg) > 1) browser()   
    if(length(returnArg) == 0) 
      return(createNativeProxy(fun, name, typeMap))
    else
      cuResult = TRUE
 
-
-   
    argNames = names(fun$params)
 
 #   cuResult = getName(f$returnType) == "CUresult"
@@ -98,7 +100,7 @@ if(length(returnArg) > 1) browser()
      localVars = c(localVars, "CUresult ans;")
 
    if(length(returnArg)) {
-     localVars = c(sapply(returnArg, function(i) {
+      localVars = c(sapply(returnArg, function(i) {
                                         ty = getPointeeType(getType(fun$params[[i]]))
                                         sprintf("%s %s;", getName(ty), names(fun$params)[i])
                                      }),
@@ -126,8 +128,10 @@ if(length(returnArg) > 1) browser()
               c(sprintf("PROTECT(r_ans = NEW_LIST(%d));", length(returnArg)),
                 cvtCode,
                 sprintf("UNPROTECT(%d);", length(returnArg)))
+             else if(inherits(cvtCode, "AsIs") || length(cvtCode) > 1)
+                cvtCode
              else
-             paste("r_ans =", cvtCode, ";"),
+              paste("r_ans =", cvtCode, ";"),
             "return(r_ans);",
             "}"
            )
@@ -137,7 +141,7 @@ if(length(returnArg) > 1) browser()
 
 cuda.createRProxy =
 function(fun, name = gsub("_v[0-9]$", "", getName(fun)), argNames = names(fun$params),
-          nativeProxyName = sprintf("R_%s", gsub("_v[0-9]$", "", getName(fun))),
+          nativeProxyName = sprintf("R_auto_%s", gsub("_v[0-9]$", "", getName(fun))),
           PACKAGE = NA, defaultValues = character(), guessDefaults = FALSE,
           typeMap = TypeMap)
 {
@@ -169,17 +173,10 @@ function(fun, name = gsub("_v[0-9]$", "", getName(fun)), argNames = names(fun$pa
 
 
 # Move these into RCIndex
-isVoidType =
-function(type)
-  getTypeKind(type) == CXType_Void
-
-isPointer = # isPointerType or isPointer?
-function(type)
-  getTypeKind(type) == CXType_Pointer
   
 
 isOutPointerType =
-function(parm)
+function(parm, routineName = "")
 {
   ty = getType(parm)
 
@@ -189,19 +186,28 @@ function(parm)
   if(!isPointer(ty))
     return(FALSE)
 
-  return(!(getName(getPointeeType(ty)) %in%  c("const char", "const void", "CUfunction")))
+  pty = getPointeeType(ty)
+  name = getName(pty)
+     # need to handle const Type *, check no *
+     # name of canonical type or not?
+  isConst =  grepl("const", name)  &&  !grepl("*", name, fixed = TRUE)
+  isStruct =  grepl("struct", name)  &&  !grepl("*", name, fixed = TRUE)
+#  used to include !isStruct &&   but for cudaMalloc3D, this is a problem. What will this break.
+  return(!isConst && !(name %in%  c("const char", "const void", "void", "CUfunction", "CUdevice")))
 
+  
   elTy = getCanonicalType(getPointeeType(ty))
   k = getTypeKind(elTy)
   k %in% c(CXType_Bool, CXType_UShort, CXType_UInt, CXType_ULong, CXType_ULongLong, CXType_UInt128, CXType_Int, CXType_Short, CXType_Long, CXType_Double, CXType_Float)
 }
+
 
 checkStatusCode =
   c("if(ans)",
       "   return(R_cudaErrorInfo(ans));")
 
 
-
+###############
 
 writeCode =
 function(code, file, includes = '"RCUDA.h"', mode = "w")  
