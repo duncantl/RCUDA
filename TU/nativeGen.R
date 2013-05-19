@@ -57,40 +57,63 @@ function(fun, routineName = "")
   which(sapply(fun$params, isOutPointerType, routineName))
 }
 
+
+
+returnsString =
+  function(fun)
+     length(fun$params) && isStringType(getType(fun$params[[1]])) && isIntType(getType(fun$params[[2]]))
+
 cuda.createNativeProxy =
-function(fun, name = sprintf("R_auto_%s", funName), typeMap = TypeMap, funName = gsub("_v[0-9]$", "", getName(fun)))
+function(fun, name = sprintf("R_auto_%s", funName), typeMap = TypeMap, funName = gsub("_v[0-9]$", "", getName(fun)), stringSize = 10000L)
 {
    returnArg = returnsValueViaArg(fun, getName(fun))
-#if(length(returnArg) > 1) browser()   
+
+   returnsString = returnsString(fun)
+
+   if(returnsString) {
+     returnsString = TRUE
+     returnArg = unique(c(1L, returnArg))
+     returnArg = c(returnArg, returnArg + 1L)
+     stringVarName = names(fun$params)[returnArg[1]]
+     stringLengthName = names(fun$params)[returnArg[1] + 1L]     
+#     fun$params = fun$params[ - seq(returnArg[1], length = 2) ]
+   }
+
    if(length(returnArg) == 0) 
      return(createNativeProxy(fun, name, typeMap))
    else
-     cuResult = TRUE
+     cuResult = TRUE   
 
    argNames = names(fun$params)
 
-#   cuResult = getName(f$returnType) == "CUresult"
-#   outArg1 = isOutPointerType(fun$params[[1]])
-#   returnFirstArg = cuResult && outArg1
-   
    if(length(returnArg)) {
      actualArgs = fun$params[- returnArg ]
+     
          #XXX have to handle if there is more than one being returned.
      firstArgType = getPointeeType(getType(fun$params[[returnArg[1] ]])) #getCanonicalType(getPointeeType(getType(fun$params[[1]])))
    } else
      actualArgs = fun$params
 
+
    sig = sprintf("%s(%s)", name, paste(sprintf("SEXP r_%s", names(actualArgs)), collapse = ", "))
 
    cvtCode = if(length(returnArg)) {
-                if(length(returnArg) > 1)
-                  sapply(seq(along = returnArg), function(i) {
+                if(length(returnArg) > 1 && !returnsString)
+                  unlist(lapply(seq(along = returnArg), function(i) {
                                         ty = getPointeeType(getType(fun$params[[returnArg[i]]]))
-                                        val = convertValueToR(ty, names(fun$params)[returnArg[i]], typeMap = typeMap, rvar = character())
-                                        sprintf("SET_VECTOR_ELT(r_ans, %d, %s);", i-1L, val)
-                                      })
-                else
-                  convertValueToR(firstArgType, names(fun$params)[returnArg[1]], typeMap = typeMap)     
+                                        val = convertValueToR(ty, names(fun$params)[returnArg[i]], typeMap = typeMap, rvar = "")
+                                        if(length(val) > 1 || inherits(val, "AsIs"))
+                                           c("{", val[-length(val)],
+                                             sprintf("SET_VECTOR_ELT(r_ans, %d, %s);", i-1L, gsub(";$", "", val[length(val)])), "}")
+                                        else
+                                           sprintf("SET_VECTOR_ELT(r_ans, %d, %s);", i-1L, val)
+                                      }))
+                else {
+                  if(returnsString)
+                     sprintf("mkString(%s)", names(fun$params)[returnArg[1]])
+                  else
+                     convertValueToR(firstArgType, names(fun$params)[returnArg[1]], typeMap = typeMap)
+                }
              } else
                 convertValueToR(fun$returnType, "ans", typeMap = typeMap)
 
@@ -100,21 +123,34 @@ function(fun, name = sprintf("R_auto_%s", funName), typeMap = TypeMap, funName =
      localVars = c(localVars, "CUresult ans;")
 
    if(length(returnArg)) {
-      localVars = c(sapply(returnArg, function(i) {
+      if(returnsString)
+          localVars = c(localVars, sprintf("char %s[%d];\n    int %s = %d;", stringVarName , as.integer(stringSize), stringLengthName, as.integer(stringSize)))
+      else
+          localVars = c(sapply(returnArg, function(i) {
                                         ty = getPointeeType(getType(fun$params[[i]]))
                                         sprintf("%s %s;", getName(ty), names(fun$params)[i])
                                      }),
                     localVars)
+
+
    }
-   
-   argPrefix = rep("", length(fun$params))
-   argPrefix[returnArg] = "&"
+
+   if(FALSE && returnsString) {
+      args = names(fun$params)
+      args[returnArg[1] + 1] = stringSize
+      args = paste(args, collapse = ", ")
+   } else {
+      argPrefix = rep("", length(fun$params))
+      if(!returnsString)
+         argPrefix[returnArg] = "&"
+      args = paste(argPrefix, names(fun$params), collapse = ", ")
+   }
      
    call = sprintf("%s%s(%s);",
                   if(!isVoidType(fun$returnType)) "ans = ",
-                  funName, paste(argPrefix, names(fun$params), collapse = ", "))   
+                  funName, args)   
 
-   
+
    
    code = c("SEXP",
             sig,
@@ -124,9 +160,9 @@ function(fun, name = sprintf("R_auto_%s", funName), typeMap = TypeMap, funName =
             call,
             if(cuResult)
                  checkStatusCode,
-            if(length(returnArg) > 1) 
+            if(length(returnArg) > 1 && !returnsString) 
               c(sprintf("PROTECT(r_ans = NEW_LIST(%d));", length(returnArg)),
-                cvtCode,
+                unlist(cvtCode),
                 sprintf("UNPROTECT(%d);", length(returnArg)))
              else if(inherits(cvtCode, "AsIs") || length(cvtCode) > 1)
                 cvtCode
@@ -145,8 +181,14 @@ function(fun, name = gsub("_v[0-9]$", "", getName(fun)), argNames = names(fun$pa
           PACKAGE = NA, defaultValues = character(), guessDefaults = FALSE,
           typeMap = TypeMap)
 {
-
    returnArg = returnsValueViaArg(fun)
+
+   returnsString = returnsString(fun)
+
+   if(returnsString) {
+     fun$params = fun$params[ - c(1, 2) ]
+   }
+   
    if(length(returnArg) > 0) {
      fun$returnArgTypes = lapply(fun$params[returnArg], function(x) getPointeeType(getType(x)))
      if(length(returnArg) == 1)
@@ -183,7 +225,7 @@ function(parm, routineName = "")
   if(getName(parm) %in% c('userData')) # in stream callback. is void *, but not a return argument. But some void * maybe, but not const.
     return(FALSE)
  
-  if(!isPointer(ty))
+  if(!isPointerType(ty))
     return(FALSE)
 
   pty = getPointeeType(ty)
@@ -193,7 +235,7 @@ function(parm, routineName = "")
   isConst =  grepl("const", name)  &&  !grepl("*", name, fixed = TRUE)
   isStruct =  grepl("struct", name)  &&  !grepl("*", name, fixed = TRUE)
 #  used to include !isStruct &&   but for cudaMalloc3D, this is a problem. What will this break.
-  return(!isConst && !(name %in%  c("const char", "const void", "void", "CUfunction", "CUdevice")))
+  return(getName(ty) != "char *" && !isConst && !(name %in%  c("const char", "const void", "void", "CUfunction", "CUdevice")))
 
   
   elTy = getCanonicalType(getPointeeType(ty))
@@ -210,14 +252,16 @@ checkStatusCode =
 ###############
 
 writeCode =
-function(code, file, includes = '"RCUDA.h"', mode = "w")  
+function(code, file, includes = if(lang != "R") '"RCUDA.h"', mode = "w", comment = if(lang == "R") "#" else "//",
+         lang = guessLanguage(code))
 {
   con = file(file, mode)
   on.exit(close(con))
+  cat(comment, "Generated programmatically at", as.character(Sys.time()), "\n", file = con)
   if(length(includes))
     cat(sprintf('#include %s', includes), sep = "\n", file = con)
   
-  invisible(lapply(as(code, "character"), addToFile, con) )
+  invisible(lapply(code, addToFile, con) )
 }
 
 
@@ -229,8 +273,19 @@ function(funs, fileName)
  mod.Rcode = lapply(funs, cuda.createRProxy)
 
  files = sprintf("../%s/auto%s.%s", c("src", "R"), fileName, c("c", "R")) 
- writeCode(mod.Ccode, files[1])
- writeCode(mod.Rcode, files[2])
+ writeCode(mod.Ccode, files[1], lang = "C")
+ writeCode(mod.Rcode, files[2], lang = "R")
 
  cat("export(", paste(sapply(mod.Rcode, slot, "name"), collapse = ",\n"), ")", sep = "\n")
+}
+
+guessLanguage =
+function(code)
+{
+  if(is.list(code))
+    r = any(lapply(code, is, "RFunctionDefinition"))
+  else
+    r = is(code, "RFunctionDefinition")    
+
+  if(r) "R" else "C"
 }

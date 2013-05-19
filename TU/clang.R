@@ -30,9 +30,7 @@ table(status)
 names(r.cu)[!status]
 
 
-
 ds = getDataStructures(tu)
-
 fn = sapply(ds, function(x) getFileName(x$def))
 ds.cu = ds[grepl(sprintf("(%s)", paste(gsub("\\.", "\\\\./", incs), collapse = "|")), fn)]
 
@@ -51,9 +49,9 @@ generateCode(r.cu[ctx], "Device")
 
 ################
 
-dev = grep("^cuDevice", names(r.cu), value = TRUE)
+dev = grep("^cu(da)?Device", names(r.cu), value = TRUE)
 # Ignore GetName for now.
-dev = setdiff(dev, c("cuDeviceGetName", "cuDeviceComputeCapability", "cuDeviceGetProperties", "cuDeviceGetByPCIBusId", "cuDeviceGetPCIBusId"))
+dev = setdiff(dev, c("cuDeviceComputeCapability", "cuDeviceGetProperties")) # "cuDeviceGetName", "cuDeviceGetByPCIBusId", "cuDeviceGetPCIBusId"))
 
 generateCode(r.cu[dev], "Device")
 
@@ -108,7 +106,6 @@ ds.cuTypes = ds.cuTypes[  !sapply(ds.cuTypes, function(x) x$def$kind == CXCursor
 
 # All structs.
 
-
 sizeofCode = CRoutineDefinition("R_getSizeofStructs", 
                c("SEXP R_getSizeofStructs()", "{",
                  "SEXP r_ans, names;",
@@ -125,3 +122,30 @@ sizeofCode = CRoutineDefinition("R_getSizeofStructs",
 
 writeCode(as(sizeofCode, "character"), "../src/sizeofStructs.c",
             c('"RCUDA.h"', sprintf("<%s>", basename(unique(sapply(ds.cuTypes, function(x) getFileName(x$def)))))))
+
+
+
+
+########################################
+manual = c("cudaGetExportTable", "cuGetExportTable", "cudaConfigureCall", "cudaSetupArgument")
+
+incs = c(".", "/usr/local/cuda/include")
+rincs = c(incs, sprintf("%s/include", R.home()), sprintf("%s/../src/include", R.home()))
+cfiles = list.files("../src", pattern = "*.c$", full.names = TRUE)
+kalls = unlist(lapply(cfiles, findCalls, includes = rincs))
+
+cuCalls = grep("^cu", unique(unlist(kalls)), value = TRUE)
+deprecated = scan("../deprecated", what = "", quiet = TRUE)
+missingOnes = setdiff(names(r.cu), c(cuCalls, deprecated, manual))
+#missing = setdiff(missing, deprecated)
+
+w = sapply(r.cu[missingOnes], function(x)  { toks = getCursorTokens(x$def) ; any(grepl("__device", toks)) && !any(grepl("__host", toks))})
+
+
+want = grep("(^make|Mip|Ipc|Texture|TexRef|Tex|Surface|Surf|curand)", missingOnes, invert = TRUE, value = TRUE)
+
+generateCode(r.cu[want], "Other")
+
+
+structCode = lapply(list(ds.cu$CUDA_ARRAY_DESCRIPTOR, ds.cu$CUDA_ARRAY3D_DESCRIPTOR), makeCCopyStructCode)
+writeCode(structCode, "../src/structCopy.c", lang = "C")

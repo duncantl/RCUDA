@@ -8,3 +8,16 @@ m[["cos_main"]]
 Need to avoid name mangling, so use extern "C" for the routine.
 
 
+
+
+
+cu - driver
+cuda  - runtime ?
+
+ The driver gives us control over the context.
+ The runtime uses a primary context ?
+
+http://developer.download.nvidia.com/compute/cuda/4_1/rel/toolkit/docs/online/group__CUDART__DRIVER.html
+
+
+PCIBusId, etc.  See nvml or nvidia-smi

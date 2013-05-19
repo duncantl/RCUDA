@@ -3319,3 +3319,135 @@ SEXP R_bitwise_enum_convert_cudaGraphicsRegisterFlags ( enum cudaGraphicsRegiste
     
 }
  
+
+    SEXP Renum_convert_CUjit_option_enum ( enum CUjit_option_enum  val)
+    {
+    const char *elName = NULL;
+    SEXP klass, ans;
+    switch(val) {
+       case CU_JIT_MAX_REGISTERS:
+           elName = "CU_JIT_MAX_REGISTERS";
+       break;
+       case CU_JIT_THREADS_PER_BLOCK:
+           elName = "CU_JIT_THREADS_PER_BLOCK";
+       break;
+       case CU_JIT_WALL_TIME:
+           elName = "CU_JIT_WALL_TIME";
+       break;
+       case CU_JIT_INFO_LOG_BUFFER:
+           elName = "CU_JIT_INFO_LOG_BUFFER";
+       break;
+       case CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES:
+           elName = "CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES";
+       break;
+       case CU_JIT_ERROR_LOG_BUFFER:
+           elName = "CU_JIT_ERROR_LOG_BUFFER";
+       break;
+       case CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES:
+           elName = "CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES";
+       break;
+       case CU_JIT_OPTIMIZATION_LEVEL:
+           elName = "CU_JIT_OPTIMIZATION_LEVEL";
+       break;
+       case CU_JIT_TARGET_FROM_CUCONTEXT:
+           elName = "CU_JIT_TARGET_FROM_CUCONTEXT";
+       break;
+       case CU_JIT_TARGET:
+           elName = "CU_JIT_TARGET";
+       break;
+       case CU_JIT_FALLBACK_STRATEGY:
+           elName = "CU_JIT_FALLBACK_STRATEGY";
+       break;
+        default:
+    	elName = "?";
+    	}
+
+
+    #if defined(USE_S4_ENUMS)
+    
+    SEXP tmp;
+    PROTECT(klass = MAKE_CLASS("integer"));
+    PROTECT(ans = NEW(klass));
+    PROTECT(tmp = ScalarInteger(val));
+    SET_NAMES(tmp, mkString(elName));
+    ans = SET_SLOT(ans, Rf_install(".Data"), tmp);
+    UNPROTECT(3);
+    
+    #else
+    
+    PROTECT(ans = ScalarInteger(val));
+    SET_NAMES(ans, mkString(elName));
+    PROTECT(klass = NEW_CHARACTER(2));
+    SET_STRING_ELT(klass, 0, mkChar(“integer”));
+    SET_STRING_ELT(klass, 1, mkChar("EnumValue"));
+    SET_CLASS(ans, klass);
+    UNPROTECT(2);
+    
+    #endif
+    
+    return(ans);
+    
+}
+ 
+
+
+   SEXP Renum_convert_CUarray_format_enum ( enum CUarray_format_enum  val)
+    {
+    const char *elName = NULL;
+    SEXP klass, ans;
+    switch(val) {
+       case CU_AD_FORMAT_UNSIGNED_INT8:
+           elName = "CU_AD_FORMAT_UNSIGNED_INT8";
+       break;
+       case CU_AD_FORMAT_UNSIGNED_INT16:
+           elName = "CU_AD_FORMAT_UNSIGNED_INT16";
+       break;
+       case CU_AD_FORMAT_UNSIGNED_INT32:
+           elName = "CU_AD_FORMAT_UNSIGNED_INT32";
+       break;
+       case CU_AD_FORMAT_SIGNED_INT8:
+           elName = "CU_AD_FORMAT_SIGNED_INT8";
+       break;
+       case CU_AD_FORMAT_SIGNED_INT16:
+           elName = "CU_AD_FORMAT_SIGNED_INT16";
+       break;
+       case CU_AD_FORMAT_SIGNED_INT32:
+           elName = "CU_AD_FORMAT_SIGNED_INT32";
+       break;
+       case CU_AD_FORMAT_HALF:
+           elName = "CU_AD_FORMAT_HALF";
+       break;
+       case CU_AD_FORMAT_FLOAT:
+           elName = "CU_AD_FORMAT_FLOAT";
+       break;
+        default:
+    	elName = "?";
+    	}
+
+
+    #if defined(USE_S4_ENUMS)
+    
+    SEXP tmp;
+    PROTECT(klass = MAKE_CLASS("integer"));
+    PROTECT(ans = NEW(klass));
+    PROTECT(tmp = ScalarInteger(val));
+    SET_NAMES(tmp, mkString(elName));
+    ans = SET_SLOT(ans, Rf_install(".Data"), tmp);
+    UNPROTECT(3);
+    
+    #else
+    
+    PROTECT(ans = ScalarInteger(val));
+    SET_NAMES(ans, mkString(elName));
+    PROTECT(klass = NEW_CHARACTER(2));
+    SET_STRING_ELT(klass, 0, mkChar(“integer”));
+    SET_STRING_ELT(klass, 1, mkChar("EnumValue"));
+    SET_CLASS(ans, klass);
+    UNPROTECT(2);
+    
+    #endif
+    
+    return(ans);
+    
+}
+ 
