@@ -49,9 +49,17 @@ if (nthreads < N){
 
 # Need to setup RNG (this doesn't work yet since
 # getElementSize() isn't defined for curandState...
-rng_states <- cudaMalloc(elType = "curandState", numEls=N)
+# In the meantime, on my Mac: 
+# sizeof(curandState) = 48
+cat("Allocating memory on device for curandStates...\n")
+rng_states <- cudaMalloc(elType = "curandState", numEls=N, sizeof=48L) 
+# Still fails:
+# Error in sprintf("cuda%sArray", if (elType %in% c("integer", "logical")) "Int" else if (elType %in%  : 
+#   ???
+# ... since cudaMalloc needs to create instance of class cudaFloatArray or CudaIntArray
 
 # Need to allocate space for results:
+cat("done. Allocating space for results...\n")
 x_double <- vector("double",N)
 x_int    <- vector("int",N)
 x_d_mem <- copyToDevice(x_double)
