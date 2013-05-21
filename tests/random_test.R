@@ -10,10 +10,11 @@ cat("done. Extracting kernels...\n")
 k_setup = m$setup_kernel
 k_rnorm = m$runif_kernel
 k_runif = m$rnorm_kernel
+k_rpois = m$rpois_kernel
 k_allinone = m$rnorm_all_in_one_kernel
 
 cat("done. Setting up miscellaneous stuff...\n")
-N = 1e5L # 1e6L fails on my mac... :/
+N = 250000 # 1e6L fails on my mac... :/
 
 # Uniform parameters:
 lo <- -1.0
@@ -54,11 +55,9 @@ if (nthreads < N){
 # In the meantime, on my Mac: 
 # sizeof(curandState) = 48
 cat("Allocating memory on device for curandStates...\n")
-#rng_states <- cudaMalloc(elType = "curandState", numEls=N, sizeof=48L) 
-# Still fails:
-# Error in sprintf("cuda%sArray", if (elType %in% c("integer", "logical")) "Int" else if (elType %in%  : 
-#   ???
-# ... since cudaMalloc needs to create instance of class cudaFloatArray or CudaIntArray
+cu_rng_alloc_time <- system.time({
+    rng_states <- cudaMalloc(elType = "curandState", numEls=N, sizeof=48L) 
+})
 
 # Need to allocate space for results:
 cat("done. Allocating space for results...\n")
@@ -74,49 +73,88 @@ x_i_mem <- copyToDevice(x_int)
 ##
 
 cat("Launching all-in-one CUDA kernel...\n")
-.cuda(k_allinone, x_d_mem, N, mu, sigma, inplace = TRUE, gridDim = grid_dims, blockDim = block_dims)
-cat("Copying resultt back from device...\n")
-cu_rnorm_allinone <- copyFromDevice(obj=x_d_mem,nels=x_d_mem$nels,type="float")
+cu_all_in_one_time <- system.time({
+    .cuda(k_allinone, x_d_mem, N, mu, sigma, inplace = TRUE, gridDim = grid_dims, blockDim = block_dims)
+})
+cat("Copying result back from device...\n")
+cu_all_in_one_copy_time <- system.time({
+    cu_rnorm_allinone <- copyFromDevice(obj=x_d_mem,nels=x_d_mem$nels,type="float")
+})
 cat("First few values...\n")
 print(head(cu_rnorm_allinone))
 cat("Quantiles:\n")
 print(quantile(cu_rnorm_allinone))
 
-library(MASS)
-truehist(cu_rnorm_allinone)
+#library(MASS)
+#truehist(cu_rnorm_allinone)
 
-stop("rest needs curand stuff sorted...")
+#stop("rest needs curand stuff sorted...")
 
 # Initializing RNG's...
 cat("Launching CUDA kernel for RNG setup...\n")
-.cuda(k_setup, rng_states, inplace = TRUE, gridDim = grid_dims, blockDim = block_dims)
+cu_init_time <- system.time({
+    .cuda(k_setup, rng_states, inplace = TRUE, gridDim = grid_dims, blockDim = block_dims)
+})
 
 # Call RNGs...
 cat("Launching runif CUDA kernel...\n")
-.cuda(k_runif, rng_states, x_d_mem, N, lo, hi, inplace = TRUE, gridDim = grid_dims, blockDim = block_dims)
+cu_runif_time <- system.time({
+    .cuda(k_runif, rng_states, x_d_mem, N, lo, hi, inplace = TRUE, gridDim = grid_dims, blockDim = block_dims)
+})
 
 cat("Copying result back from device...\n")
-cu_runif_x = copyFromDevice(obj=x_d_mem,nels=x_d_mem@nels,type="float")
+cu_runif_copy_time <- system.time({
+    cu_runif_x = copyFromDevice(obj=x_d_mem,nels=x_d_mem@nels,type="float")
+})
+
+r_runif_time <- system.time({
+    r_runif_x <- runif(n=N,min=lo,max=hi)
+})
 
 # Call RNGs...
 cat("Launching rnorm CUDA kernel...\n")
-.cuda(k_rnorm, rng_states, x_d_mem, N, mu, sigma, inplace = TRUE, gridDim = grid_dims, blockDim = block_dims)
+cu_rnorm_time <- system.time({
+    .cuda(k_rnorm, rng_states, x_d_mem, N, mu, sigma, inplace = TRUE, gridDim = grid_dims, blockDim = block_dims)
+})
 
 cat("Copying result back from device...\n")
-cu_rnorm_x = copyFromDevice(obj=x_d_mem,nels=x_d_mem@nels,type="float")
+cu_rnorm_copy_time <- system.time({
+    cu_rnorm_x = copyFromDevice(obj=x_d_mem,nels=x_d_mem@nels,type="float")
+})
+
+r_rnorm_time <- system.time({
+    r_rnorm_x <- rnorm(n=N,mean=mu, sd=sigma)
+})
 
 # Call RNGs...
 cat("Launching rpois CUDA kernel...\n")
-.cuda(k_rpois, rng_states, x_i_mem, N, lambda, inplace = TRUE, gridDim = grid_dims, blockDim = block_dims)
+cu_rpois_time <- system.time({
+    .cuda(k_rpois, rng_states, x_i_mem, N, lambda, inplace = TRUE, gridDim = grid_dims, blockDim = block_dims)
+})
 
 cat("Copying result back from device...\n")
-cu_rpois_x = copyFromDevice(obj=x_i_mem,nels=x_i_mem@nels,type="float")
+cu_rpois_copy_time <- system.time({
+    cu_rpois_x = copyFromDevice(obj=x_i_mem,nels=x_i_mem@nels,type="float")
+})
 
+r_rpois_time <- system.time({
+    r_rpois_x <- rpois(n=N,lambda=lambda)
+})
 
+tlist <- c("cu_rng_alloc","cu_init",
+           "cu_all_in_one","cu_all_in_one_copy",
+           "runif","cu_runif_copy","r_runif",
+           "cu_rnorm","cu_rnorm_copy","r_rnorm",
+           "cu_rpois","cu_rpois_copy","r_rpois")
 
-
-
-
+cat("===========================\n")
+cat("Timing information:\n")
+for (nm in tlist){
+    obj <- paste(nm,"time",sep="_")
+    cat(paste(obj,":\n",sep=""))
+    eval(parse(text=paste("print(",obj,")",sep="")))
+}
+cat("===========================\n")
 
 
 
