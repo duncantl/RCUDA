@@ -13,7 +13,7 @@ setClass("CUfunction", contains = "RC++Reference")
 setClass("CUcontext", contains = "RC++Reference")
 
 setClass("cudaPtr", contains = "RC++Reference")
-setClass("cudaPtrWithLength", representation(nels = "integer", elSize = "integer"), contains = "RC++Reference")
+setClass("cudaPtrWithLength", representation(nels = "integer", elSize = "integer", elTypeName = "character"), contains = "RC++Reference")
 setClass("cudaFloatPtr", contains = "cudaPtr")
 setClass("cudaIntPtr", contains = "cudaPtr")
 
@@ -129,7 +129,11 @@ function(fun, ..., .args = list(...), gridDim, blockDim,
 
 getElementSize =
 function(obj, type = typeof(obj))
-{  
+{
+    i = match(type, names(CUDAStructSizes))
+    if(!is.na(i))
+      return(CUDAStructSizes[i])
+
    switch(type,
            logical=, integer= 4L,
            float=, double=, numeric = 8L,
@@ -139,8 +143,10 @@ function(obj, type = typeof(obj))
 cudaAlloc = cudaMalloc =
 function(numEls, sizeof = 4L, elType = NA)
 {
-  if(missing(sizeof) && !missing(elType))
-    sizeof = getElementSize(type = elType)
+  if(missing(sizeof) && !missing(elType)) {
+     sizeof = getElementSize(type = elType)
+  }
+
 
   
   ans = .Call("R_cudaMalloc", as.integer(numEls * sizeof))
@@ -153,7 +159,7 @@ function(numEls, sizeof = 4L, elType = NA)
       k =  "cudaPtrWithLength"
     else
       k = sprintf("cuda%sArray",  classType)
-    ans = new(k, ref = ans@ref, nels = as.integer(numEls), elSize = as.integer(sizeof))
+    ans = new(k, ref = ans@ref, nels = as.integer(numEls), elSize = as.integer(sizeof), elTypeName = elType)
   }
 
   ans

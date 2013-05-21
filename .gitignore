@@ -18,3 +18,7 @@ NAMESPACE
 *.ptx
 
 inst/sampleKernels/dnorm.ptx
+
+sizeofs$
+checkSDKVersion$
+Web/index.html$
