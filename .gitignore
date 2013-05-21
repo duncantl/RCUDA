@@ -15,10 +15,17 @@ inst/sampleKernels/dnorm.ptx
 
 NAMESPACE
 
+src/Makevars
+R/nvcc.R
+TU/*-mine
+
+src/simpleTest.cu
+src/sizeofStructs.cu
+
 *.ptx
 
 inst/sampleKernels/dnorm.ptx
 
-sizeofs$
-checkSDKVersion$
-Web/index.html$
+sizeofs
+checkSDKVersion
+Web/index.html

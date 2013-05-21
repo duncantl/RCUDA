@@ -1,4 +1,6 @@
-#RCUDA.so: device.o
+#C_SRC=$(wildcard *.c) sizeofStructs.cu
+#DOT_O=$(patsubst .c, .o, $(C_SRC))  sizeofStructs.o
+#RCUDA.so:  $(DOT_O)
 NVCC=@NVCC_BIN@
 CUDA_DIR=@CUDA_DIR@
 CUDA_INC=@CUDA_INC_DIR@
@@ -10,4 +12,4 @@ PKG_LIBS=-L@CUDA_LIB_DIR@ -lcuda -lcudart
 
 #  enumConverters.o
 #RCUDA.so: RConverters.o cudaDeviceProp.o manual.o getDevProps.o createRef.o device.o simpleTest.o
-#	(export CC=$(NVCC) ; $(R_HOME)/bin/R CMD SHLIB -o $@ $^)
+#	(export CC=$(NVCC) ; $(R_HOME)/bin/R CMD SHLIB -o $@ $(DOT_O))

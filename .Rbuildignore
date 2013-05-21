@@ -7,4 +7,5 @@ TU/.*\.tu
 \.fatbin
 autom4te\.cache
 checkSDKVersion$
-
+sizeofs$
+Web
