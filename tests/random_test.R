@@ -10,15 +10,17 @@ cat("done. Extracting kernels...\n")
 k_setup = m$setup_kernel
 k_rnorm = m$runif_kernel
 k_runif = m$rnorm_kernel
+k_allinone = m$rnorm_all_in_one_kernel
+
 cat("done. Setting up miscellaneous stuff...\n")
-N = 1e6L
+N = 1e5L # 1e6L fails on my mac... :/
 
 # Uniform parameters:
 lo <- -1.0
 hi <- 1.0
 
 # Normal parameters:
-mu <-  0.3
+mu <-  -0.3
 sigma <-  1.5
 
 # Poison parameters:
@@ -52,7 +54,7 @@ if (nthreads < N){
 # In the meantime, on my Mac: 
 # sizeof(curandState) = 48
 cat("Allocating memory on device for curandStates...\n")
-rng_states <- cudaMalloc(elType = "curandState", numEls=N, sizeof=48L) 
+#rng_states <- cudaMalloc(elType = "curandState", numEls=N, sizeof=48L) 
 # Still fails:
 # Error in sprintf("cuda%sArray", if (elType %in% c("integer", "logical")) "Int" else if (elType %in%  : 
 #   ???
@@ -60,8 +62,8 @@ rng_states <- cudaMalloc(elType = "curandState", numEls=N, sizeof=48L)
 
 # Need to allocate space for results:
 cat("done. Allocating space for results...\n")
-x_double <- vector("double",N)
-x_int    <- vector("int",N)
+x_double <- rep(0.0,N)
+x_int    <- rep(0,N)
 x_d_mem <- copyToDevice(x_double)
 x_i_mem <- copyToDevice(x_int)
 
@@ -70,6 +72,20 @@ x_i_mem <- copyToDevice(x_int)
 # TODO: 
 # -- Check float/double status
 ##
+
+cat("Launching all-in-one CUDA kernel...\n")
+.cuda(k_allinone, x_d_mem, N, mu, sigma, inplace = TRUE, gridDim = grid_dims, blockDim = block_dims)
+cat("Copying resultt back from device...\n")
+cu_rnorm_allinone <- copyFromDevice(obj=x_d_mem,nels=x_d_mem$nels,type="float")
+cat("First few values...\n")
+print(head(cu_rnorm_allinone))
+cat("Quantiles:\n")
+print(quantile(cu_rnorm_allinone))
+
+library(MASS)
+truehist(cu_rnorm_allinone)
+
+stop("rest needs curand stuff sorted...")
 
 # Initializing RNG's...
 cat("Launching CUDA kernel for RNG setup...\n")
