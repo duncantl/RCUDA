@@ -1,48 +1,70 @@
-Create the routines to copy structures.
+* Structures 
+** Converters from R  to structs via pointers.
+** Accessors for struct - R and C code.
+** R class definitions for structs
+** constructors and allocators of C-level structures.
+** Add a asRef argument when returning a struct.
+** parameter for recursive copy.
+
+* Enum classes, etc. in R
+  Copy code from RGCCTranslationUnit
+
+* Fix RFunctionDefinition's formatting.
+   A little better
+   
+
+* Make CRoutineDefinition smarter about the declaration, etc.
+
+* Regenerate all the code. Check I haven't broken other things.
+
+* curand.h
+* cublas
+* nvml
+
+* Do we care about the  interfaces:
+ PCI?
+ IPC?
+ Mip
+ Texture
+ Surface
+
+
+* Allow an integer() vector or a int pointer when an int * is expected.
+
+* [Done] Create the routines to copy structures.
    R_copyStruct_CUDA_ARRAY3D_DESCRIPTOR
    R_copyStruct_CUDA_ARRAY_DESCRIPTOR
 
-[Done] cuda.createNativeProxy(r.cu$cudaArrayGetInfo)  gives bad code for copying
+* [Done] cuda.createNativeProxy(r.cu$cudaArrayGetInfo)  gives bad code for copying
   back the structures.
 
-Add a asRef argument when returning a struct.
-
-Allow an integer() vector or a int pointer when an int * is expected.
-
-[Done] cuArrayCreate takes a pointer for the result and another pointer to a struct
+* [Done] cuArrayCreate takes a pointer for the result and another pointer to a struct
  describing the array.  The second is being treated as an output parameter
  If it were const, we'd be fine. 
     It actually is. So how is RCIndex losing this information.
  We can special case it, but it is a legitimate output variable in 
    cuArray3DGetDescriptor
 
-
-
-[Done] cuMemHostGetDevicePointer  has a void * that is not an output variable.
+* [Done] cuMemHostGetDevicePointer  has a void * that is not an output variable.
    if const. 
    
-[Done] cuMemcpyDtoH_v2  first arg is a pointer, but needs to be passed 
+* [Done] cuMemcpyDtoH_v2  first arg is a pointer, but needs to be passed 
    can we use const?
 
-[Done] cuMemFree needs a const. Should be  (void * const), but Clang seems to reverse the const. 
+* [Done] cuMemFree needs a const. Should be  (void * const), but Clang seems to reverse the const. 
    See const.c - Does get it right for foo1
 
-[Done] In cuMemHostGetFlags, outputting character() for setting the second element of the list, i.e. converting void *
+* [Done] In cuMemHostGetFlags, outputting character() for setting the second element of the list, i.e. converting void *
   Will this go away with the const!
 
-Put const on
+* [No need] Put const on
    cudaSetValidDevices
  in cuda_runtime_api.h   - copied here. 
- * Could detect this with the fact that int len is the next parameter
+** [Done] Could detect this with the fact that int len is the next parameter
 
-These are okay w/o modifying signature.
-  cuMemFree
-  cuMemFreeHost
-  cuMemHostGetFlags
-  R_cuMemHostGetDevicePointer
+**  These are okay w/o modifying signature.
+    cuMemFree
+    cuMemFreeHost
+    cuMemHostGetFlags
+    R_cuMemHostGetDevicePointer
 
-
-Do we care about the  interfaces:
- PCI?
- IPC?
- Mip

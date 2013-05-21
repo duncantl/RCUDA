@@ -3514,6 +3514,7 @@ echo "nvcc = $NVCC_BIN"
 
 
 
+
 ac_config_files="$ac_config_files src/Makevars R/nvcc.R"
 
 cat >confcache <<\_ACEOF
@@ -4526,3 +4527,17 @@ if test "$no_create" != yes; then
   # would make configure fail if this is the last instruction.
   $ac_cs_success || { (exit 1); exit 1; }
 fi
+
+#chmod -w R/nvcc.R
+
+echo "Gomputing size of CUDA structures"
+echo "Compiling sizeofs"
+${NVCC_BIN} -o sizeofs sizeofs.cu
+if  test $? = 0; then
+ echo "Running sizeofs"
+ ./sizeofs > R/StructSizes.R
+else
+  echo "Problems compiling sizeofs.cu. Continuing with installation, but theremay be problems."
+fi
+
+

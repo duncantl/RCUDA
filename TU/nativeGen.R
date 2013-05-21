@@ -54,7 +54,9 @@ function(fun, routineName = "")
 {
   if(length(fun$params) == 0 || !getName(fun$returnType) %in% c("CUresult", "cudaError_t"))
     return(integer())
-  which(sapply(fun$params, isOutPointerType, routineName))
+  i = which(sapply(fun$params, isOutPointerType, routineName))
+    # check for the next parameter being int len.
+  i[ ! sapply(i, function(i) length(fun$params) > i && names(fun$params)[i + 1] == "len" && isIntegerType(getType(fun$params[[i+1]]))) ]
 }
 
 

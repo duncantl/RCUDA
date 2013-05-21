@@ -20,7 +20,7 @@ setClass("cudaIntPtr", contains = "cudaPtr")
 setClass("cudaFloatArray", contains= "cudaPtrWithLength")
 setClass("cudaIntArray", contains= "cudaPtrWithLength")
 
-  # This is 0 based.
+  # This is 0 based.  When converting from integer to CUDeviceNum, we do the subtraction for the user.
 setClass("CUDeviceNum", contains = "integer")
 
 tmp = function(from)   new("CUDeviceNum", as.integer(from - 1L))
@@ -148,8 +148,12 @@ function(numEls, sizeof = 4L, elType = NA)
      raiseError(ans, msg = c("failed to create context"))
 
   if(!is.na(elType)) {
-    k = sprintf("cuda%sArray", if(elType %in% c("integer", "logical")) "Int" else if(elType %in% c("float", "double", "numeric")) "Float" else stop("???"))
-    ans = new(k, ref = ans@ref, nels = numEls, elSize = sizeof)
+    classType = if(elType %in% c("integer", "logical")) "Int" else if(elType %in% c("float", "double", "numeric")) "Float" else NA
+    if(is.na(classType))
+      k =  "cudaPtrWithLength"
+    else
+      k = sprintf("cuda%sArray",  classType)
+    ans = new(k, ref = ans@ref, nels = as.integer(numEls), elSize = as.integer(sizeof))
   }
 
   ans

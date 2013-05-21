@@ -70,4 +70,18 @@ AC_SUBST(CUDA_LIB_DIR)
 AC_SUBST(CUDA_DIR)
 AC_SUBST(NVCC_BIN)
 
+
 AC_OUTPUT(src/Makevars R/nvcc.R)
+#chmod -w R/nvcc.R
+
+echo "Gomputing size of CUDA structures"
+echo "Compiling sizeofs"
+${NVCC_BIN} -o sizeofs sizeofs.cu
+if  test $? = 0; then
+ echo "Running sizeofs"
+ ./sizeofs > R/StructSizes.R
+else
+  echo "Problems compiling sizeofs.cu. Continuing with installation, but theremay be problems."
+fi
+
+

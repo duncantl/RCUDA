@@ -1,4 +1,3 @@
-
 Introduction
   Why GPUs are increasingly important.
     One aspect of increased parallelism and significant potential.
@@ -11,17 +10,39 @@ Introduction
   Contrast with gputools, rgpu - individuals program specific algorithms in C and GPU kernels;
     general purpose interpreter of R expressions, limited bindings to API.
 
+   People want R packages like gputools that do the computations transparently and fast.
+   The purpose of this package is quite different. It aims to put the R programmer in control of
+   how to do the computations on the GPU to make computations fast.
+
   Why CUDA and not OpenCL
     What about R's OpenCL package - full bindings and to CUDA.
 
-Basics of the Interface
-  High-level examples 
-     dnorm, perhaps distance.
+ We/I have intentionally come to this late in the early research in
+ GPUs.  Part of the reason for this is the depressing lack of
+ enthusiasm for new paradigms in computing within the statistical
+ computing community.  Another reason is that there is a lot of
+ variability in the performance of GPUs and we are waiting until
+ things stabilize. Also, we expected others to implement a general
+ interface to GPUs within R and other languages. Instead, the focus
+ has been on more focused projects, piece-meal utilization.  One of
+ our skills is to generalize the bindings (both conceptually and also
+ programmatically) to try to make the facilities high-level and
+ amenable to programmers in R.  This allows us and them to explore
+ different strategies for using GPUs for statistical computing at a a
+ high-level. Certainly, we lose some performance in these high-level
+ languages but a) this still affords us the opportunity to experiment
+ and make them use of GPUs more mainstream, and b) we are working on
+ ways to compile R code to run natively on the GPU.
+
+
+
+Basics of the Interface High-level 
+  Examples dnorm, perhaps distance.
 
   Modules and loading kernels
     Compile kernel 
       allude to compiling R functions as kernels
-  Copying to and from device
+    Copying to and from device
 
 Examples/Case Studies 
    1 or 2 reasonable examples with timing results to show performance gains
@@ -31,11 +52,14 @@ Examples/Case Studies
       gputools distance
           example of leaving results on the GPU for hierarchical clustering.
           Do this in R, not C code.
+
+      dnorm
  
 Lower-level Interface and its Design
    1 - 1 mapping with SDK routines
    Enums
-  
+   structs
+
    Write higher level R functionality in terms of these primitives.
 
    Talk about how we generated the bindings programmatically
@@ -49,7 +73,9 @@ Compiling R functions as kernels
   Load the PTX code into memory and get pointer to kernel. Then same as before.
 
 Future work.
+ Explore the performance of different approaches in R.
+   pinned memory,  streams, etc.
 
- thrust and other aspects of the interface
+ curand, thrust and other aspects of the interface
    we will programmatically generate these interfaces.
 
