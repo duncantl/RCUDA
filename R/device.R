@@ -16,4 +16,11 @@ function(num = 1L)
   .cudaGetDeviceProperties(NULL, num - 1L)[[2]]
 }
 
+cuDeviceGetAttributes =
+function(dev = 1L)
+{
+  attrs = CUdevice_attributeValues
+  tmp = sapply(unclass(attrs)[-length(attrs)], cuDeviceGetAttribute, as(dev, "CUdevice"))
+  structure(tmp, names = gsub("CU_DEVICE_ATTRIBUTE_", "", names(tmp)))
+}
 

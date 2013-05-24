@@ -1,0 +1,2 @@
+cuCtxGetDevice - convert result to a CUdevice  new("CUdevice", ans)
+

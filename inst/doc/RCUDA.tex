@@ -22,15 +22,14 @@
   describe an \proglang{R} package that provides high-level
   functionality that allows \proglang{R} programmers to experiment
   with and exploit NVIDIA GPUs.  The package provides an interface to
-  the routines and data structures in the CUDA software development
-  kit (SDK), and also provides higher-level \proglang{R} interfaces to
-  these. Currently, programmers write the code that runs on the GPU in
-  \proglang{C} code but call that code and manage the inputs and
-  outputs in \proglang{R} code. We describe experimental approaches to
-  compile \proglang{R} directly so that all computations can be
-  expressed in \proglang{R}.
-}
-\Keywords{GPUs, parallel computing, \R, \Rpkg{RCUDA} package}
+  the routines and data structures in the CUDA (Compute Unified Device
+  Architecture) software development kit (SDK), and also provides
+  higher-level \proglang{R} interfaces to these. Currently,
+  programmers write the code that runs on the GPU in \proglang{C} code
+  but call that code and manage the inputs and outputs in \proglang{R}
+  code. We describe experimental approaches to compile \proglang{R}
+  directly so that all computations can be expressed in \proglang{R}.
+} \Keywords{GPUs, parallel computing, \R, \Rpkg{RCUDA} package}
 \Plainkeywords{GPUs, parallel computing, R, RCUDA} %% without formatting
 %% at least one keyword must be supplied
 
@@ -64,11 +63,15 @@
   URL: \url{http://www.omegahat.org}
 }
 
+\usepackage[T1]{fontenc}
+\catcode`\_=12
+
 \def\C{\proglang{C}}
 \def\R{\proglang{R}}
 \def\llvm{\proglang{LLVM}}
 \def\Rpkg#1{\pkg{#1}}
 \def\Rfunc#1{\textsl{#1()}}
+\def\Rop#1{\texttt{#1}}
 \def\Rvar#1{\textsl{#1}}
 \def\Cfunc#1{\textit{#1()}}
 \def\Cvar#1{\textit{#1}}
@@ -76,12 +79,16 @@
 \def\Ctype#1{\texttt{#1}}
 \def\Rclass#1{\textit{#1}}
 \def\Rarg#1{\textbf{#1}}
+\def\Roption#1{\dquote{\textsl{#1}}}
+
+\def\dquote#1{``#1''}
 
 \def\ShFlag#1{\textit{#1}}
 
 \DefineVerbatimEnvironment{RCode}{Verbatim}{fontshape=sl}
 \DefineVerbatimEnvironment{CCode}{Verbatim}{fontshape=tt}
 \DefineVerbatimEnvironment{ShCode}{Verbatim}{fontshape=it}
+\DefineVerbatimEnvironment{ROutput}{Verbatim}{fontshape=bf}
 
 \begin{document}
 
@@ -93,6 +100,9 @@ computations, some quite common in statistics.  It is important for
 statisticians to be able to leverage these so that we have another
 approach to make computations faster and so scale to larger data sets
 or simulations.
+
+% Compute Unified Device Architecture
+
 
 GPUs require the programmer to use a different computational model
 when implementing an algorithm.  They also use a slightly extended
@@ -218,7 +228,8 @@ The \ShFlag{arch} flag specifies the GPU compatability level.%! Fix this
 
 Once we have compiled the code, we can load it with
 \begin{RCode}
-mod = loadModule("dnorm.ptx")
+filename = system.file("sampleKernels", "dnorm.ptx", package = "RCUDA")
+mod = loadModule(filename)
 \end{RCode}
 Next, we can obtain a reference to the particular routine in the
 module  that we want to invoke.  The \R{} interface makes the module
@@ -268,6 +279,257 @@ our example contains the actual vector of normal density values.  More
 generally, we can specify which inputs are to be copied back to \R{}
 from the device via the \Rarg{outputs} parameter of the \Rfunc{.cuda}
 function.
+
+\Rfunc{.cuda} executs the kernel calls using the current context which
+we describe in section~\ref{sec:Contexts}.  This same context must be
+used to both load the module and call any of its kernels.
+
+\subsection{Allocating Memory on the Device}
+While the \Rfunc{.cuda} function processes (most) \R{} vectors for us,
+we often want to explicitly control how values are passed from the
+host (CPU) to the device (GPU). The \Rpkg{RCUDA} package provides
+functions to control this and also some short-hand, covenient
+mechanisms for implementing the transfers.  The two fundamental
+functions are \Rfunc{copToDevice} and \Rfunc{copyFromDevice}.  These
+are reasonably flexible functions.  \Rfunc{copyToDevice} takes an \R{}
+object and copies its contents to memory on the GPU device.  By
+default, it allocates the space on the device, using information about
+the number of elements and the type of each element in the \R{} object
+to determine the space needed.  For example, we can copy an \R{}
+vector to the GPU in the following manner:
+\begin{RCode}
+dev.ptr = copyToDevice(x)
+\end{RCode}
+
+We can also explicitly allocate space on the device and then copy
+values to that space.  The function \Rfunc{cudaMalloc} (and its alias
+\Rfunc{cudaAlloc}) allocates space on the device.  We pass it the
+number of elements and either the size of each element (in bytes) or
+the name of the element type which it looks up to determine the number
+of bytes for each element.  We can explicitly allocate memory and pass
+this as the destination target for \Rfunc{copyToDevice}, e.g.
+\begin{RCode}
+ptr = cudaAlloc(N, elType = "numeric")
+copyToDevice(x, ptr)
+\end{RCode}
+
+Why would we want to explicitly allocate space on the device rather
+then letting \R{} copy vectors for us?  We may want to allocate the
+space once and then reuse it to store different values at different
+times. For example, consider a simple parametric bootstrap.  We
+generate many samples each of the same length and we can reuse the
+same memory.  We allocate the space once and then copy data to it
+in each iteration and then use it via a call to a GPU kernel, e.g.,
+\begin{RCode}
+ptr = cudaMalloc(length(x), elType = class(x))
+replicate(B, {
+      copyToDevice(sample(x), ptr)
+      .cuda(kernel, ptr, N, mean, sd, gridDim = c(62, 32), blockDim = 512))
+})
+\end{RCode}
+
+By default, \Rfunc{copyToDevice} uses \Rfunc{cudaMalloc} to allocate
+the space on the device.  \Rfunc{cudaMalloc} returns an object that
+points to the allocated memory, but also contains the number and the
+type of the elements, if specified.  This allows us to retrieve the
+contents of the memory on the device.  The \Rfunc{copyFromDevice}
+function does this.  It takes the pointer, the number of elements and
+the type of each element.
+We can specify these explicitly, but in many cases, we can use the 
+more convenient  subset operator
+\begin{RCode}
+p[]
+\end{RCode}
+This utilizes the information stored when we allocated the space and
+is equivalent to 
+\begin{RCode}
+copyFromDevice(p, p@nels, p@elTypeName)
+\end{RCode}
+
+We can also use the subset syntax to assign values to an existing
+memory location on the device. 
+\begin{RCode}
+p[] <- rnorm(N)
+\end{RCode}
+copies the the values on the right-hand side.
+
+We can use \Rfunc{cudaMalloc} to allocate space for arbitrary data
+types as we only need the size of each element.  For known data types
+such as \Ctype{float} or \Ctype{int} values, \Rpkg{RCUDA} knows how to
+copy data both to and from the device.  This does not work for
+arbitrary data types as we don't know how to copy each element.
+
+
+When we no longer have an \R{} reference memory on the device (i.e. in
+an \R{} variable), \R{} releases the memory using a finalizer routine
+we register when allocating the space.  This allows \R{} programmers
+to ignore memory management issues and treat the memory on the device
+as a regular \R{} object.
+
+
+%Pinned memory and other functions in the API.
+
+\subsection{Contexts}
+We can call many of the functions in the \Rpkg{RCUDA}  package
+without having to know about CUDA context objects.
+However, they are important for some computations.
+
+Most \Rpkg{RCUDA} functions require an active context.  We can
+explicitly create a default context using \Rfunc{createContext} or we
+can use \Rfunc{cuGetContext} to query the current context and create
+one if there is none.  When creating a context, we can specify the
+device with which it is associated and also specify different flags or
+options to control how it behaves.  These options are a combination of
+individual options which we can specify in different ways. 
+We can use \R{} variables representing the different options, e.g.
+\Rvar{CU_CTX_SCHED_AUTO} and \Rvar{CU_CTX_MAP_HOST},
+and then we can combine them with the \Rop{|} operator. 
+Alternatively, we can use a vector of names that identify the
+different options. 
+The following are equivalent
+\begin{RCode}
+c("SCHED_AUTO", "BLOCKING_SYNC", "MAP_HOST")
+c("CU_CTX_SCHED_AUTO", "CU_CTX_BLOCKING_SYNC", "CU_CTX_MAP_HOST")
+CU_CTX_SCHED_AUTO | CU_CTX_BLOCKING_SYNC | CU_CTX_MAP_HOST
+\end{RCode}
+The first avoids the \texttt{"CU_CTX"} prefix.
+
+There are also functions that can query and set attributes of a
+context such as the stack and heap size, shared memory configuration
+and cache configuration.
+
+ CUDA maintains a stack of contexts (per host thread, of which there
+ is only one in \R).  When we create a context, it becomes the active
+ one and is used in subsequent computations.  We can also explicitly
+ push an existing context on to the top of the stack with
+ \Rfunc{cuCtxPushCurrent}.  We can pop the current context off the top
+ of the stack with \Rfunc{cuCtxPopCurrent}.  At present, \R{} users
+ must explicitly release a context with \Rfunc{cuCtxtDestroy}.  It
+ would be preferable to release the memory using \R's finalizer
+ mechanism. However, this is, at best, complex because it is difficult
+ to determine if CUDA is still using the context.
+
+
+
+\subsection{Querying Devices}
+The function \Rfunc{getNumDevices} tells us the number of devices on
+the local machine.  
+We can get the name of a device with \Rfunc{cuDeviceGetName}, e.g.
+\begin{RCode}
+cuDeviceGetName(1L)
+\end{RCode}
+\begin{ROutput}
+[1] "GeForce GT 330M"
+\end{ROutput}
+We can query the characteristics of a device using
+the \Rfunc{getDeviceProperties} function or
+\Rfunc{cuDeviceGetAttributes}.  The former uses a deprecated routine
+in the CUDA API, while the second queries all of the individual
+attributes.  The queryable attributes include the maximum dimensions
+of a grid and a block, the maximum number of threads per block and per
+processor, the warp size, the number of multi-processors, shared
+memory per block.  The names of the entire set of attributes are
+available  via the \Rvar{CUdevice\_attributeValues} variable in the package.
+Rather than querying all of the attributes in one call,
+we can retrieve a single attribute with \Rfunc{cuDeviceGetAttribute}.
+We specify the attribute using the name or value of one 
+of the elements in \Rvar{CUdevice\_attributeValues}.
+
+
+In addition to querying information about a device,
+we can query the version of the CUDA SDK with
+\Rfunc{cudaVersion}, e.g.
+\begin{RCode}
+cudaVersion()
+\end{RCode}
+\begin{ROutput}
+ driver runtime 
+   5000    5000 
+\end{ROutput}
+
+
+We can determine the amount of memory a device has with the function
+\Rfunc{cuMemInfo}. Unlike the other functions for querying a device,
+this doesn't take a device as an argument. Instead, it uses the device
+associated with the current context.  Thus we have to have created a
+context before calling this function, either explicitly or implicitly.
+The function reports the total memory on the device, the amount free
+and the proportion free.
+
+
+\subsection{Profiling}
+The reason to use GPUs for scientific computing is to improve
+performance. Copying data between the host and the device is an
+overhead and different approaches in the kernel code and even the
+dimensions of the grid and block for controlling the threads.  It is
+useful to understand where the entire code spends time in order to
+improve the performance by reducing these bottlenecks.  As in \R{}
+itself, we can profile computations involving the GPU with several
+routines in the CUDA API.
+
+We can profile an entire sequence of \R{} expressions with the \R{}
+function \Rfunc{profileCUDA}.  This takes one or more \R{} expressions
+(enclosed within {} for more than one expression) and returns the
+profiling information as a data frame.
+The following allocates space and reuses it for a simple bootstrap
+to compute the likelihood for each sample:  
+\begin{RCode}
+B = 100
+prof = profileCUDA( {
+  p = copyToDevice(x)
+  replicate(B, {
+      p[] = sample(x, N, replace = TRUE)
+      prod(.cuda(kernel, p, N, mean, sd, outputs = 1,  
+                   gridDim = c(62, 32), blockDim = 512))
+  })
+})
+\end{RCode}
+This returns a data frame with rows for each line of output generated
+by the CUDA profiler.  Each row corresponds to a particular CUDA
+routine, kernel routine or routine called by the kernel.  There are
+typically multiple rows for the same routine corresponding to when the
+routine was observed by the profiler.  The columns of the data frame
+correspond to the \dquote{counters} we specified for the profiler to
+record.  We specify this via a configuration file the profiler reads
+when it is instantiated. The \Rpkg{RCUDA} package provides a default
+confugration file and uses that if the caller does not specify one.
+We can use a different configuration file either by explicitly passing
+a file name in the call to \Rfunc{profileCUDA} via the \Rarg{config}
+parameter, or globally via the \R{} option
+\Roption{CUDAProfilerConfig}.
+
+
+Rather than profiling an entire collection of \R{} expressions as a
+single unit, we can create a profiler and start and stop it at
+different times to collect information about particular \R{}
+expressions.  The \Rfunc{cudaProfiler} function creates the profiler,
+and optionally starts it.  We specify the name of a file to which the
+profiler writes the information, and we can select either of two
+formats - CSV or name=value pairs.  We start and stop the profiler
+with \Rfunc{cudaStartProfiler} and \Rfunc{cudaStopProfiler}.  We can
+read the CSV output from the profiler with \Rfunc{readCUDAProfile}.
+\Rfunc{profileCUDA} is merely a wrapper that uses all of these
+functions.
+
+The \Rfunc{summary} method for the result of \Rfunc{profileCUDA} and
+\Rfunc{readCUDAProfile} aggregates the rows in the data frame for each
+routine and gives the total counts for each as a new data frame.
+
+\subsection{Memory Management}
+
+
+
+\subsection{Other Routines in the API}
+% Briefly mention the general groupings of other routines, e.g. stream,
+% event  and what we omitted
+
+For the most part, there is an \R{} function corresponding 
+to  each routine in the CUDA SDK  that can run on the host.
+
+We have not created bindings to the routines associated with textures
+and surfaces.  Should these be important, we can generate this code.
+ 
+
 
 \input{Examples}
 

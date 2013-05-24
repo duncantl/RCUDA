@@ -1,13 +1,13 @@
 library(RCUDA)
 
-cuDeviceGet(0L)
+#cuDeviceGet(0L)
 cuDeviceGetCount()
-cuDeviceTotalMem(0L)
+cuDeviceTotalMem(1L)
 
 cuDeviceGetName(1L)
 
 attribs = unclass(RCUDA:::CUdevice_attributeValues)
-sapply(attribs[-length(attribs)], cuDeviceGetAttribute, 0L)
+sapply(attribs[-length(attribs)], cuDeviceGetAttribute, 1L)
 
 cudaDeviceGetCacheConfig()
 cudaDeviceGetSharedMemConfig()

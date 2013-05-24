@@ -2,19 +2,20 @@
 #include "RCUDA.h"
 
 
-SEXP R_auto_cuDeviceGet(SEXP r_device, SEXP r_ordinal)
+SEXP
+R_auto_cuDeviceGet(SEXP r_ordinal)
 {
     SEXP r_ans = R_NilValue;
-    CUdevice * device = GET_REF(r_device, CUdevice *);
+    CUdevice device;
     int ordinal = INTEGER(r_ordinal)[0];
-    
     CUresult ans;
-    ans = cuDeviceGet(device, ordinal);
-    
-    r_ans = Renum_convert_CUresult(ans) ;
-    
+    ans = cuDeviceGet(& device,  ordinal);
+    if(ans)
+       return(R_cudaErrorInfo(ans));
+    r_ans = ScalarInteger(device) ;
     return(r_ans);
-}
+} 
+
 
 
 SEXP

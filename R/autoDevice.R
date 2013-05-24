@@ -2,13 +2,13 @@
 
 
 cuDeviceGet <-
-function( device , ordinal  )
+function( ordinal )
 {
-ans = .Call('R_auto_cuDeviceGet', as(device, 'CUdevice'), as(ordinal, 'integer'))
+ans = .Call('R_auto_cuDeviceGet', as(ordinal, 'integer'))
 if(is(ans, 'CUresult') && ans != 0)
     raiseError(ans, 'R_auto_cuDeviceGet')
-ans
-}
+as(ans, 'CUdevice')
+} 
 
 
 cuDeviceGetCount <-

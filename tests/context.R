@@ -15,7 +15,7 @@ cuCtxGetSharedMemConfig()
 # This doesn't work on my machine, giving
 #  CUDA_ERROR_UNSUPPORTED_LIMIT
 # errors
-tryCatch(sapply(CUlimitValues, cuCtxGetLimit))
+#tryCatch(sapply(CUlimitValues, cuCtxGetLimit))
 
 old = cuCtxPopCurrent()
 identical(old, ctx)
@@ -31,7 +31,7 @@ cuCtxSetCacheConfig(RCUDA:::CU_FUNC_CACHE_PREFER_SHARED)
 cuCtxGetCacheConfig()
 
 
-cuCtxSetLimit(RCUDA:::CU_LIMIT_DEV_RUNTIME_SYNC_DEPTH, 1.406987e+10)
+tryCatch(cuCtxSetLimit(RCUDA:::CU_LIMIT_DEV_RUNTIME_SYNC_DEPTH, 1.406987e+10), error = function(e) e)
 class(tryCatch(cuCtxSetLimit(RCUDA:::CU_LIMIT_DEV_RUNTIME_SYNC_DEPTH, 1.406987e+10), error = function(e) e))
 
 

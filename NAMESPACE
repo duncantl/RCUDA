@@ -13,13 +13,16 @@ export(cudaAlloc, cudaMalloc)
 
 export(loadModule, getFunction)
 
-export(getNumDevices, getDeviceProps, getDeviceProperties)
+export(getNumDevices, getDeviceProps, getDeviceProperties, cuDeviceGetAttributes)
 
 export(cuInit)
 
 export(cudaCSV, cudaKeyValuePair, cudaOutputMode_tValues)
-export(cudaMemInfo)
+export(cuMemInfo)
+
+
 export(cudaProfiler, profileCUDA, cudaStartProfiler, cudaStopProfiler, readCUDAProfile)
+S3method(summary, "CUDAProfileInfo")
 
 #export(cudaErrorString)
 
@@ -28,7 +31,7 @@ export(cudaVersion)
 exportClasses(cudaDeviceProp, cudaDevicePropPtr)
 
 
-export(CUlimitValues)
+#export(CUlimitValues)
 
 ########
 
@@ -181,3 +184,11 @@ cudaGraphicsSubResourceGetMappedArray,
 cudaGetChannelDesc,
 cudaCreateChannelDesc
 )
+
+
+
+
+export(CU_CTX_SCHED_AUTO, CU_CTX_SCHED_SPIN, CU_CTX_SCHED_YIELD, CU_CTX_SCHED_BLOCKING_SYNC, CU_CTX_BLOCKING_SYNC, CU_CTX_SCHED_MASK, CU_CTX_MAP_HOST, CU_CTX_LMEM_RESIZE_TO_MAX, CU_CTX_FLAGS_MASK)
+
+export(cuFuncGetAttributes)
+

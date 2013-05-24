@@ -8,6 +8,20 @@
 </title>
 <items>
 
+<item>
+Make  the code that expects a device number consistently us as(, "CUDeviceNum") or as (, "CUdevice").
+Auto-generated code such as cudaDeviceGetPCIBusId causes problems as the declaration is integer.
+</item>
+
+<item>
+Allow obj[] to take a routine to copy each element to a SEXP.
+Caller specifies a native symbol.
+</item>
+
+<item>
+cudaMalloc should allow specification of the device.
+</item>
+
 <item status="move">
 In cuGetContext(), check if cuCtxGetCurrent returns a NULL pointer, not a NULL object.
 <br/>

@@ -1,12 +1,13 @@
-\name{cudaMemInfo}
-\alias{cudaMemInfo}
+\name{cuMemInfo}
+\alias{cuMemInfo}
+\alias{cuMemInfo}
 \title{Determine the memory on the active GPU}
 \description{
   This function determines the total and free memory
   available on the current GPU.
 }
 \usage{
-cudaMemInfo()
+cuMemInfo()
 }
 \value{
   A numeric vector of length 3 with elements
@@ -25,8 +26,8 @@ Duncan Temple Lang
 \examples{
 if(getNumDevices() > 0) {
  cuGetContext(TRUE)
- cudaMemInfo()[3]  # percentage free
- cudaMemInfo()[1:2]  # totals
+ cuMemInfo()[3]  # percentage free
+ cuMemInfo()[1:2]  # totals
 }
 }
 \keyword{programming}

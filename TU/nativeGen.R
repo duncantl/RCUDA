@@ -68,6 +68,7 @@ returnsString =
 cuda.createNativeProxy =
 function(fun, name = sprintf("R_auto_%s", funName), typeMap = TypeMap, funName = gsub("_v[0-9]$", "", getName(fun)), stringSize = 10000L)
 {
+
    returnArg = returnsValueViaArg(fun, getName(fun))
 
    returnsString = returnsString(fun)
@@ -237,7 +238,7 @@ function(parm, routineName = "")
   isConst =  grepl("const", name)  &&  !grepl("*", name, fixed = TRUE)
   isStruct =  grepl("struct", name)  &&  !grepl("*", name, fixed = TRUE)
 #  used to include !isStruct &&   but for cudaMalloc3D, this is a problem. What will this break.
-  return(getName(ty) != "char *" && !isConst && !(name %in%  c("const char", "const void", "void", "CUfunction", "CUdevice")))
+  return(getName(ty) != "char *" && !isConst && !(name %in%  c("const char", "const void", "void", "CUfunction"))) # , "CUdevice"
 
   
   elTy = getCanonicalType(getPointeeType(ty))

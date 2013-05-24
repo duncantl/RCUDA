@@ -9,3 +9,8 @@ autom4te\.cache
 checkSDKVersion$
 sizeofs$
 Web
+doc/RCUDA.*$
+jss.*$
+gpu.bib
+PaperOutline
+Examples.tex

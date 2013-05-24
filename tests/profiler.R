@@ -1,11 +1,15 @@
 library(RCUDA)
 
-cuGetContext(TRUE)
 
+f = system.file("sampleKernels", "dnorm.ptx", package = "RCUDA")
+
+if(file.exists(f)) {
+
+cuGetContext(TRUE)
 
 vals = profileCUDA(
  {
-   m = loadModule(system.file("sampleKernels", "dnorm.ptx", package = "RCUDA"))
+   m = loadModule(f)
    k = m$dnorm_kernel
 
    N = 1e6L
@@ -21,3 +25,4 @@ vals = profileCUDA(
 
 
 
+}

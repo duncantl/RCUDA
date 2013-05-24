@@ -63,10 +63,20 @@ function(file, csv = TRUE)
   info = gsub("^# ", "", txt[i])
   con = textConnection(txt[-i])
   on.exit(close(con))
-  structure(read.csv(con), metadata = info)
+  tmp = read.csv(con)
+  structure(tmp, metadata = info, class = c("CUDAProfileInfo", class(tmp)))
 }
 
 readCUDAProfileKeys =
 function(file)
   stop("can't read ", file, ". reading this format not implemented yet")
 
+
+summary.CUDAProfileInfo =
+function(object, ...)
+{
+  tmp = do.call(rbind, lapply(object, function(x) { x = x[sapply(x, is, "numeric")]; tmp = colSums(x); tmp$numCalls = nrow(x); tmp}))
+  structure(tmp, class = c("CUDAProfileSummaryInfo", class(tmp)))
+}
+
+  

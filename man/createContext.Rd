@@ -1,6 +1,15 @@
 \name{createContext}
 \alias{createContext}
 \alias{cuGetContext}
+\alias{CU_CTX_SCHED_AUTO}
+\alias{CU_CTX_SCHED_SPIN}
+\alias{CU_CTX_SCHED_YIELD}
+\alias{CU_CTX_SCHED_BLOCKING_SYNC}
+\alias{CU_CTX_BLOCKING_SYNC}
+\alias{CU_CTX_SCHED_MASK}
+\alias{CU_CTX_MAP_HOST}
+\alias{CU_CTX_LMEM_RESIZE_TO_MAX}
+\alias{CU_CTX_FLAGS_MASK}
 \title{Create or query current context}
 \description{
    These  functions query or establish a context for the computations on
@@ -8,7 +17,7 @@
 }
 \usage{
 createContext(flags = 0L, device = 1L)
-cuGetContext(create = TRUE)
+cuGetContext(create = TRUE, ...)
 }
 \arguments{
   \item{flags}{an integer vector specifying the configuration options
@@ -16,6 +25,7 @@ cuGetContext(create = TRUE)
   \item{device}{the identity of the device for which to create the context.}
   \item{create}{a logical value that controls whether we create a context
     if none is established.}
+  \item{\dots}{additional arguments passed to \code{createContext}}
 }
 \value{
   Both functions return an object of class \code{CUcontext}.

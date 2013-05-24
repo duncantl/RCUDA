@@ -18,7 +18,7 @@
   The function \code{.gpu} is another name for \code{.cuda}.
 }
 \usage{
-.cuda(fun, ..., .args = list(...), gridDim, blockDim, sharedMemBytes = 0L, stream = NULL, inplace = FALSE, outputs = logical(), .gc = TRUE, .gpu = 0L)
+.cuda(fun, ..., .args = list(...), gridDim, blockDim, sharedMemBytes = 0L, stream = NULL, inplace = FALSE, outputs = logical(), .gc = TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -43,10 +43,10 @@
   The reason for this is to ensure that any data allocated passively on
   the GPU in earlier calls is released so that we can allocate some of
   the arguments on the GPU, if appropriate and necessary.}
-  \item{.gpu}{currently ignored. This is intended to allow the caller to
-    specify the GPU device on a machine with more than one GPU device.
-    This will set the default device, establish a context before
-    launching the call.}
+%  \item{.gpu}{currently ignored. This is intended to allow the caller to
+%    specify the GPU device on a machine with more than one GPU device.
+%    This will set the default device, establish a context before
+%    launching the call.}
   \item{inplace}{currently ignored but intended to indicate which
     arguments are modified in place.}
 }

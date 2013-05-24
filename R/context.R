@@ -66,7 +66,7 @@ function(  )
 ans = .Call('R_cuCtxGetDevice')
 if(is(ans, 'CUresult') && ans != 0)
     raiseError(ans, 'R_cuCtxGetDevice')
-ans
+ new("CUDeviceNum", ans)  # manually changed
 }
 
 

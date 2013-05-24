@@ -77,11 +77,11 @@ function(status, msg = character(), ...)
 createContext =
 function(flags = 0L, device = 1L)
 {
-   ans = .Call("R_createContext", as.integer(flags), as(as(device, "CUDeviceNum"), "integer"))
-  if(is.integer(ans))  #  !is(ans, "RC++Reference"))
+  ans = .Call("R_createContext", as(flags, "CUctx_flags"), as(as(device, "CUDeviceNum"), "integer"))
+  if(is(ans, "CUresult") && ans != 0)  
      raiseError(ans, msg = c("failed to create context"))
    
-   ans
+  ans
 }
 
 
@@ -89,11 +89,17 @@ function(flags = 0L, device = 1L)
 .gpu = .cuda =
 function(fun, ..., .args = list(...), gridDim, blockDim,
          sharedMemBytes = 0L, stream = NULL, inplace = FALSE,
-          outputs = logical(), .gc = TRUE,
-          .gpu = 0L)
+          outputs = logical(), .gc = TRUE
+#          ,.gpu = 0L
+         )
 {
    if(.gc)
      gc()
+
+#  if(!missing(.gpu)) {
+#    ctxt = createContext( device = .gpu)
+#    on.exit(cuCtxPopCurrent())
+#  }
    
    fun = as(fun, "CUfunction")
 
@@ -110,7 +116,7 @@ function(fun, ..., .args = list(...), gridDim, blockDim,
    
    ans = .Call("R_cuLaunchKernel", fun, as.integer(gridDim), as.integer(blockDim), .args, as.integer(sharedMemBytes), stream)
    if(is.integer(ans))  #  !is(ans, "RC++Reference"))
-      raiseError(ans, msg = c("failed to create context"))
+      raiseError(ans, msg = c("failed to launch kernel"))
 
    if(!missing(outputs)) {
      if(length(outputs) == 0 || is.logical(outputs) && !any(outputs))
@@ -120,9 +126,13 @@ function(fun, ..., .args = list(...), gridDim, blockDim,
      return(if(length(ans) == 1) ans[[1]] else ans)
    }
    
-   if(any(mustCopy))
-     lapply(.args[mustCopy], `[`)
-   else
+   if(any(mustCopy)) {
+      ans = lapply(.args[mustCopy], `[`)
+      if(sum(mustCopy) == 1)
+        ans[[1]]
+      else
+        ans
+   } else
      ans
 }
 
@@ -196,7 +206,7 @@ function(obj, nels, type)
           .Call("R_getCudaIntVector", obj, nels)
         else if(type == "logical")
           .Call("R_getCudaIntVector", obj, nels)
-        else if(type == "float" || type == "numeric")
+        else if(type == "float" || type == "numeric" || type == "double")
           .Call("R_getCudaFloatVector", obj, nels, NULL)
 
   if(is(ans, "CUresult"))
@@ -252,6 +262,9 @@ setMethod("[", c("cudaPtrWithLength", "logical", "missing"),
 
 setMethod("[<-", c("cudaPtrWithLength", "missing", "missing"),
            function(x, i, j, ..., value) {
+             if(length(value) > x@nels)
+               warning("only copying ", x@nels, " elements")
+             # coerce to the correct type
              copyToDevice(rep(value, length = x@nels), x)
            })
 
@@ -260,11 +273,15 @@ setMethod("[<-", c("cudaPtrWithLength", "missing", "missing"),
 # and have the C code avoid copying the data.
 setMethod("[<-", c("cudaFloatArray", "missing", "missing"),
            function(x, i, j, ..., value) {
+             if(length(value) > x@nels)
+               warning("only copying ", x@nels, " elements")             
              copyToDevice(rep(as.numeric(value), length = x@nels), x)
            })
 
 setMethod("[<-", c("cudaIntArray", "missing", "missing"),
            function(x, i, j, ..., value) {
+             if(length(value) > x@nels)
+               warning("only copying ", x@nels, " elements")             
              copyToDevice(rep(as.integer(value), length = x@nels), x)
            })
 
@@ -281,14 +298,14 @@ function(flags = 0L)
 }
 
 cuGetContext =
-function(create = TRUE)
+function(create = TRUE, ...)
 {  
   ans = .Call("R_cuCtxGetCurrent")
   if(is.integer(ans))
      raiseError(ans, "failed to get current CUDA context")
 
   if(is.nullExtPtr(ans) && create)
-    ans = createContext()
+    ans = createContext(...)
   
   ans
 }
@@ -315,7 +332,7 @@ function()
 
 
 
-cudaMemInfo =
+cuMemGetInfo = cuMemInfo =
 function()
 {
   ans = .Call("R_cuMemGetInfo")
@@ -327,3 +344,13 @@ function()
   ans
 }
 
+
+
+
+cuFuncGetAttributes =
+function(func)
+{
+     # ignore the MAX entry 
+   vals = CUfunction_attributeValues
+   sapply(unclass(vals)[-length(vals)], cuFuncGetAttribute,  as(func, "CUfunction"))
+}

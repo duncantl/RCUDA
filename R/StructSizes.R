@@ -1,4 +1,10 @@
 CUDAStructSizes = c(
+ int = 4L,
+ long = 4L,
+ short = 2L,
+ char = 1L,
+ float = 4L,
+ double = 8L,
  CUuuid_st = 16L,
  CUuuid = 16L,
  CUuuid_st = 16L,
