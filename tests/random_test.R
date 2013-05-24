@@ -63,7 +63,8 @@ cu_rng_alloc_time <- system.time({
 cat("done. Allocating space for results...\n")
 x_double <- rep(0.0,N)
 x_int    <- rep(0,N)
-x_d_mem <- copyToDevice(x_double)
+   # probably want to use cudaMalloc() here to avoid allocating the vector in R.
+x_d_mem <- copyToDevice(x_double) 
 x_i_mem <- copyToDevice(x_int)
 
 ##
@@ -141,20 +142,28 @@ r_rpois_time <- system.time({
     r_rpois_x <- rpois(n=N,lambda=lambda)
 })
 
-tlist <- c("cu_rng_alloc","cu_init",
-           "cu_all_in_one","cu_all_in_one_copy",
-           "runif","cu_runif_copy","r_runif",
-           "cu_rnorm","cu_rnorm_copy","r_rnorm",
-           "cu_rpois","cu_rpois_copy","r_rpois")
+tlist <- paste(c("cu_rng_alloc","cu_init",
+                 "cu_all_in_one","cu_all_in_one_copy",
+                 "cu_runif","cu_runif_copy","r_runif",
+                 "cu_rnorm","cu_rnorm_copy","r_rnorm",
+                 "cu_rpois","cu_rpois_copy","r_rpois"), "time", sep = "_")
 
 cat("===========================\n")
 cat("Timing information:\n")
-for (nm in tlist){
-    obj <- paste(nm,"time",sep="_")
-    cat(paste(obj,":\n",sep=""))
-    eval(parse(text=paste("print(",obj,")",sep="")))
-}
+invisible(sapply(tlist, function(obj) {
+     cat(paste(obj, ":\n", sep = ""))
+     print(get(obj))
+   }))
+
 cat("===========================\n")
 
+  # A plot.
+  # Look at the elapsed time for the runif, rnorm and rpois for GPU and CPU
+d = data.frame(times = do.call(cbind, mget(tlist[c(6,7, 9, 10, 12, 13)]))[3,],
+               distribution = rep(c("unif", "norm", "pois"), each = 2),
+               processor = rep(c("GPU", "CPU"), 3))
+
+library(lattice)
+dotplot(times ~ distribution, d, group = processor, auto.key = list(space = "right"))
 
 

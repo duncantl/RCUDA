@@ -52,7 +52,8 @@
   One Shields Avenue\\
   Davis, CA 95616\\
   E-mail: \email{pbaines@ucdavis.edu}\\
-  URL: \url{}
+  URL: \url{http://www.stat.ucdavis.edu/~pdbaines/}
+\\
 \\
   Duncan Temple Lang\\
   4210 Math Sciences Building, \\
@@ -67,7 +68,20 @@
 \def\R{\proglang{R}}
 \def\llvm{\proglang{LLVM}}
 \def\Rpkg#1{\pkg{#1}}
+\def\Rfunc#1{\textsl{#1()}}
+\def\Rvar#1{\textsl{#1}}
+\def\Cfunc#1{\textit{#1()}}
+\def\Cvar#1{\textit{#1}}
+\def\file#1{\textbf{#1}}
+\def\Ctype#1{\texttt{#1}}
+\def\Rclass#1{\textit{#1}}
+\def\Rarg#1{\textbf{#1}}
 
+\def\ShFlag#1{\textit{#1}}
+
+\DefineVerbatimEnvironment{RCode}{Verbatim}{fontshape=sl}
+\DefineVerbatimEnvironment{CCode}{Verbatim}{fontshape=tt}
+\DefineVerbatimEnvironment{ShCode}{Verbatim}{fontshape=it}
 
 \begin{document}
 
@@ -108,14 +122,155 @@ It also interprets this on the GPU rather than using native code.
 We discuss in section~\ref{sec:LLVM} how might be able to compile a
 larger subset of the \R{} language to native GPU code.
 
+The \Rpkg{RCUDA} package is similar in nature to
+\Rpkg{OpenCL}~\cite{bib:ROpenCl}.  It targets the CUDA SDK and NVIDIA
+GPUs. This is based on the belief that the dedicated SDK can
+outperform the more general OpenCL~\cite{bib:OpenCL} SDK.  Also,
+\Rpkg{RCUDA} aims to expose the entire SDK to \R{} programmers. The
+\Rpkg{OpenCL} package provides the essential functionality to invoke
+kernels on the GPU, passing data from \R{} to the GPU and back.  This
+difference illustrates one of the primary motivations of the
+\Rpkg{RCUDA} package. We want \R{} programmers to experiment with
+different features of the SDK and to explore the performance
+characteristics of various programming strategies for GPUs.  Different
+GPUs exhibit quite different performance characteristics, and
+different programming paradigms and even tuning parameters also can
+have significant impact. For this reason, we want to be able to be
+able to control these aspects dynamically in a high-level language 
+rather than fix them statically in a language such as \C.
 
-\section[The Basics of the RCUDA Package]{The Basics of the
-  \Rpkg{RCUDA} package}\label{sec:}
 
-\section{Examples/case-Studies and performance}\label{sec:}
-% 
-% Distance computations using kernel from gputools
-% Particle filter
+
+
+\section[The Basics of the RCUDA Package]{The Basics of the \Rpkg{RCUDA} package}\label{sec:}
+In this section, we describe both the essential concepts of the CUDA
+SDK and the \R{} interface to it provided by the \Rpkg{RCUDA} package.
+
+At its very simplest, computing with GPUs involves 
+\begin{enumerate}
+\item writing (and compiling) a kernel that performs the computations,
+\item allocating memory on the GPU device, 
+\item copying data from the host to the device
+\item invoking the kernel
+\item copying the results from the device to the host.
+\end{enumerate}
+We will discuss each of these steps.
+
+For now, we require that the kernel be compiled outside of \R.  This
+means that an \R{} programmer can write and compile a kernel or
+perhaps that it be compiled by somebody else and made available to the
+\R{} programmer.  The \Rpkg{RCUDA} package can compile a kernel for
+the \R{} user but it is often more convenient to use the command-line
+to compile the code directly. 
+We'll use the \Cfunc{dnorm} kernel as an example.
+Our kernel code is reasonably simple for a CUDA kernel and is shown in
+figure~\ref{fig:dnormKernelCode}.
+ % should we show the code for the kernel?
+% This probably requires a separate section  describing the basic idea
+% of kernels and how they  know what to operate on and where to put
+% their results. threadIdx, blockIdx, blockDim, gridDim. This requires
+% some explanation,
+\begin{figure}
+\begin{CCode}
+extern "C"
+__global__ void dnorm_kernel(float *vals, int N, float mu, float sigma)
+{
+       // Taken from geco.mines.edu/workshop/aug2010/slides/fri/cuda1.pd
+    int myblock = blockIdx.x + blockIdx.y * gridDim.x;
+           /* how big is each block within a grid */
+    int blocksize = blockDim.x * blockDim.y * blockDim.z;
+            /* get thread within a block */
+    int subthread = threadIdx.z*(blockDim.x * blockDim.y) + 
+                         threadIdx.y*blockDim.x + threadIdx.x;
+
+    int idx = myblock * blocksize + subthread;
+
+	if(idx < N) {
+            float std = (vals[idx] - mu)/sigma;
+	    float e = exp( - 0.5 * std * std);
+	    vals[idx] = e / ( sigma * sqrt(2 * 3.141592653589793));
+	}
+}
+\end{CCode}
+\caption{The \C{} code defining a GPU kernel to compute the Normal
+  density.  This kernel writes the results back into the input
+  vector, overwriting its values.
+}\label{fig:dnormKernelCode}
+\end{figure}
+
+Before we can invoke a kernel, we have to load it into the host
+process, i.e. \R.  We do this by loading the compiled code as a
+\textit{Module}.  We use the \R{} function \Rfunc{loadModule} to do
+this. It can read the code in various formats - the PTX text format
+and the two binary formats cubin and fatbin.
+
+We compile it with 
+\begin{ShCode}
+nvcc --ptx -o dnorm.ptx dnorm.cu
+\end{ShCode}
+Alternatively, we can compile the two binary formats with 
+\begin{ShCode}
+nvcc -cubin -m64 -gencode arch=compute_10,code=sm_10 -o dnorm.cubin dnorm.cu
+nvcc -fatbin -m64 -gencode arch=compute_10,code=sm_10 -o dnorm.fatbin dnorm.cu
+\end{ShCode}
+respectively.
+The \ShFlag{arch} flag specifies the GPU compatability level.%! Fix this
+
+Once we have compiled the code, we can load it with
+\begin{RCode}
+mod = loadModule("dnorm.ptx")
+\end{RCode}
+Next, we can obtain a reference to the particular routine in the
+module  that we want to invoke.  The \R{} interface makes the module
+appear like a list and so we can use
+\begin{RCode}
+kernel = mod$dnorm_kernel
+\end{RCode}
+%$ - fool latex mode
+to get this reference.
+
+We now have the kernel, but need the data to pass to it.  We'll use a simple example
+and simulate it in \R{} via the \Rfunc{rnorm} function.
+\begin{RCode}
+N = 1e6
+mean = 2.3
+sd =  2.1
+x = rnorm(N, mean, sd)
+\end{RCode}
+
+We have outlined the explicit steps involved in calling a kernel.
+However, we can shortcut these steps using the \R{} interface.  The
+\Rfunc{.cuda} (or the synonomous \Rfunc{.gpu}) will copy an \R{} vector
+argument to the device. So we can invoke the kernel with
+\begin{RCode}
+ans = .cuda(kernel, x, N, mean, sd, gridDim = c(62, 32), blockDim = 512)
+\end{RCode}
+We must explicitly specify the dimension for the grid and block to be
+used when invoking the kernel. Each of these can specify
+three-dimensions, however, any omitted dimension defaults to $1$.
+We have chose $62$, $32$ and $512$ for this example as the product
+of these exceeds the number of elements \Rvar{N}. We will have some
+redundant threads on the GPU, but that is cheap.
+
+The \Rfunc{.cuda} function recognizes the inputs and determines which
+to copy to the device and which can be passed directly (i.e. the
+scalar values \Rvar{N}, \Rvar{mean} and \Rvar{sd}). We'll see later
+that we can pass arguments that refer to data or memory already on the
+GPU and \Rfunc{.cuda} recognizes that it doesn't need to transfer
+this, but merely pass the reference as-is.
+
+The \Rfunc{.cuda} function also recognizes that since the data was
+passed from \R{}, it may be modified and returns that vector.  If
+there are multiple vector inputs, it returns all of these as list in
+the same way the \Rfunc{.C} function behaves. However, \Rfunc{.cuda}
+recognizes if a single input argument is a vector and so \Rvar{ans} in
+our example contains the actual vector of normal density values.  More
+generally, we can specify which inputs are to be copied back to \R{}
+from the device via the \Rarg{outputs} parameter of the \Rfunc{.cuda}
+function.
+
+\input{Examples}
+
 
 \section{Low-level interface and its implementation}
 We initially implemented the bindings to copy data between the host
@@ -129,6 +284,90 @@ data structures (e.g. the size of each so we can use that when
 allocating memory on the device).  
 
 % Show an example of a binding and how it appears.
+Next, we describe a reasonably simple example of a programmatically
+generated binding to illustrate the nature of the interface and to
+help mapping  from the CUDA documentation to the \R{} functions.
+One function is \Rfunc{cuDeviceGetAttribute} and corresponds to the routine
+with the same name in the CUDA API.
+The routine is defined  in the header file \file{cuda.h} as
+\begin{Code}
+CUresult CUDAAPI 
+cuDeviceGetAttribute(int *pi, CUdevice_attribute attrib, CUdevice dev);
+\end{Code}
+The second parameter identifies which attribute we are querying and
+the third parameter identifies the device. The latter is an integer,
+with $0$ corresponding to the first device, $1$ for the second and so
+on.  The first parameter is a pointer to a single integer. This is how
+the CUDA API returns the result of the query.  This is an output
+variable. Accordingly, we do not need to include in the \R{} function
+that calls the \C{} routine.
+
+The CUDA routine returns a status value of type \Ctype{CUresult}.  We
+check this to see if the call was successful. If it was, we return the
+result stored in \Cvar{pi}; otherwise, we raise an error in \R, using
+the particular value of the status type and the CUDA error message.
+
+The \R{} function we generate to interface to the CUDA routine is
+defined as
+\begin{RCode}
+cuDeviceGetAttribute <-
+function( attrib , dev  )
+{
+   ans = .Call('R_auto_cuDeviceGetAttribute', 
+                   as(attrib, 'CUdevice_attribute'), 
+                   as(dev, 'CUdevice'))
+   if(is(ans, 'CUresult') && ans != 0)
+       raiseError(ans, 'R_auto_cuDeviceGetAttribute')
+   ans
+}
+\end{RCode}
+This makes the call to the wrapper routine
+\Cfunc{R\_auto\_cuDeviceGetAttribute}, passing it the two \R{} values
+identifying the attribute and device of interest.  An important step
+here is that this \R{} function coerces the arguments it receives to
+the correct types.  Here we have an opportunity to use $1$-based
+counting familiar to \R{} users for specifying the device.  The
+coercion from the device number to a \Rclass{CUdevice} object in \R{}
+performs the subtraction to map to the $0$-based couting used by CUDA.
+We manually defined the \Rclass{CUdevice} class and the coercion method.
+
+The function checks the status of the result to see if it is an \R{}
+object of class \Rclass{CUresult}. If it is and not $0$, the call
+produced an error and we raise this in \R. By doing this in \R{}
+rather than in \C{} code, it is easier to raise exceptions/conditions
+with classes corresponding to the type of error. This allows
+programmers to react to particular types of errors, e.g. out of memory
+or invalid device, in different ways.
+
+The final piece of the bindings is the \C{} wrapper routine
+\Cfunc{R\_auto\_cuDeviceGetAttribute}. This is defined as 
+\begin{CCode}
+SEXP
+R_auto_cuDeviceGetAttribute(SEXP r_attrib, SEXP r_dev)
+{
+    SEXP r_ans = R_NilValue;
+    int pi;
+    CUdevice_attribute attrib = (CUdevice_attribute) INTEGER(r_attrib)[0];
+    CUdevice dev = INTEGER(r_dev)[0];
+    CUresult ans;
+    ans = cuDeviceGetAttribute(& pi,  attrib,  dev);
+    if(ans)
+       return(R_cudaErrorInfo(ans));
+    r_ans = ScalarInteger(pi) ;
+    return(r_ans);
+}
+\end{CCode}
+The logic is quite straightforward and very similar to how we would
+write this manually. We convert the \R-level arguments to their
+equivalent \C{} types.  We create a local variable (\Cvar{pi}) used to
+retrieve the actual result.  We call the CUDA routine and check the
+status value.  If there is an error, we call a manually written
+routine \Cfunc{R\_cudaErrorInfo} which collects information about the
+CUDA error in the form of an \R{} object.  If the CUDA call was
+successful, we return the value of the local variable \Cvar{pi}
+converted to the approriate \R{} type.
+
+
 
 We used \Rpkg{RCIndex}~\cite{bib:RCIndex} to both read the
 declarations in the CUDA header files and to generate the bindings.
@@ -169,7 +408,7 @@ code (\Rpkg{RLLVMCompile}), or a specialized version of it for
 targetting GPUs, and have it generate PTX code for kernel routines.
 We can then load these routines onto the GPU and invoke them as a
 regular kernels.  This was done using \R{} as an example by
-researchers in NVIDIA~\cite{} investigating dynamic, interpreted
+researchers in NVIDIA~\cite{bib:libNVVM} investigating dynamic, interpreted
 languages and GPUs.
 
 \section{Future Work}

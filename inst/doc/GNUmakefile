@@ -1,6 +1,6 @@
 RCUDA.pdf:
 
-%.pdf: %.tex gpu.bib
+%.pdf: %.tex gpu.bib Examples.tex
 	-pdflatex $*
 	-pdflatex $*
 	bibtex $*
