@@ -1,0 +1,199 @@
+\documentclass[article]{jss}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% declarations for jss.cls %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% almost as usual
+\author{Paul Baines\\University of California at Davis\\
+        Duncan Temple Lang\\University of California at Davis}
+\title{RCUDA: General programming facilities for GPUs in R}
+
+%% for pretty printing and a nice hypersummary also set:
+\Plainauthor{Paul Baines, Duncan Temple Lang}
+\Plaintitle{RCUDA: General programming facilities for GPUs in R}
+\Shorttitle{RCUDA}
+
+%% an abstract and keywords
+\Abstract{ General Purpose Graphical Programming Units (GPGPUs)
+  provide the ability to perform computations in a massively parallel
+  manner.  Their potential to significantly speed computations for
+  certain classes of problems has been clearly demonstrated.  We
+  describe an \proglang{R} package that provides high-level
+  functionality that allows \proglang{R} programmers to experiment
+  with and exploit NVIDIA GPUs.  The package provides an interface to
+  the routines and data structures in the CUDA software development
+  kit (SDK), and also provides higher-level \proglang{R} interfaces to
+  these. Currently, programmers write the code that runs on the GPU in
+  \proglang{C} code but call that code and manage the inputs and
+  outputs in \proglang{R} code. We describe experimental approaches to
+  compile \proglang{R} directly so that all computations can be
+  expressed in \proglang{R}.
+}
+\Keywords{GPUs, parallel computing, \R, \Rpkg{RCUDA} package}
+\Plainkeywords{GPUs, parallel computing, R, RCUDA} %% without formatting
+%% at least one keyword must be supplied
+
+%% publication information
+%% NOTE: Typically, this can be left commented and will be filled out by the technical editor
+%% \Volume{13}
+%% \Issue{9}
+%% \Month{September}
+%% \Year{2004}
+%% \Submitdate{2004-09-29}
+%% \Acceptdate{2004-09-29}
+
+%% The address of (at least) one author should be given
+%% in the following format:
+\Address{
+  Paul Baines\\
+  4210 Math Sciences Building, \\
+  University of California at Davis \\
+  One Shields Avenue\\
+  Davis, CA 95616\\
+  E-mail: \email{pbaines@ucdavis.edu}\\
+  URL: \url{}
+\\
+  Duncan Temple Lang\\
+  4210 Math Sciences Building, \\
+  University of California at Davis \\
+  One Shields Avenue\\
+  Davis, CA 95616\\
+  E-mail: \email{duncan@r-project.org}\\
+  URL: \url{http://www.omegahat.org}
+}
+
+\def\C{\proglang{C}}
+\def\R{\proglang{R}}
+\def\llvm{\proglang{LLVM}}
+\def\Rpkg#1{\pkg{#1}}
+
+
+\begin{document}
+
+\section{Introduction}\label{sec:Introduction}
+GPUs have emerged as a computational platform for massively parallel
+computations. Unlike CPUs, their performance continues to grow
+dramatically.  They are very good for particular classes of
+computations, some quite common in statistics.  It is important for
+statisticians to be able to leverage these so that we have another
+approach to make computations faster and so scale to larger data sets
+or simulations.
+
+GPUs require the programmer to use a different computational model
+when implementing an algorithm.  They also use a slightly extended
+version of the  \C{}  programming language and require
+the programmer to think about two processing units - the host CPU
+and the  GPU  device. The programmer must allocate and move data from the
+host to the device and back.  This consumes resources.
+
+
+The \pkg{RCUDA} package is quite different in intent and functionality
+than other GPU-related \R packages such as
+\Rpkg{gputools}~\cite{bib:gputools} and \Rpkg{rgpu}~\cite{bib:rgpu}.
+\Rpkg{gputools} implements several commonly used statistical
+algorithms in \C{} code that runs on a GPU and provides \R{} functions
+to invoke those with data in \R.  The set of functions is fixed and
+\R{} programmers wanting to implement a different algorithm or
+approach for one of these algorithms must program in \C.
+
+The \Rpkg{rgpu} package also provides implementation of a few
+algorithms written in \C{} that run on a GPU.  However, it also
+provides an ``interpreter'' for \R{} scalar mathematical expressions.
+This does not appear to handle arbitrary code % in spite of its claims
+and also has to map each expression from \R{} to a different
+representation for each call from \R{} to the GPU.
+It also interprets this on the GPU rather than using native code. 
+% It  also doesn't install cleanly.  
+We discuss in section~\ref{sec:LLVM} how might be able to compile a
+larger subset of the \R{} language to native GPU code.
+
+
+\section[The Basics of the RCUDA Package]{The Basics of the
+  \Rpkg{RCUDA} package}\label{sec:}
+
+\section{Examples/case-Studies and performance}\label{sec:}
+% 
+% Distance computations using kernel from gputools
+% Particle filter
+
+\section{Low-level interface and its implementation}
+We initially implemented the bindings to copy data between the host
+(CPU) and device (GPU) and the ability to launch a kernel to verify
+that this approach would work and to deal with the marshalling of \R{}
+objects to the kernel calls and vice-versa.  We also added some
+additional bindings to query the available GPUs and their properties.
+Subsequently, however, we programmatically generated the binding (\R{}
+and \C) code and the enumerated constants and information about the
+data structures (e.g. the size of each so we can use that when
+allocating memory on the device).  
+
+% Show an example of a binding and how it appears.
+
+We used \Rpkg{RCIndex}~\cite{bib:RCIndex} to both read the
+declarations in the CUDA header files and to generate the bindings.
+Programmatically generating the bindings reduces the number of simple
+programming errors and also allows us to update the bindings when new
+versions of the API and SDK are released.
+
+The CUDA API uses an idiom for most of its routines.  A routine
+returns an error status value, and if this indicates success, the
+actual results are accessible via the pointers we passed to the
+routine. In other words, the routines return their values via input
+pointers.  We specialized the general binding generation mechanism in
+\Rpkg{RCIndex} to exploit this idiom and be able to understand what
+was essentially an output parameter passed as a pointer input and what
+were actual pointer input parameters.  This code to generate the
+CUDA-specific bindings is included in the package.
+
+
+
+
+\section[Compiling R code to native GPU code]{Compiling \R{} code to native GPU code}\label{sec:LLVM}
+% Move into Future work if we don't get this running.
+The following is not yet fully implemented, but is something 
+we know to be possible and related to work we are pursuing in a
+slightly related project.
+\llvm{} stands for the Low Level Virtual Machine
+and is a compiler toolkit which we can embed in \R. 
+This allows us to dynamically generate machine code within an \R{}
+session and invoke those newly created routines, passing them 
+inputs from \R{} and obtaining the results in \R.
+This is very powerful and allows us to ``compile around the \R{}
+interpreter'' and gain significant speedups for some common \R{}
+idioms~\cite{bib:StatSciLLVM}.
+
+\llvm{} can generate machine code for the machine's CPU, but can also
+create PTX code to run on an NVIDIA GPU.  We can use our \R{} compiler
+code (\Rpkg{RLLVMCompile}), or a specialized version of it for
+targetting GPUs, and have it generate PTX code for kernel routines.
+We can then load these routines onto the GPU and invoke them as a
+regular kernels.  This was done using \R{} as an example by
+researchers in NVIDIA~\cite{} investigating dynamic, interpreted
+languages and GPUs.
+
+\section{Future Work}
+
+Now that we have the general-purpose bindings and access to the CUDA
+API, we, and hopefully others, will explore how to map statistical
+algorithms onto the GPU to take advantage of their potential.  We plan
+to explore different examples and approaches and understand their
+characteristics.  
+
+We also plan to explore the potential benefits of aspects of the API
+such as pinned memory, streams for interleaving computations,
+peer-to-peer communication between two or more GPUs.
+
+As the need arises, we may generate bindings to other GPU-related
+libraries and APIs. These include There is no need to have \R{}
+bindings to interface with kernel-level libraries such as
+Thrust~\cite{bib:Thrust} and parts of curand~\cite{bib:curand}.
+However, we may need to determine the sizes of the different data
+structures they use that should be allocated by the host on the
+device.
+
+
+\bibliography{gpu}
+
+
+\end{document}
