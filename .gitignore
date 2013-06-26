@@ -7,6 +7,12 @@ RError.h
 *.Rhistory
 *.RData
 *.DS_Store
+*.aux
+*.log
+*.pdf
+*.bbl
+*.out
+*.blg
 config.log
 config.status
 
