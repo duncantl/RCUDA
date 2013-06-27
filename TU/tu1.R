@@ -51,7 +51,7 @@ g = writeCode(f, "r", file = "../R/getDevProps.R")
 classes = getClasses(tu)
 
  # Get the argument types
-argTypes = lapply(cuda, function(x) sapply(x$parameters, function(x) class(x$type)))
+argTypes = lapply(cuda, function(x) sapply(x@parameters, function(x) class(x$type)))
 
 table(sapply(argTypes, length))
 

@@ -52,18 +52,19 @@ TypeMap = list(CUdeviceptr = list(convertValueToR = function(name, ..., type = t
 returnsValueViaArg =
 function(fun, routineName = "")
 {
-  if(length(fun$params) == 0 || !getName(fun$returnType) %in% c("CUresult", "cudaError_t"))
+  params = fun@params
+  if(length(params) == 0 || !getName(fun@returnType) %in% c("CUresult", "cudaError_t"))
     return(integer())
-  i = which(sapply(fun$params, isOutPointerType, routineName))
+  i = which(sapply(params, isOutPointerType, routineName))
     # check for the next parameter being int len.
-  i[ ! sapply(i, function(i) length(fun$params) > i && names(fun$params)[i + 1] == "len" && isIntegerType(getType(fun$params[[i+1]]))) ]
+  i[ ! sapply(i, function(i) length(params) > i && names(params)[i + 1] == "len" && isIntegerType(getType(params[[i+1]]))) ]
 }
 
 
 
 returnsString =
   function(fun)
-     length(fun$params) && isStringType(getType(fun$params[[1]])) && isIntType(getType(fun$params[[2]]))
+     length(fun@params) && isStringType(getType(fun@params[[1]])) && isIntType(getType(fun$params[[2]]))
 
 cuda.createNativeProxy =
 function(fun, name = sprintf("R_auto_%s", funName), typeMap = TypeMap, funName = gsub("_v[0-9]$", "", getName(fun)), stringSize = 10000L)
@@ -77,9 +78,9 @@ function(fun, name = sprintf("R_auto_%s", funName), typeMap = TypeMap, funName =
      returnsString = TRUE
      returnArg = unique(c(1L, returnArg))
      returnArg = c(returnArg, returnArg + 1L)
-     stringVarName = names(fun$params)[returnArg[1]]
-     stringLengthName = names(fun$params)[returnArg[1] + 1L]     
-#     fun$params = fun$params[ - seq(returnArg[1], length = 2) ]
+     stringVarName = names(fun@params)[returnArg[1]]
+     stringLengthName = names(fun@params)[returnArg[1] + 1L]     
+#     fun@params = fun@params[ - seq(returnArg[1], length = 2) ]
    }
 
    if(length(returnArg) == 0) 
@@ -87,15 +88,15 @@ function(fun, name = sprintf("R_auto_%s", funName), typeMap = TypeMap, funName =
    else
      cuResult = TRUE   
 
-   argNames = names(fun$params)
+   argNames = names(fun@params)
 
    if(length(returnArg)) {
-     actualArgs = fun$params[- returnArg ]
+     actualArgs = fun@params[- returnArg ]
      
          #XXX have to handle if there is more than one being returned.
-     firstArgType = getPointeeType(getType(fun$params[[returnArg[1] ]])) #getCanonicalType(getPointeeType(getType(fun$params[[1]])))
+     firstArgType = getPointeeType(getType(fun@params[[returnArg[1] ]])) #getCanonicalType(getPointeeType(getType(fun$params[[1]])))
    } else
-     actualArgs = fun$params
+     actualArgs = fun@params
 
 
    sig = sprintf("%s(%s)", name, paste(sprintf("SEXP r_%s", names(actualArgs)), collapse = ", "))
@@ -103,8 +104,8 @@ function(fun, name = sprintf("R_auto_%s", funName), typeMap = TypeMap, funName =
    cvtCode = if(length(returnArg)) {
                 if(length(returnArg) > 1 && !returnsString)
                   unlist(lapply(seq(along = returnArg), function(i) {
-                                        ty = getPointeeType(getType(fun$params[[returnArg[i]]]))
-                                        val = convertValueToR(ty, names(fun$params)[returnArg[i]], typeMap = typeMap, rvar = "")
+                                        ty = getPointeeType(getType(fun@params[[returnArg[i]]]))
+                                        val = convertValueToR(ty, names(fun@params)[returnArg[i]], typeMap = typeMap, rvar = "")
                                         if(length(val) > 1 || inherits(val, "AsIs"))
                                            c("{", val[-length(val)],
                                              sprintf("SET_VECTOR_ELT(r_ans, %d, %s);", i-1L, gsub(";$", "", val[length(val)])), "}")
@@ -113,12 +114,12 @@ function(fun, name = sprintf("R_auto_%s", funName), typeMap = TypeMap, funName =
                                       }))
                 else {
                   if(returnsString)
-                     sprintf("mkString(%s)", names(fun$params)[returnArg[1]])
+                     sprintf("mkString(%s)", names(fun@params)[returnArg[1]])
                   else
-                     convertValueToR(firstArgType, names(fun$params)[returnArg[1]], typeMap = typeMap)
+                     convertValueToR(firstArgType, names(fun@params)[returnArg[1]], typeMap = typeMap)
                 }
              } else
-                convertValueToR(fun$returnType, "ans", typeMap = typeMap)
+                convertValueToR(fun@returnType, "ans", typeMap = typeMap)
 
    localVars = makeLocalVars(actualArgs, sprintf("r_%s", names(actualArgs)), names(actualArgs))
 
@@ -130,8 +131,8 @@ function(fun, name = sprintf("R_auto_%s", funName), typeMap = TypeMap, funName =
           localVars = c(localVars, sprintf("char %s[%d];\n    int %s = %d;", stringVarName , as.integer(stringSize), stringLengthName, as.integer(stringSize)))
       else
           localVars = c(sapply(returnArg, function(i) {
-                                        ty = getPointeeType(getType(fun$params[[i]]))
-                                        sprintf("%s %s;", getName(ty), names(fun$params)[i])
+                                        ty = getPointeeType(getType(fun@params[[i]]))
+                                        sprintf("%s %s;", getName(ty), names(fun@params)[i])
                                      }),
                     localVars)
 
@@ -139,18 +140,18 @@ function(fun, name = sprintf("R_auto_%s", funName), typeMap = TypeMap, funName =
    }
 
    if(FALSE && returnsString) {
-      args = names(fun$params)
+      args = names(fun@params)
       args[returnArg[1] + 1] = stringSize
       args = paste(args, collapse = ", ")
    } else {
-      argPrefix = rep("", length(fun$params))
+      argPrefix = rep("", length(fun@params))
       if(!returnsString)
          argPrefix[returnArg] = "&"
-      args = paste(argPrefix, names(fun$params), collapse = ", ")
+      args = paste(argPrefix, names(fun@params), collapse = ", ")
    }
      
    call = sprintf("%s%s(%s);",
-                  if(!isVoidType(fun$returnType)) "ans = ",
+                  if(!isVoidType(fun@returnType)) "ans = ",
                   funName, args)   
 
 
@@ -174,12 +175,12 @@ function(fun, name = sprintf("R_auto_%s", funName), typeMap = TypeMap, funName =
             "return(r_ans);",
             "}"
            )
-    CRoutineDefinition(name, code, length(fun$params) - length(returnArg), as.character(NA))
+    CRoutineDefinition(name, code, length(fun@params) - length(returnArg), as.character(NA))
 }
 
 
 cuda.createRProxy =
-function(fun, name = gsub("_v[0-9]$", "", getName(fun)), argNames = names(fun$params),
+function(fun, name = gsub("_v[0-9]$", "", getName(fun)), argNames = names(fun@params),
           nativeProxyName = sprintf("R_auto_%s", gsub("_v[0-9]$", "", getName(fun))),
           PACKAGE = NA, defaultValues = character(), guessDefaults = FALSE,
           typeMap = TypeMap)
@@ -189,14 +190,14 @@ function(fun, name = gsub("_v[0-9]$", "", getName(fun)), argNames = names(fun$pa
    returnsString = returnsString(fun)
 
    if(returnsString) {
-     fun$params = fun$params[ - c(1, 2) ]
+     fun@params = fun@params[ - c(1, 2) ]
    }
    
    if(length(returnArg) > 0) {
-     fun$returnArgTypes = lapply(fun$params[returnArg], function(x) getPointeeType(getType(x)))
+     fun$returnArgTypes = lapply(fun@params[returnArg], function(x) getPointeeType(getType(x)))
      if(length(returnArg) == 1)
        fun$returnArgTypes = fun$returnArgTypes[[1]]     
-     fun$params = fun$params[ - returnArg ]
+     fun@params = fun@params[ - returnArg ]
    }
    
    fn = createRProxy(fun, name, argNames, nativeProxyName, PACKAGE, defaultValues, guessDefaults, typeMap)

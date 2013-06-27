@@ -288,6 +288,7 @@ writing the <c/> code and also made certain the name
 wasn't mangled by declaring it with <c:expr>extern "C"</c:expr>.)
 </para>
 </section>
+
 <section>
 <title>Calling a Kernel</title>
 <para>

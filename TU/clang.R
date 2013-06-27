@@ -24,7 +24,7 @@ names(r.cu)[!grepl("^cu", names(r.cu))]
 # All are make_...  54 of them.  Now with curand.h we get additional entries.
 
 # Find all routines that return either cudaError_t
-status = sapply(r.cu, function(x) getName(x$returnType) %in% c("CUresult", "cudaError_t", "enum cudaError"))
+status = sapply(r.cu, function(x) getName(x@returnType) %in% c("CUresult", "cudaError_t", "enum cudaError"))
 table(status)
 
 # For cuda and not cublas, there are only 2 that don't return CUresult/cudaError_t

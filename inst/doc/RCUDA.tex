@@ -1,4 +1,13 @@
 \documentclass[article]{jss}
+\usepackage{comment}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{shadows,trees}
+\usepackage{fancyvrb}
+\usepackage{cprotect}
+
+\usepackage[firstpage]{draftwatermark}
+\SetWatermarkLightness{.95}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% declarations for jss.cls %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -66,6 +75,7 @@
 \usepackage[T1]{fontenc}
 \catcode`\_=12
 
+\def\CUDA{CUDA}
 \def\C{\proglang{C}}
 \def\R{\proglang{R}}
 \def\llvm{\proglang{LLVM}}
@@ -647,6 +657,12 @@ was essentially an output parameter passed as a pointer input and what
 were actual pointer input parameters.  This code to generate the
 CUDA-specific bindings is included in the package.
 
+We also generated some of the documentation for the \R{} functions
+programmatically.  The CUDA header files have documentation in
+comments directly before each routine and data structure.  We used
+\Rpkg{RCIndex} to extract these comments and then process the
+different parts describing the purpose of the routine, its parameters
+and return value.
 
 
 
