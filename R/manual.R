@@ -118,6 +118,10 @@ function(fun, ..., .args = list(...), gridDim, blockDim,
    if(is.integer(ans))  #  !is(ans, "RC++Reference"))
       raiseError(ans, msg = c("failed to launch kernel"))
 
+#  ans = .Call("R_cudaThreadSynchronize")
+#  if(ans)
+#      raiseError(ans, msg = c("failed to launch kernel"))
+
    if(!missing(outputs)) {
      if(length(outputs) == 0 || is.logical(outputs) && !any(outputs))
          return(NULL)

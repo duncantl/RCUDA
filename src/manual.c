@@ -503,3 +503,11 @@ R_cuModuleLoadDataEx(SEXP r_image, SEXP r_Options, SEXP retOpts)
 
     return(r_ans);
 }
+
+
+SEXP
+R_cudaThreadSynchronize()
+{
+  CUresult ans = cudaThreadSynchronize();
+  return(Renum_convert_CUresult(ans));
+}
