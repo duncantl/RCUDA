@@ -5,6 +5,7 @@ import(RAutoGenRunTime)
 
 # exportPattern(".*")
 
+export(nvcc)
 export(.gpu, .cuda)
 
 export(copyFromDevice, copyToDevice)

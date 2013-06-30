@@ -1,5 +1,9 @@
 library(RCUDA)
 f = system.file("sampleKernels", "dnormOutput.ptx", package = "RCUDA")
+
+if(!file.exists(f))
+  nvcc(system.file("sampleKernels", "dnormOutput.cu", package = "RCUDA"), "dnormOutput.ptx")
+
 cuGetContext()
 m = loadModule(f)
 m$dnorm_kernel
