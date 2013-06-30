@@ -1,27 +1,3 @@
-library(RCIndex)
-
-tu = createTU("/usr/local/cuda/nvvm/include/nvvm.h")
-
-r = getRoutines(tu)
-ds = getDataStructures(tu)
-
-nds = ds[grepl("nvvm.h", sapply(ds, function(x) getFileName(x$def)))]
-
-e = getEnums(tu)
-
-lapply(r, cuda.createNativeProxy)
-
-#
-#
-#
-# Problems with:
-#  DestroyProgram
-# CompileProgram & VerifyProgram  (options not an argument)
-#  GetCompiledResult & GetProgramLog - don't pass buffer.
-#  
-#
-# Can determine the in out parameters from the text
-
 getInOutParameters =
 function(fun)
 {
@@ -33,11 +9,42 @@ function(fun)
   structure(style, names = name)
 }
 
+
 nvvm.createNativeProxy =
   #
   # determine the out parameters from the comment
   #
 function(fun, ...)
 {
-  cuda.createNativeProxy(fun, ..., returnArg = which(getInOutParameters(fun) == "out"))
+  if(getName(fun) %in% c("nvvmGetProgramLog", "nvvmGetCompiledResult"))
+    return(NULL)
+  
+  params = getInOutParameters(fun)
+  cuda.createNativeProxy(fun, ..., returnArg = which(params == "out"),
+                          returnsString = getName(fun) %in% c("nvvmGetProgramLog", "nvvmGetCompiledResult"))
+}
+
+nvvm.createRProxy =
+  #
+  # determine the out parameters from the comment
+  #
+function(fun, ...)
+{
+  if(getName(fun) %in% c("nvvmGetProgramLog", "nvvmGetCompiledResult"))
+    return(NULL)
+  
+  params = getInOutParameters(fun)
+  cuda.createRProxy(fun, uncapitalize(gsub("^nvvm", "", getName(fun))), ..., returnArg = which(params == "out"),
+                    errorClass = "nvvmResult",                         
+                    returnsString = getName(fun) %in% c("nvvmGetProgramLog", "nvvmGetCompiledResult"))
+}
+
+checkStatusCode =
+  c("if(ans)",
+      "   return(R_nvvmErrorInfo(ans));")
+
+uncapitalize =
+function(x)
+{
+  paste(tolower(substring(x, 1, 1)), substring(x, 2), sep = "")
 }

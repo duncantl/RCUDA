@@ -1,0 +1,12 @@
+Installing 5.5 as a regular user
+
+sh ./cuda-5.5.11_linux_64.run -extract=/tmp/duncan/
+
+cd /tmp/duncan
+
+sh cuda-linux64-rel-5.5.11-15769059.run 
+
+
+Specify a local directory when prompted for where to install.
+ Default is /usr/local/cuda-5.5/
+ So spec

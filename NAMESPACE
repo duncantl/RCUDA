@@ -89,7 +89,7 @@ cudaDeviceDisablePeerAccess
 export(
 cuModuleLoad,
 cuModuleLoadData,
-#cuModuleLoadDataEx,
+cuModuleLoadDataEx,
 cuModuleLoadFatBinary,
 cuModuleUnload,
 cuModuleGetFunction,

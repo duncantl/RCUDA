@@ -1687,7 +1687,9 @@ if test -z "$CUDA_DIR" ; then
      echo "Please rerun having set the environment variable CUDA_DIR to"
      echo "the path of the directory that contains both the include/ and lib/ directories"
      echo "of the CUDA installation"
-     exit 1;
+     if test -z "$FORCE" ;  then
+       exit 1
+     fi
   fi
 fi
 
@@ -1697,7 +1699,11 @@ if test -z "$CUDA_INC_DIR" ; then
   CUDA_INC_DIR=${CUDA_DIR}/include
 fi
 if test -z "$CUDA_LIB_DIR" ; then
-  CUDA_LIB_DIR=${CUDA_DIR}/lib
+ if test -e ${CUDA_DIR}/lib64 ; then
+   CUDA_LIB_DIR=${CUDA_DIR}/lib64
+ else
+   CUDA_LIB_DIR=${CUDA_DIR}/lib
+ fi
 fi
 
 export PATH=$CUDA_DIR/bin:$PATH
@@ -3490,7 +3496,7 @@ else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-	echo "cannot link with libcuda" ; exit 1
+	echo "cannot link with libcuda" ; if test -z "$FORCE" ; then exit 1 ; fi
 fi
 
 rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
@@ -3501,7 +3507,9 @@ $CC -o checkSDKVersion checkSDKVersion.c $CPPFLAGS $LDFLAGS $LIBS
 ./checkSDKVersion
 if ! test $? = 0 ; then
   echo "You appear to have an older CUDA SDK. We require CUDA SDK 5.0 or higher"
-  exit 2;
+  if test -z "$FORCE" ;  then
+    exit 2
+  fi
 fi
 
 

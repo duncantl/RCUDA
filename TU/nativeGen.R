@@ -49,11 +49,14 @@
 TypeMap = list(CUdeviceptr = list(convertValueToR = function(name, ..., type = type) sprintf('R_createRef((void*) %s, "CUdeviceptr")', name)),
                CUdevice = list(RcoerceResult = function(name, ..., type) sprintf("as(%s, 'CUdevice')", name)))
 
+StatusTypes = c("CUresult", "cudaError_t", "nvvmResult")
+
 returnsValueViaArg =
-function(fun, routineName = "")
+function(fun, routineName = "", statusTypes = StatusTypes)
 {
   params = fun@params
-  if(length(params) == 0 || !getName(fun@returnType) %in% c("CUresult", "cudaError_t"))
+    # added nvvmResult
+  if(length(params) == 0 || !getName(fun@returnType) %in% statusTypes)
     return(integer())
   i = which(sapply(params, isOutPointerType, routineName))
     # check for the next parameter being int len.
@@ -63,16 +66,18 @@ function(fun, routineName = "")
 
 
 returnsString =
-  function(fun)
+function(fun)
      length(fun@params) && isStringType(getType(fun@params[[1]])) && isIntType(getType(fun$params[[2]]))
 
 cuda.createNativeProxy =
-function(fun, name = sprintf("R_auto_%s", funName), typeMap = TypeMap, funName = gsub("_v[0-9]$", "", getName(fun)), stringSize = 10000L)
+function(fun, name = sprintf("R_auto_%s", funName),
+         typeMap = TypeMap,
+         funName = gsub("_v[0-9]$", "", getName(fun)),
+         stringSize = 10000L,
+         returnArg = returnsValueViaArg(fun, getName(fun)),
+         returnsString = returnsString(fun),
+         statusTypeName = getName(fun@returnType))
 {
-
-   returnArg = returnsValueViaArg(fun, getName(fun))
-
-   returnsString = returnsString(fun)
 
    if(returnsString) {
      returnsString = TRUE
@@ -86,7 +91,8 @@ function(fun, name = sprintf("R_auto_%s", funName), typeMap = TypeMap, funName =
    if(length(returnArg) == 0) 
      return(createNativeProxy(fun, name, typeMap))
    else
-     cuResult = TRUE   
+     cuResult = TRUE
+
 
    argNames = names(fun@params)
 
@@ -103,15 +109,17 @@ function(fun, name = sprintf("R_auto_%s", funName), typeMap = TypeMap, funName =
 
    cvtCode = if(length(returnArg)) {
                 if(length(returnArg) > 1 && !returnsString)
-                  unlist(lapply(seq(along = returnArg), function(i) {
+                  c(unlist(lapply(seq(along = returnArg), function(i) {
                                         ty = getPointeeType(getType(fun@params[[returnArg[i]]]))
                                         val = convertValueToR(ty, names(fun@params)[returnArg[i]], typeMap = typeMap, rvar = "")
                                         if(length(val) > 1 || inherits(val, "AsIs"))
                                            c("{", val[-length(val)],
                                              sprintf("SET_VECTOR_ELT(r_ans, %d, %s);", i-1L, gsub(";$", "", val[length(val)])), "}")
-                                        else
+                                          else
                                            sprintf("SET_VECTOR_ELT(r_ans, %d, %s);", i-1L, val)
-                                      }))
+                                      })),
+                    sprintf('SET_STRING_ELT(r_names, %d, mkChar("%s"));', seq(along = fun@params) - 1L, names(fun@params))
+                    )
                 else {
                   if(returnsString)
                      sprintf("mkString(%s)", names(fun@params)[returnArg[1]])
@@ -121,13 +129,15 @@ function(fun, name = sprintf("R_auto_%s", funName), typeMap = TypeMap, funName =
              } else
                 convertValueToR(fun@returnType, "ans", typeMap = typeMap)
 
-   localVars = makeLocalVars(actualArgs, sprintf("r_%s", names(actualArgs)), names(actualArgs))
+   localVars = makeLocalVars(actualArgs, sprintf("r_%s", names(actualArgs)), names(actualArgs), addDecl = TRUE)
 
    if(cuResult)
-     localVars = c(localVars, "CUresult ans;")
+     localVars = c(localVars, sprintf("%s ans;", statusTypeName))
+
 
    if(length(returnArg)) {
       if(returnsString)
+             # make more general.
           localVars = c(localVars, sprintf("char %s[%d];\n    int %s = %d;", stringVarName , as.integer(stringSize), stringLengthName, as.integer(stringSize)))
       else
           localVars = c(sapply(returnArg, function(i) {
@@ -166,8 +176,11 @@ function(fun, name = sprintf("R_auto_%s", funName), typeMap = TypeMap, funName =
                  checkStatusCode,
             if(length(returnArg) > 1 && !returnsString) 
               c(sprintf("PROTECT(r_ans = NEW_LIST(%d));", length(returnArg)),
+                "SEXP r_names;",
+                sprintf("PROTECT(r_names = NEW_CHARACTER(%d));", length(returnArg)),                
                 unlist(cvtCode),
-                sprintf("UNPROTECT(%d);", length(returnArg)))
+                "SET_NAMES(r_ans, r_names);",
+                sprintf("UNPROTECT(%d);", 2L)) # length(returnArg)))
              else if(inherits(cvtCode, "AsIs") || length(cvtCode) > 1)
                 cvtCode
              else
@@ -183,34 +196,36 @@ cuda.createRProxy =
 function(fun, name = gsub("_v[0-9]$", "", getName(fun)), argNames = names(fun@params),
           nativeProxyName = sprintf("R_auto_%s", gsub("_v[0-9]$", "", getName(fun))),
           PACKAGE = NA, defaultValues = character(), guessDefaults = FALSE,
-          typeMap = TypeMap)
+          typeMap = TypeMap,
+          returnArg = returnsValueViaArg(fun),
+          returnsString = returnsString(fun),
+          errorClass = "CUresult")
 {
-   returnArg = returnsValueViaArg(fun)
 
-   returnsString = returnsString(fun)
-
-   if(returnsString) {
+   if(returnsString) 
      fun@params = fun@params[ - c(1, 2) ]
-   }
+
    
    if(length(returnArg) > 0) {
-     fun$returnArgTypes = lapply(fun@params[returnArg], function(x) getPointeeType(getType(x)))
+#?????     
+     returnArgTypes = lapply(fun@params[returnArg], function(x) getPointeeType(getType(x)))
      if(length(returnArg) == 1)
-       fun$returnArgTypes = fun$returnArgTypes[[1]]     
+       returnArgTypes = returnArgTypes[[1]]     
      fun@params = fun@params[ - returnArg ]
-   }
+   } else
+     returnArgTypes = NULL
    
    fn = createRProxy(fun, name, argNames, nativeProxyName, PACKAGE, defaultValues, guessDefaults, typeMap)
    txt = fn@code
 
-   if(length(fun$returnArgTypes) == 1) #XXX deal with more
-      map = lookupTypeMap(typeMap, getName(fun$returnArgTypes), "RcoerceResult", fun$returnArgTypes, name = "ans")
+   if(length(returnArgTypes) == 1) #XXX deal with more
+      map = lookupTypeMap(typeMap, getName(returnArgTypes), "RcoerceResult", returnArgTypes, name = "ans")
    else
      map = character()
    
    fn@code = c(
                 paste("ans =", txt),
-               "if(is(ans, 'CUresult') && ans != 0)",
+                sprintf("if(is(ans, '%s') && ans != 0)", errorClass),
                 sprintf("    raiseError(ans, '%s')", nativeProxyName),
                if(length(map)) map else "ans"
                )

@@ -354,3 +354,27 @@ function(func)
    vals = CUfunction_attributeValues
    sapply(unclass(vals)[-length(vals)], cuFuncGetAttribute,  as(func, "CUfunction"))
 }
+
+
+
+
+
+
+
+cuModuleLoadDataEx <-
+function( image , options = integer(), opts = FALSE)
+{
+  options = if(length(options))
+              sapply(options, function(x) as.integer(as(x, "CUjit_option")))
+            else
+              integer()
+  
+  ans = .Call('R_cuModuleLoadDataEx', image, options, as.logical(opts))
+  
+  if(is(ans, 'CUresult') && ans != 0)
+    raiseError(ans, 'R_cuModuleLoadDataEx')
+  if(opts)
+    ans
+  else
+    ans
+}

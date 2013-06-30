@@ -1,3 +1,6 @@
+# Importance sampling
+# See, e.g., www.hss.caltech.edu/~mshum/gradio/simulation.pdf‎
+
 N = 1e6
 
 pnorm(1) - pnorm(0)
@@ -51,4 +54,12 @@ mean(z)
 
 z = .gpu(mod$log_truncNorm, numeric(N), u, as.integer(N), gridDim = c(64, 32), blockDim = 512,outputs = 1L)
 mean(z)
+}
+
+# Timings
+if(FALSE) {
+itm = replicate(10, system.time({z = imp(N)}))
+gtm = replicate(10, system.time({u = runif(N); z = .gpu(mod$truncNorm, numeric(N), u, as.integer(N), gridDim = c(64, 32), blockDim = 512,outputs = 1L)}))
+
+rowMeans(gtm)[1:3]/rowMeans(itm)[1:3]
 }

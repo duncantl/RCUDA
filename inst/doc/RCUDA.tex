@@ -714,3 +714,18 @@ device.
 
 
 \end{document}
+
+
+% Put this somewhere. Not certain where so added here.
+In gputools, there is a routine named distance and another named
+distanceLeaveOnGpu.  The two are similar. However, the latter is used
+when we will utilize the distance results in another computation on
+the GPU, e.g. clustering.  This is a good example of where it is more
+convenient to be able to express and control these different
+organizations and reorganizations of the primitive computations in a
+high-level, interpreted language such as R.
+Similarly, the code has to deal with the two cases
+where we are computing all pairwise distances within a single data set
+or between two different data sets. 
+These computations are fixed in the C code and restrict how we can use them.
+

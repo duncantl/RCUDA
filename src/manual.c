@@ -475,3 +475,31 @@ R_isNullExtPtr(SEXP r_obj)
     void *ptr =  GET_REF(r_obj, void *);
     return(ScalarLogical(ptr == NULL));
 }  
+
+
+
+SEXP
+R_cuModuleLoadDataEx(SEXP r_image, SEXP r_Options, SEXP retOpts)
+{
+    SEXP r_ans = R_NilValue;
+    CUmodule module;
+    CUjit_option *options;
+
+    const void * image;
+    if(TYPEOF(r_image) == RAWSXP)
+	image = RAW(r_image);
+    else 
+	image = (void *) CHAR(STRING_ELT(r_image, 0));
+    
+    unsigned int numOptions = Rf_length(r_Options);
+    CUresult ans;
+
+    ans = cuModuleLoadDataEx( &module, image, numOptions, INTEGER(r_Options), NULL);
+
+    if(ans)
+       return(R_cudaErrorInfo(ans));
+
+    r_ans = R_createRef(module, "CUmodule");
+
+    return(r_ans);
+}

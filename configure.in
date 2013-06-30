@@ -13,7 +13,9 @@ if test -z "$CUDA_DIR" ; then
      echo "Please rerun having set the environment variable CUDA_DIR to"
      echo "the path of the directory that contains both the include/ and lib/ directories"
      echo "of the CUDA installation"
-     exit 1;
+     if test -z "$FORCE" ;  then
+       exit 1
+     fi
   fi
 fi
 
@@ -23,7 +25,11 @@ if test -z "$CUDA_INC_DIR" ; then
   CUDA_INC_DIR=${CUDA_DIR}/include
 fi
 if test -z "$CUDA_LIB_DIR" ; then
-  CUDA_LIB_DIR=${CUDA_DIR}/lib
+ if test -e ${CUDA_DIR}/lib64 ; then
+   CUDA_LIB_DIR=${CUDA_DIR}/lib64
+ else
+   CUDA_LIB_DIR=${CUDA_DIR}/lib
+ fi
 fi
 
 export PATH=$CUDA_DIR/bin:$PATH
@@ -50,14 +56,16 @@ AC_TRY_LINK([
  int ver;
  cudaDriverGetVersion(&ver);
  cudaRuntimeGetVersion(&ver);
-], echo "linking okay", [echo "cannot link with libcuda" ; exit 1])
+], echo "linking okay", [echo "cannot link with libcuda" ; if test -z "$FORCE" ; then exit 1 ; fi])
 
 
 $CC -o checkSDKVersion checkSDKVersion.c $CPPFLAGS $LDFLAGS $LIBS
 ./checkSDKVersion
 if ! test $? = 0 ; then
   echo "You appear to have an older CUDA SDK. We require CUDA SDK 5.0 or higher"
-  exit 2;
+  if test -z "$FORCE" ;  then
+    exit 2
+  fi
 fi
 
 
