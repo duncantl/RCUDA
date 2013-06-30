@@ -11,10 +11,17 @@ k = 40L
 A = matrix(runif(na * k), na, k)
 B = matrix(runif(nb * k), nb, k)
 
-z = .gpu(mod$euclideanDistance, A, na, B, nb, k, ans = numeric(na * nb),
-          gridDim = c(1,1,1), blockDim = c(na, nb),  outputs = "ans")
-ans = matrix(z, na, nb)
+gdist = function(A, B, kernel = mod$euclideanDistance, grid = c(1,1,1), block = c(na, nb)) {
+      z = .gpu(mod$euclideanDistance, A, nrow(A), B, nrow(B), ncol(A), ans = numeric(nrow(A) * nrow(B)),
+                 gridDim = grid, blockDim = block,  outputs = "ans")
+      ans = matrix(z, na, nb)
+}
 
-D = as.matrix(dist(rbind(A, B)))[1:na, -(1:na)]
+rdist = function(A, B)
+           as.matrix(dist(rbind(A, B)))[1:na, -(1:na)]
 
+ans = gdist(A, B)
+D = rdist(A, B)
 ans - D
+
+

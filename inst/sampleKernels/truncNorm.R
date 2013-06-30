@@ -49,17 +49,28 @@ if(FALSE) {
 library(RCUDA)
 mod = loadModule("importanceSampling.ptx")
 u = runif(N)
-z = .gpu(mod$truncNorm, numeric(N), u, as.integer(N), gridDim = c(64, 32), blockDim = 512,outputs = 1L)
+dims = getGridSize(N)
+z = .gpu(mod$truncNorm, numeric(N), u, as.integer(N), gridDim = dims$grid, blockDim = dims$block, outputs = 1L)
 mean(z)
 
 z = .gpu(mod$log_truncNorm, numeric(N), u, as.integer(N), gridDim = c(64, 32), blockDim = 512,outputs = 1L)
 mean(z)
 }
 
+
+
 # Timings
 if(FALSE) {
+dims = getGridSize(N)
 itm = replicate(10, system.time({z = imp(N)}))
-gtm = replicate(10, system.time({u = runif(N); z = .gpu(mod$truncNorm, numeric(N), u, as.integer(N), gridDim = c(64, 32), blockDim = 512,outputs = 1L)}))
+gtm = replicate(10, system.time({u = runif(N); z = .gpu(mod$truncNorm, numeric(N), u, as.integer(N), gridDim = dims$grid, blockDim = dims$block, outputs = 1L)}))
+
+props = getDeviceProperties(1L)
+ids = sprintf("%stm.N%s.%s", c("i", "g"), formatC(N), gsub(" ", "", props@name))
+invisible(mapply(assign, ids, list(itm, gtm), MoreArgs = list(envir = globalenv())))
+
+filename = sprintf("times.N%s.%s.rda", formatC(N), gsub(" ", "", props@name))
+save(list = ids, file = filename)
 
 rowMeans(gtm)[1:3]/rowMeans(itm)[1:3]
 }
