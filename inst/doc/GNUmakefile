@@ -1,6 +1,6 @@
 RCUDA.pdf:
 
-%.pdf: %.tex gpu.bib Examples.tex
+%.pdf: %.tex gpu.bib Examples.tex dist.tex
 	-pdflatex $*
 	-pdflatex $*
 	bibtex $*
@@ -8,3 +8,9 @@ RCUDA.pdf:
 
 clean:
 	-rm  RCUDA.aux RCUDA.log RCUDA.out RCUDA.blg
+
+
+
+
+%.ptx:
+	$(MAKE) -f ../sampleKernels/GNUmakefile  distance_gputools.ptx

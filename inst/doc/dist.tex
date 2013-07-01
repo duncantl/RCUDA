@@ -1,0 +1,82 @@
+\section{Computing distances}
+
+In this example, we will explore how to compute distances on the GPU.
+The \Rpkg{gputools} package already does this, so we will consider its
+code.  Our aim is to contrast how this is done with \R{} bindings to
+CUDA and how it is done with \C{} code.
+
+The \Rfunc{gpuDist} function in the \Rpkg{gputools} package is similar
+to \R's own \Rfunc{dist} function.  It takes a matrix of observations
+and the name of a distance metric.  For ease of computation in the
+\C{} code, the function transposes the matrix so that the elements of
+each observation are contiguous in memory (i.e. in row order rather
+than column order).  \Rfunc{gpuDist} calls a \C{} routine
+\Cfunc{Rdistances}.  This is a simple wrapper that calls the routine
+\Cfunc{distance}.  This routine copies the data from the host to the
+device, allocating the space for the input and the output arrays.  It
+then calls \Cfunc{distance_device} which launches the kernel.  Which
+kernel is used depends on which distance metric is to be used.  So
+\Cfunc{distance_device} contains the same code for each kernel.  It is
+here that a kernel thread is launched for each pair of observations
+and the GPU is actually involved in the computations.
+
+
+We can invoke any of the kernels in the \Rpkg{gputools} packages
+directly from \R and so remove the need for the \C{} routines
+described above. This not only simplifies the development, but also
+leads to more flexible, reusable code.  We'll illustrate how to call
+the \Cfunc{euclidean_kernel_same} kernel.  We start by extracting it
+from the \C{} code and compiling it directly into PTX code (or cubin
+or fatbin format).
+We then load this 
+
+
+% Get the pitch correct. Getting it wrong in our code.
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX - Complete
+
+
+
+
+It is easy for us to use a different metric.  We can load a different
+kernel and pass that to our function.  This makes the code simpler, as
+we would expect of a high-level implementation.  It also makes it more
+flexible. If we want to use an entirely different kernel, we can write
+just the code for that kernel, compile and load it.  Our distance
+function does not need to know where the kernel came from or have any
+a priori knowledge about it.
+
+As we have seen before, it is sometimes useful to be able to leave the
+results computed by one kernel on the device and have those be used as
+inputs to a second kernel.  The \Rpkg{gputools} package uses this when
+performing hierarhical clustering.  Starting with a collection of
+observations (i.e. a data frame or matrix), we calculate the pair-wise
+distances between all observations.  Then we pass these to the
+\Rfunc{gpuHclust} function to compute the clusters.  If we just use
+\Rfunc{gpuDist} and then \Rfunc{gpuHclust}, we wil have moved the
+distances from the GPU device back to \R, and then copy them back to
+the device.  \Rpkg{gputools} provides \Rfunc{gpuDistClust} to avoid
+this unnecessary overhead .  This is implemented with a separate, but
+very similar, routine to \Cfunc{distance}.  Again, this allocates and
+copies the inputs on the GPU.  So there is a separate \R{} function
+and a separate \C{} routine to implement this, adding to the
+complexity.
+
+We can also avoid the overhead in \Rpkg{RCUDA} using 
+code of the form:
+\begin{RCode}
+distances = cudaMalloc(N["A"] * N["B"], elType = "numeric")
+.gpu(mod$euclidean_kernel_same, .., distances, outputs = FALSE)
+.gpu(mod$centroid_kernel, distances, ...) 
+\end{RCode}
+Here, we allocate the memory on the GPU for holding the computed
+distances. We tell \Rfunc{.gpu} not to return it to \R.
+At this point, the distances will be in this memory.
+We then pass the reference to that memory on the device as the input
+to the next kernel. 
+This reduces the complexity and also allows the \R{} programmer
+to combine the kernels in different ways than the original
+developers planned.
+
+
+
+

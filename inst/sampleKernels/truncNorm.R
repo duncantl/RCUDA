@@ -1,6 +1,6 @@
 # Importance sampling
 # See, e.g., www.hss.caltech.edu/~mshum/gradio/simulation.pdf‎
-
+library(RCUDA)
 N = 1e6
 
 pnorm(1) - pnorm(0)

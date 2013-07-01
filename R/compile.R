@@ -40,7 +40,11 @@ function(file, out = swapExtension(file, target), target = "ptx", ..., .opts = l
   if(!.run)
      return(cmd)
 
-  system(cmd, intern = TRUE)
+  err = system(cmd, intern = TRUE)
+  if(length(err))
+    err
+  else
+    out
 }
 
 swapExtension =

@@ -5,9 +5,16 @@
 In this section, we look at several examples and see how they perform
 on various GPUs.  The first example is a simple scalar version of the
 normal density function and we compare this with the highly efficient
-\Rfunc{dnorm} function in base \R.  The second example adapts a
-function in the \Rpkg{gputools} package to compute the distances
-between observations in two data sets.  This illustrates how we can
-use an existing kernel and invoke it from \R{} without the supporting
-\C{} code to interface from \R.  A third example implements a particle
-filter via GPU computations.
+\Rfunc{dnorm} function in base \R.  We also look at a similar example
+involving importance sampling.  This is similar as it maps an
+element-wise vectorized operation in \R{} to element-wise threads on a
+GPU.  We then look at computing distances on a GPU by addapting code
+in the \Rpkg{gputools} package.  This illustrates how we can use an
+existing kernel and invoke it from \R{} without the supporting \C{}
+code to interface from \R.
+
+\input{dnorm}
+
+\input{importanceSampling}
+
+\input{dist}

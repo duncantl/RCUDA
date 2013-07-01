@@ -1,0 +1,91 @@
+\section{Computing the Normal density}
+Performance in \R{} puts a great premium on vectorized
+operations.  Since most of the primitives are vectorized,
+expressions that use these primitives are also vectorized. 
+Since these primitives are vectorized in \C{} code,
+they are fast.  Some of them also use multiple
+processors when the vectors are sufficiently large
+and there are additional available CPUs.
+
+Element-wise vector operations in \R{} map naturally to GPUs.  We
+perform the same computation on each element of the vector in a
+separate thread on the GPU.  We define a kernel to operate on an
+individual element and then we can apply that to each element of the
+vector.
+
+Consider the function \Rfunc{dnorm} in \R.
+It computes the value for a Normal density
+a vector of values, e.g.
+\begin{RCode}
+N = 1e6L
+x = rnorm(N)
+d = dnorm(x, mu, sigma)
+\end{RCode}
+
+We can define a similar kernel routine to compute
+the density for a single observation.
+The code will look similar to the following:
+\begin{CCode}
+extern "C"
+__global__ void 
+dnorm_kernel(float *vals, int N, float mu, float sigma)
+{
+    int myblock = blockIdx.x + blockIdx.y * gridDim.x;
+    int blocksize = blockDim.x * blockDim.y * blockDim.z;
+    int subthread = threadIdx.z*(blockDim.x * blockDim.y) +
+                      threadIdx.y*blockDim.x + threadIdx.x;
+
+    int idx = myblock * blocksize + subthread;
+    float pi = 3.141592653589793;
+
+    if(idx < N) {
+       float std = (vals[idx] - mu)/sigma;
+       float e = exp( - 0.5 * std * std);
+       vals[idx] = e / ( sigma * sqrt(2 * pi));
+    }
+}
+\end{CCode}
+The initial expressions determine on which element of the vector this
+particular thread should operate.  It does this by computing its
+unique identifier in the grid of blocks of threads.  Once it has
+computed the index of the element, it verifies that this is not a
+redundant thread but is operating on a value within the extent of the
+vector.  Then it computes the result.
+
+In our kernel, we have passed the vector of values via the first
+parameter.  We have arranged for the kernels to write their results
+back into this vector since we don't expect to reuse this veector on
+the device. This removes the need to have two related vectors for the
+inputs and outputs in memory on the device simultaneously.
+
+We compile this code,  either on the command line outside 
+of \R{} or with 
+\begin{RCode}
+ptx = nvcc('dnorm.cu')
+\end{RCode}
+We can then load the resulting PTX file with
+\begin{RCode}
+mod = loadModule(ptx)
+\end{RCode}
+
+Now that we have the kernel, we can obtain
+a reference to the kernel with
+\begin{RCode}
+k = mod$dnorm_kernel
+\end{RCode}
+%$
+We can now apply this kernel to our vector above with
+\begin{RCode}
+ans = .gpu(k, x, N, mu, sigma)
+\end{RCode}
+The \Rfunc{.gpu} function recognizes which arguments
+are local vectors (not scalars) and, by default, returns
+the updated contents of these vector arguments.
+Therefore, this call to \Rfunc{.gpu} returns the new
+contents of \Rvar{x}.
+
+
+Note that \Rvar{N} has to be an integer. If it is not, we must coerce
+it to an integer in the call or before.  The types of each argument
+must match the corresponding type of the kernel. 
+% Have to talk about the mapping done by RCUDA.

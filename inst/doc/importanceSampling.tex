@@ -1,0 +1,135 @@
+\section{Importance Sampling} 
+
+Importance sampling allows us to efficiently approximate expected
+values.  The basic idea is that we want to approximate an expected
+value via simulation. 
+Suppose we want $E[h(X)]$ as 
+$$
+ E[h(X)] = \int_f h(x) f(x) dx
+$$
+We would approximate it with
+$$
+  \frac{1}{n} \sum_{i=1}^n h(x_i)
+$$
+where $x_i$ are values sampled from the density $f$.
+Suppose it is difficult or computationally intensive to sample from
+the density $f$.
+Instead, we can sample from another  density $g$ with
+the same support as $f$.
+We can then use $h(x_i) w(x_i)$ in our summation
+to compute the approximate value of $E[h(X)]$,
+where $w(x_i) = f(x_i)/g(x_i)$.
+
+% Should we explain here why this works.
+
+We'll use a simple example from Mathew Shum
+(\url{www.hss.caltech.edu/~mshum/gradio/simulation.pdf}).
+We want to simulate from a truncated standard Normal with support
+$[0,1]$.
+The density is 
+$$f(x) = \frac{\phi(x)}{\int_0^1 \phi(x) dx}$$ where $\phi(x)$ is the
+standard normal density.  Instead of sampling from $f(x)$, we will
+sample from a standard Uniform. So we use $g(x) = 1$ as the density
+corresonding to this $U(0, 1)$.  We now generate a $N$ values from
+this standard Uniform and compute $\sum h(x_i) w(x_i)$.  In this
+particular case, $w(x_i)$ is simply $\phi(x_i)/.34134$ divided by
+$g(x_i) = 1$.
+
+We can implement this easily in \R{}.
+We'll use $h(x) = x$.
+The code is then
+\begin{RCode}
+N = 1e6
+x = runif(N)
+mean(x * dnorm(x)/.34134)
+\end{RCode}
+%This yields $0.46$.
+This is definitely quite simple. 
+
+Like the \Rfunc{dnorm} example, we could also implement this
+vectorized computation in \R{} as a computation on a GPU
+with each thread calculating $x_i w(x_i)$.
+\begin{CCode}
+extern "C"
+__global__ void truncNorm(float *out, float *unifVals, int N)
+{
+    int myblock = blockIdx.x + blockIdx.y * gridDim.x;
+           /* how big is each block within a grid */
+    int blocksize = blockDim.x * blockDim.y * blockDim.z;
+            /* get thread within a block */
+    int subthread = threadIdx.z*(blockDim.x * blockDim.y) + 
+                     threadIdx.y*blockDim.x + threadIdx.x;
+
+    float phi0_1 = 0.3413447460685;
+    int idx = myblock * blocksize + subthread;
+    if(idx < N) {
+       out[idx] = unifVals[idx] * dnorm(unifVals[idx], 0, 1)/phi_0_1;
+    }
+}
+\end{CCode}
+As is typical with a GPU kernel, the code determines
+which part of the data this particular instance of the kernel is to
+work on. It does this using its threadIdx and blockIdx and 
+the grid and block dimensions.
+The actual computations are very simple
+\begin{CCode}
+out[idx] = unifVals[idx] * dnorm(unifVals[idx], 0, 1)/phi_0_1;
+\end{CCode}
+We haven't shown the code for the \Cfunc{dnorm} routine. It is very
+similar to that in the previous example, however it is much simpler as
+it just returns the value rather than storing it in shared memory.
+It is available at \url{http://www.omegahat.org/RCUDA/importanceSample.cu},
+along with some additional kernels.
+
+We compile this code and load it with
+\begin{RCode}
+nvcc('importanceSampling.cu')
+mod = loadModule('importanceSampling.ptx')
+u = runif(N)
+z = .gpu(mod$truncNorm, numeric(N), u, as.integer(N), 
+         gridDim = c(64, 32), blockDim = 512, outputs = 1L)
+\end{RCode}
+%$
+Here we have determined that we can run 512 threads in each block
+and so determine that we need \Rexpr{ceiling(N/512)} blocks to compute
+all \Rvar{N}  values.
+
+Do we gain much from using the GPU in this circumstance?
+We have had to write the kernel in \C{} and compile it.
+Undoubtedly, this is more complicated than the \R{} code above
+and involves debugging, etc.
+What we do get is the parallelism. 
+Table~\ref{tab:ImportanceSamplingTimings} shows timings
+on different GPUs for different length vectors.
+\begin{table}
+\begin{tabular}{lrr}
+ N  & Quadro 600 & Tesla K20 \\
+1e6 &  1.16  &  \\
+1e7 &  1.61  &  \\
+\end{tabular}
+\caption{\textbf{Speedup for simple importance sample.}
+These are relative speedups of the GPU implementation relative
+to the vectorized \R{} implementation.
+The Quadro 600 GPU has $1$ gigabyte of RAM and is more of a
+graphics card than a GPGPU.
+The Tesla K20 has 5 gigabytes of RAM and is one of the top-of-the-line
+GPUs at present.
+}\label{tab:ImportanceSamplingTimings} 
+\end{table}
+\begin{comment}
+ids = lapply(list.files(pattern = "rda$"), load, globalenv())
+times = structure(lapply(unlist(ids), function(id) get(id)[3,]), names = unlist(ids))
+tm = cbind(data.frame(times = sapply(times, median)), as.data.frame(do.call(rbind, strsplit(unlist(ids), "\\."))))
+names(tm) = c('times', 'fun', 'N', 'GPU')
+with(tm, tapply(tm, list(N, GPU), function(x) x[1, 'times']/x[2, 'times']))
+\end{comment}
+%$
+
+
+
+We note that we have elected to compute the random values from the
+uniform density in \R{} and explicitly pass these to the kernel.
+Alternatively, we could use the CUDA random number generators.
+This avoids transferring data from \R{} to the GPU memory.
+It also allows us to compute these values in parallel.
+

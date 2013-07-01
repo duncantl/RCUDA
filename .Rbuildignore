@@ -14,3 +14,4 @@ jss.*$
 gpu.bib
 PaperOutline
 Examples.tex
+Paper/distance_gputools.cu
