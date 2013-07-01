@@ -76,7 +76,7 @@ convertRObjToGPU(SEXP arg, float *floatLoc, void **argLoc)
     int ty = TYPEOF(arg);
 
     if(ty == EXTPTRSXP) {
-        argLoc[0] =  R_ExternalPtrAddr(arg);
+        argLoc[0] = R_ExternalPtrAddr(arg);
 	return(argLoc);
     }
 
@@ -99,8 +99,9 @@ convertRObjToGPU(SEXP arg, float *floatLoc, void **argLoc)
 	cudaMemcpy(gpu_fl, fl, len * sizeof(float),  cudaMemcpyHostToDevice);
 
     } else if(ty == INTSXP) {
-	if(len == 1)
+        if(len == 1) 
 	    return(INTEGER(arg));
+
 	int *gpu_int = NULL;
 	void *p;
 	CUresult status = cudaMalloc((void **)  &p, len * sizeof(int));
@@ -130,7 +131,7 @@ R_cuLaunchKernel(SEXP r_fun, SEXP r_gridDims, SEXP r_blockDims, SEXP r_args, SEX
     CUstream stream = NULL;
 
     int nargs = Rf_length(r_args), i;
-         //XXX if we do an asynchronous launch, then this memory will disappear when we exit this call and the code is still running.
+      //XXX if we do an asynchronous launch, then this memory will disappear when we exit this call and the code is still running.
 #if 1
     void **args, **args2; //set from r_args
     args = (void **) R_alloc(nargs, sizeof(void*));  
@@ -138,9 +139,11 @@ R_cuLaunchKernel(SEXP r_fun, SEXP r_gridDims, SEXP r_blockDims, SEXP r_args, SEX
     float *floats = (float *) R_alloc(nargs, sizeof(float)); 
     for(i = 0; i < nargs; i++) {
 	SEXP arg = VECTOR_ELT(r_args, i);
-	/* If we have a scalar, we pass the address of that scalar. For a REAL, we have to put it into a float and use the address of that float */
+	args[i] = args2[i] = NULL;
+	/* If we have a scalar, we pass the address of that scalar. 
+           For a REAL, we have to put it into a float and use the address of that float */
 	args[i] = convertRObjToGPU(arg, floats + i, args2 + i);
-//	fprintf(stderr, "arg %d = %p, %p\n", i, args[i], args2[i]);
+	//	fprintf(stderr, "arg %d = %p     (%p)\n", i, args[i], args2[i]);
     }
 #else
     void *args[4];
@@ -318,7 +321,8 @@ R_getCudaFloatVector(SEXP r_ptr, SEXP r_len, SEXP r_indices)
 
     float *fl = (float *) R_alloc(len, sizeof(float));
     if(!fl) {
-	PROBLEM "..." ERROR;
+      PROBLEM "cannot allocate space for the array of %d floats", len
+      ERROR;
     }
 
     CUresult status = cudaMemcpy(fl, ptr, len * sizeof(int), cudaMemcpyDeviceToHost);

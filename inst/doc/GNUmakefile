@@ -12,5 +12,5 @@ clean:
 
 
 
-%.ptx:
+%.ptx: %.cu
 	$(MAKE) -f ../sampleKernels/GNUmakefile  distance_gputools.ptx
