@@ -18,7 +18,7 @@
   The function \code{.gpu} is another name for \code{.cuda}.
 }
 \usage{
-.cuda(fun, ..., .args = list(...), gridDim, blockDim, sharedMemBytes = 0L, stream = NULL, inplace = FALSE, outputs = logical(), .gc = TRUE)
+.cuda(fun, ..., .args = list(...), gridDim, blockDim, sharedMemBytes = 0L, stream = NULL, inplace = FALSE, outputs = logical(), .gc = TRUE, gridBy = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -49,6 +49,12 @@
 %    launching the call.}
   \item{inplace}{currently ignored but intended to indicate which
     arguments are modified in place.}
+  \item{gridBy}{a vector or a list of vectors used to determine how many 
+    threads should be run and hence compute the grid dimensions to use.
+    This is a convenience parameter that, for common but simple cases, allows callers to 
+    identify what we are vectorizing on the GPU. The function then determines
+    the grid and block dimensions to use.
+ }
 }
 \value{
   The result depends on \code{outputs} and the actual values of the
@@ -85,6 +91,9 @@ Duncan Temple Lang
 if(getNumDevices() > 0) {
 
   ptx = system.file("sampleKernels", "dnormOutput.ptx", package = "RCUDA")
+  if(!file.exists(ptx))
+    ptx = nvcc(system.file("sampleKernels", "dnormOutput.cu", package = "RCUDA"), "dnormOutput.ptx")
+
   m = loadModule(ptx)
   kernel = m$dnorm_kernel
 
@@ -104,6 +113,12 @@ if(getNumDevices() > 0) {
 
   summary(abs(ans - dnorm(x, mu, sigma)))
 
+# Using gridBy
+
+  ans = .cuda(kernel, x, N, mu, sigma, numeric(N),
+                gridBy = x, outputs = 5)
+  ans = .cuda(kernel, x, N, mu, sigma, numeric(N),
+                gridBy = N, outputs = 5)
 
   # explicitly allocating data on the GPU and passing these as inputs.
   cx = copyToDevice(x)

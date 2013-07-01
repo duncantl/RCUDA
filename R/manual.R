@@ -104,12 +104,30 @@ function(fun, ..., .args = list(...), gridDim, blockDim,
    .args = list(...)   
 
    if(!missing(gridBy) && missing(gridDim)) {
+#
+# We could use the names of the arguments by 
+# examining the call and determining their names
+# This is probably overkill and expensive.
+# So instead, have the caller specify the actual objects
+#     call = substitute(gridBy)
+#     if(is.call(call))
+#        call = call[-1]
+#     vars = sapply(call, function(x) if(is.name(x)) .args[[as.character(x)]]
+#                                     else if(is.numeric(x)) .args[[x]])
+                                    
      if(missing(blockDim))
        blockDim = getDeviceProperties(1L)@maxThreadsPerBlock
 
-     vars = .args[gridBy]
-     tmp = getGridSize(sapply(vars, length), blockDim)
+        # allow for a list of objects or a single vector
+     lens = if(is.list(gridBy)) 
+               sapply(gridBy, length)
+            else if(length(gridBy) == 1)
+                gridBy
+            else
+                length(gridBy)
+     tmp = getGridSize(lens, blockDim)
      gridDim = tmp$grid
+#cat(prod(c(gridDim, blockDim)), "\n")
    }
    
    fun = as(fun, "CUfunction")
@@ -119,8 +137,6 @@ function(fun, ..., .args = list(...), gridDim, blockDim,
    if(length(blockDim) < 3)
       blockDim = c(blockDim, c(1L, 1L, 1L))[1:3]
    
-
-
    mustCopy = sapply(.args, function(x) is.atomic(x) && length(x) > 1)
    if(any(mustCopy))
      .args[mustCopy] = lapply(.args[mustCopy], copyToDevice)
