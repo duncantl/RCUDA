@@ -188,8 +188,6 @@ function(numEls, sizeof = 4L, elType = NA)
      sizeof = getElementSize(type = elType)
   }
 
-
-  
   ans = .Call("R_cudaMalloc", as.integer(numEls * sizeof))
   if(is.integer(ans))  #  !is(ans, "RC++Reference"))
      raiseError(ans, msg = c("failed to create context"))
@@ -207,7 +205,7 @@ function(numEls, sizeof = 4L, elType = NA)
 }
 
 copyToDevice =
-function(obj, to = cudaMalloc(length(obj), elType = typeof(obj)))
+function(obj, to = cudaMalloc(length(obj), elType = elType), elType = typeof(obj))
 {
   ans = .Call("R_cudaMemcpy", obj, to)
   if(is(ans, "CUresult"))

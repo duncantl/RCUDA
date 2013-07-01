@@ -19,7 +19,7 @@ R_auto_cuModuleLoadDataEx(SEXP r_image, SEXP r_numOptions)
     SET_VECTOR_ELT(r_ans, 0, R_createRef(module, "struct CUmod_stPtr"));
     SET_VECTOR_ELT(r_ans, 1, Renum_convert_CUjit_option_enum(options));
     SET_VECTOR_ELT(r_ans, 2, R_createRef(optionValues, "voidPtr"));
-    UNPROTECT(3);
+    UNPROTECT(1);
     return(r_ans);
 }
 
@@ -159,7 +159,7 @@ R_auto_cuGraphicsResourceGetMappedPointer(SEXP r_resource)
     PROTECT(r_ans = NEW_LIST(2));
     SET_VECTOR_ELT(r_ans, 0, R_createRef((void*) pDevPtr, "CUdeviceptr"));
     SET_VECTOR_ELT(r_ans, 1, ScalarReal(pSize));
-    UNPROTECT(2);
+    UNPROTECT(1);
     return(r_ans);
 }
 
@@ -607,7 +607,7 @@ R_auto_cudaMallocPitch(SEXP r_width, SEXP r_height)
     PROTECT(r_ans = NEW_LIST(2));
     SET_VECTOR_ELT(r_ans, 0, R_createRef(devPtr, "voidPtr"));
     SET_VECTOR_ELT(r_ans, 1, ScalarReal(pitch));
-    UNPROTECT(2);
+    UNPROTECT(1);
     return(r_ans);
 }
 
@@ -793,7 +793,7 @@ R_auto_cudaArrayGetInfo(SEXP r_array)
     SET_VECTOR_ELT(r_ans, 1, R_createRef(_tmp, "cudaExtent"));
     }
     SET_VECTOR_ELT(r_ans, 2, ScalarReal(flags));
-    UNPROTECT(3);
+    UNPROTECT(1);
     return(r_ans);
 }
 
@@ -920,7 +920,7 @@ R_auto_cudaGraphicsResourceGetMappedPointer(SEXP r_resource)
     PROTECT(r_ans = NEW_LIST(2));
     SET_VECTOR_ELT(r_ans, 0, R_createRef(devPtr, "voidPtr"));
     SET_VECTOR_ELT(r_ans, 1, ScalarReal(size));
-    UNPROTECT(2);
+    UNPROTECT(1);
     return(r_ans);
 }
 

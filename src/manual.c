@@ -20,7 +20,7 @@ R_cudaErrorInfo(CUresult val)
  Potentially, we should put information about the size and type 
  on the return value so that we can recover the data when we want
  to copy it back.
- */
+*/
 SEXP
 R_cudaMemcpy(SEXP r_src,  SEXP r_ptr)
 {
