@@ -76,7 +76,7 @@ k = mod$dnorm_kernel
 %$
 We can now apply this kernel to our vector above with
 \begin{RCode}
-ans = .gpu(k, x, N, mu, sigma)
+ans = .gpu(k, x, N, mu, sigma, gridBy = N)
 \end{RCode}
 The \Rfunc{.gpu} function recognizes which arguments
 are local vectors (not scalars) and, by default, returns
@@ -103,16 +103,37 @@ We can just allocate this output vector with a call to \Rfunc{numeric}
 and pass it in the call to \code{.gpu}.
 The command
 \begin{RCode}
-ans = .gpu(k, x, N, mu, sigma, out = numeric(N))
+ans = .gpu(k, x, N, mu, sigma, out = numeric(N), gridBy = N)
 \end{RCode}
 returns the update values of both vectors in the call,
 i.e. \Rvar{x} and \Rarg{out}.
 This involves more computation and memory
 than is necessary.  We don't need the contents of
 \Rvar{x}.
-We use the \Rarg{outputs}
+We use the \Rarg{outputs} parameter to specify which 
+vectors to explicitly transfer. We can use the
+name of the argument or its position (in the collection of kernel
+arguments). For example, to return only the vector associated
+with the variable named \Rarg{out}, we use
 \begin{RCode}
 ans = .gpu(k, x, N, mu, sigma, out = numeric(N),
-            outputs = 'out')
+            outputs = 'out', gridBy = N)
 \end{RCode}
+Note that this is different  from
+\begin{RCode}
+ans = .gpu(k, x, N, mu, sigma, out = numeric(N),
+           gridBy = N)$out
+\end{RCode}
+%$
+as we might use in \R's \Rfunc{.C} interface.
+The reason this is different is that \Rfunc{.gpu} will
+transfer and return both \Rvar{x} and \Rvar{out} and then 
+we are extracting only the \Rvar{out} element.
+By explicitly specifying which objects to transfer in
+the call to \Rfunc{.gpu}, we avoid the overhead.
 
+
+
+% The performance on the Quadro 600 GPUs does not 
+% outperform R's own dnorm().
+% See tm.Quadro

@@ -1,6 +1,6 @@
 RCUDA.pdf:
 
-%.pdf: %.tex gpu.bib Examples.tex dist.tex
+%.pdf: %.tex gpu.bib Examples.tex dist.tex dnorm.tex importanceSampling.tex
 	-pdflatex $*
 	-pdflatex $*
 	bibtex $*
