@@ -89,7 +89,7 @@ function(flags = 0L, device = 1L)
 .gpu = .cuda =
 function(fun, ..., .args = list(...), gridDim, blockDim,
          sharedMemBytes = 0L, stream = NULL, inplace = FALSE,
-          outputs = logical(), .gc = TRUE
+          outputs = logical(), .gc = TRUE, gridBy = NULL
 #          ,.gpu = 0L
          )
 {
@@ -100,6 +100,17 @@ function(fun, ..., .args = list(...), gridDim, blockDim,
 #    ctxt = createContext( device = .gpu)
 #    on.exit(cuCtxPopCurrent())
 #  }
+
+   .args = list(...)   
+
+   if(!missing(gridBy) && missing(gridDim)) {
+     if(missing(blockDim))
+       blockDim = getDeviceProperties(1L)@maxThreadsPerBlock
+
+     vars = .args[gridBy]
+     tmp = getGridSize(sapply(vars, length), blockDim)
+     gridDim = tmp$grid
+   }
    
    fun = as(fun, "CUfunction")
 
@@ -108,7 +119,7 @@ function(fun, ..., .args = list(...), gridDim, blockDim,
    if(length(blockDim) < 3)
       blockDim = c(blockDim, c(1L, 1L, 1L))[1:3]
    
-   .args = list(...)
+
 
    mustCopy = sapply(.args, function(x) is.atomic(x) && length(x) > 1)
    if(any(mustCopy))

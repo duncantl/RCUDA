@@ -84,8 +84,35 @@ the updated contents of these vector arguments.
 Therefore, this call to \Rfunc{.gpu} returns the new
 contents of \Rvar{x}.
 
-
 Note that \Rvar{N} has to be an integer. If it is not, we must coerce
 it to an integer in the call or before.  The types of each argument
 must match the corresponding type of the kernel. 
-% Have to talk about the mapping done by RCUDA.
+%XXX Have to talk about the mapping done by RCUDA.
+
+
+We also created a kernel that does not overwrite its inputs.
+This has the signature
+\begin{CCode}
+void dnorm_kernel(float *vals, int N, float mu, float sigma, float *out)
+\end{CCode}
+where the \Cparam{out} is the vector into which each kernel instance
+stores its result.
+We would invoke this in a similar manner as the previous kernel,
+but here we have to pass this extra argument.
+We can just allocate this output vector with a call to \Rfunc{numeric} 
+and pass it in the call to \code{.gpu}.
+The command
+\begin{RCode}
+ans = .gpu(k, x, N, mu, sigma, out = numeric(N))
+\end{RCode}
+returns the update values of both vectors in the call,
+i.e. \Rvar{x} and \Rarg{out}.
+This involves more computation and memory
+than is necessary.  We don't need the contents of
+\Rvar{x}.
+We use the \Rarg{outputs}
+\begin{RCode}
+ans = .gpu(k, x, N, mu, sigma, out = numeric(N),
+            outputs = 'out')
+\end{RCode}
+
