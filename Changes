@@ -1,0 +1,6 @@
+Version 0.4-0
+
+   *  High-level mechanism for mallocPitch() and copying an R object to the memory.
+
+   *  Regenerated the code with improvements to the code generation mechanism.
+
