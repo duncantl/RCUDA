@@ -27,7 +27,8 @@ We'll use a simple example from Mathew Shum
 We want to simulate from a truncated standard Normal with support
 $[0,1]$.
 The density is 
-$$f(x) = \frac{\phi(x)}{\int_0^1 \phi(x) dx}$$ where $\phi(x)$ is the
+$$f(x) = \frac{\phi(x)}{\int_{0}^{1} \phi(x)} dx$$ 
+where $\phi(x)$ is the
 standard normal density.  Instead of sampling from $f(x)$, we will
 sample from a standard Uniform. So we use $g(x) = 1$ as the density
 corresonding to this $U(0, 1)$.  We now generate a $N$ values from

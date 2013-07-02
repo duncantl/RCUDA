@@ -1,5 +1,6 @@
 library(RCIndex)
-invisible(sapply(list.files("~/GitWorkingArea/RClangSimple/inst/generateCode/", pattern = "R$", full = TRUE), source)); source("nativeGen.R")
+library(RCodeGen)
+source("nativeGen.R")
 
 #Identify routines that are deprecated
 
@@ -10,12 +11,12 @@ invisible(sapply(list.files("~/GitWorkingArea/RClangSimple/inst/generateCode/", 
 incs = c(".", "/usr/local/cuda/include")
 # when we include curand_kernel.h, clang goes nuts with errors.
 # So we up the limit.
-tu = createTU("tu.c", includes = incs, args = c("-ferror-limit=1000", "-fparse-all-comments"), verbose = FALSE)
+tu = createTU("tu.c", includes = incs, args = c("-ferror-limit=10000", "-fparse-all-comments"), verbose = FALSE)
 
   # Should filter by name here, not below
-r = getRoutines(tu)
+r = getRoutines(tu, FALSE)
 
-fn = sapply(r, function(x) getFileName(x$def))
+fn = sapply(r, function(x) getFileName(x@def))
 
  # have to handle . in getwd(). 
 r.cu = r[grepl(sprintf("(%s)", paste(gsub("\\.", "\\\\./", incs), collapse = "|")), fn)]

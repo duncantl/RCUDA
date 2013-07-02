@@ -14,7 +14,7 @@ R_auto_cuMemGetInfo()
     PROTECT(r_ans = NEW_LIST(2));
     SET_VECTOR_ELT(r_ans, 0, ScalarReal(free));
     SET_VECTOR_ELT(r_ans, 1, ScalarReal(total));
-    UNPROTECT(2);
+    UNPROTECT(1);
     return(r_ans);
 }
 
@@ -50,7 +50,7 @@ R_auto_cuMemAllocPitch(SEXP r_WidthInBytes, SEXP r_Height, SEXP r_ElementSizeByt
     PROTECT(r_ans = NEW_LIST(2));
     SET_VECTOR_ELT(r_ans, 0, R_createRef((void*) dptr, "CUdeviceptr"));
     SET_VECTOR_ELT(r_ans, 1, ScalarReal(pPitch));
-    UNPROTECT(2);
+    UNPROTECT(1);
     return(r_ans);
 }
 
@@ -83,7 +83,7 @@ R_auto_cuMemGetAddressRange(SEXP r_dptr)
     PROTECT(r_ans = NEW_LIST(2));
     SET_VECTOR_ELT(r_ans, 0, R_createRef((void*) pbase, "CUdeviceptr"));
     SET_VECTOR_ELT(r_ans, 1, ScalarReal(psize));
-    UNPROTECT(2);
+    UNPROTECT(1);
     return(r_ans);
 }
 
@@ -867,7 +867,7 @@ R_auto_cudaMemGetInfo()
     PROTECT(r_ans = NEW_LIST(2));
     SET_VECTOR_ELT(r_ans, 0, ScalarReal(free));
     SET_VECTOR_ELT(r_ans, 1, ScalarReal(total));
-    UNPROTECT(2);
+    UNPROTECT(1);
     return(r_ans);
 }
 

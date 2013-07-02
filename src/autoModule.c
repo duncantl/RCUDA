@@ -91,7 +91,7 @@ R_cuModuleGetGlobal(SEXP r_hmod, SEXP r_name)
     PROTECT(r_ans = NEW_LIST(2));
     SET_VECTOR_ELT(r_ans, 0, R_createRef((void*) dptr, "CUdeviceptr"));
     SET_VECTOR_ELT(r_ans, 1, ScalarReal(bytes));
-    UNPROTECT(2);
+    UNPROTECT(1);
     return(r_ans);
 }
 

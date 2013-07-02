@@ -600,16 +600,21 @@ R_auto_cudaMallocPitch(SEXP r_width, SEXP r_height)
     size_t pitch;
     size_t width = REAL(r_width)[0];
     size_t height = REAL(r_height)[0];
-    CUresult ans;
+    cudaError_t ans;
     ans = cudaMallocPitch(& devPtr, & pitch,  width,  height);
     if(ans)
        return(R_cudaErrorInfo(ans));
     PROTECT(r_ans = NEW_LIST(2));
+    SEXP r_names;
+    PROTECT(r_names = NEW_CHARACTER(2));
     SET_VECTOR_ELT(r_ans, 0, R_createRef(devPtr, "voidPtr"));
     SET_VECTOR_ELT(r_ans, 1, ScalarReal(pitch));
-    UNPROTECT(1);
+    SET_STRING_ELT(r_names, 0, mkChar("devPtr"));
+    SET_STRING_ELT(r_names, 1, mkChar("pitch"));
+    SET_NAMES(r_ans, r_names);
+    UNPROTECT(2);
     return(r_ans);
-}
+} 
 
 
 SEXP

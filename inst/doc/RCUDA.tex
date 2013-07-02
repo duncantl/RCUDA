@@ -1,13 +1,13 @@
 \documentclass[article]{jss}
 \usepackage{comment}
 \usepackage{graphicx}
-\usepackage{tikz}
-\usetikzlibrary{shadows,trees}
+%\usepackage{tikz}
+%\usetikzlibrary{shadows,trees}
 \usepackage{fancyvrb}
 \usepackage{cprotect}
 
-\usepackage[firstpage]{draftwatermark}
-\SetWatermarkLightness{.95}
+%\usepackage[firstpage]{draftwatermark}
+%\SetWatermarkLightness{.95}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% declarations for jss.cls %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -71,9 +71,12 @@
   E-mail: \email{duncan@r-project.org}\\
   URL: \url{http://www.omegahat.org}
 }
+%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+\usepackage[strings]{underscore}
+%\usepackage[T1]{fontenc}
+%\catcode`\_=12
 
-\usepackage[T1]{fontenc}
-\catcode`\_=12
+%\usepackage{newtxtext,newtxmath}
 
 \def\CUDA{CUDA}
 \def\C{\proglang{C}}
@@ -86,6 +89,8 @@
 \def\Cfunc#1{\textit{#1()}}
 \def\Cvar#1{\textit{#1}}
 \def\Cparam#1{\textsl{#1}}
+\def\Cnull{\textsl{NULL}}
+\def\Rnull{\texttt{NULL}}
 \def\file#1{\textbf{#1}}
 \def\Ctype#1{\texttt{#1}}
 \def\Rclass#1{\textit{#1}}
@@ -162,6 +167,7 @@ have significant impact. For this reason, we want to be able to be
 able to control these aspects dynamically in a high-level language 
 rather than fix them statically in a language such as \C.
 
+%Norm Matloff's thrust package.
 
 
 
@@ -395,7 +401,7 @@ device with which it is associated and also specify different flags or
 options to control how it behaves.  These options are a combination of
 individual options which we can specify in different ways. 
 We can use \R{} variables representing the different options, e.g.
-\Rvar{CU_CTX_SCHED_AUTO} and \Rvar{CU_CTX_MAP_HOST},
+\Rvar{CU_CTX\_SCHED\_AUTO} and \Rvar{CU\_CTX\_MAP\_HOST},
 and then we can combine them with the \Rop{|} operator. 
 Alternatively, we can use a vector of names that identify the
 different options. 

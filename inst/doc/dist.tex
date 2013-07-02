@@ -23,28 +23,214 @@ and the GPU is actually involved in the computations.
 
 We can invoke any of the kernels in the \Rpkg{gputools} packages
 directly from \R and so remove the need for the \C{} routines
-described above. This not only simplifies the development, but also
-leads to more flexible, reusable code.  We'll illustrate how to call
-the \Cfunc{euclidean_kernel_same} kernel.  We start by extracting it
-from the \C{} code and compiling it directly into PTX code (or cubin
-or fatbin format).
-We then load this 
+described above. This not only greatly simplifies the understanding
+and development of the code, but also leads to more flexible, reusable
+code.  We'll illustrate how to call the \Cfunc{euclidean_kernel_same}
+kernel.  We start by extracting it from the \C{} code and compiling it
+directly into PTX code (or cubin or fatbin format).  We then load this
+into the \R{} session with \Rfunc{loadModule}.
+This kernel expects a single matrix, say stored in \Rvar{AB}.
+Mimicing the \C{} code in \Rpkg{gputools}, we pass the same
+matrix as two different parameters. (This is related to a different
+kernel we will  discuss below.)
+Since we are passing it twice, we can transfer it just once to the GPU
+memory and then pass a reference to that one instance of the data
+in two places. This avoids making two copies of the data.
+As a result, we copy the data to the device before calling
+\Rfunc{.gpu} with
+\begin{RCode}
+ABref = copyToDevice(t(AB))
+\end{RCode}
+Note that we have transposed the matrix as the kernel
+expects the elements of each observation to be contiguous.
+This contrasts with \R's column-oriented representation of a matrix.
+
+We can now launch the kernel. We pass the reference
+to the matrix values (\Rvar{ABref}) and also
+the stride/pitch between observations (the number of columns in 
+the matrix) and the number of observations.
+We pass these twice, eventhough the second set of parameters is not
+used in the kernel.
+We also pass space to insert the distances. This is an $n \times n$
+matrix  (where $n$ is the number of rows in \Rvar{AB})
+and we can pass a simple numeric vector with the correct number of
+elements for this.  We'll convert it to a matrix after the kernel
+completes.
+We also need to specify the stride/pitch for this matrix which is
+\Rexpr{nrow(AB)}, i.e. the number of columns in the distance matrix.
+\begin{RCode}
+d = .gpu(kernel,
+         ABref, ncol(AB), nrow(AB),            # inputs & dimensions
+         ABref, ncol(AB), nrow(AB),            # inputs again
+         ncol(AB),                             # dimension of matrix
+         dist = numeric(nrow(AB)^2), nrow(AB), # results
+         2.0,                                  # ignored
+         outputs = "dist",                # which arguments to copy back
+         gridDim = c(nrow(AB), nrow(AB)), # square grid
+         blockDim = 32L)                  # threads within block
+\end{RCode}
+The final three arguments in this call to \Rfunc{.gpu} are for
+controlling \Rfunc{.gpu} rather than being passed to the kernel.
+\Rarg{outputs} identifies which inputs(s) are to be copied back as part
+of the result. These are the out variables of the kernel.
+In our case, we only want the distances which we have explicitly named
+\Rarg{dist}.
+We run a separate block of threads for each pair of observations.
+To do this, we specify a grid dimension of \Rexpr{c(nrow(AB),  nrow(AB))}.
+The kernel uses $32$ threads to compute the squared differences of the
+elements in the pair of observations and add them together.
+This number is hard-coded in the kernel in order to use shared memory
+between the cooperating threads.
+Therefore, we use a block dimension of $32$.
+
+Once the call to \Rfunc{.gpu} returns, the variable \Rvar{d} contains
+the vector of all pairwise distances.  We can convert this to a matrix
+and we have our result.  We should remove the variable \Rvar{ABref}
+since we no longer need it. When we remove it, the garbage collector
+can release the associated memory. This is on the GPU device and so we
+do want to release it so that the memory is available for other tasks.
+
+We mentioned that the second set of inputs are not actually used in
+this kernel. As a result, we could specify \Rnull{} for the matrix
+of values and any integer values.  \Rfunc{.gpu} transfers the \R{}
+value to the kernel as the \C{} value \Cnull.
+Ideally, the code should be changed to remove the parameters that are
+not used. However, this happens when the code itself is complex to
+develop and maintain and is an argument for writing in a high-level
+language such as \R{} and \Rpkg{RCUDA}.
+
+% cudaMallocPitch
+\subsection{Different approaches to allocating memory} 
+One of the goals of writing the \Rpkg{RCUDA} package
+is to allow \R{} programmers to explore and experiment
+with the entire CUDA API. 
+Writing \C{} code for all aspects of copying data between
+the host and device and launching kernels is time-consuming and error-prone.
+It makes one less likely to experiment with different approaches to
+enhance performance. However, if we can perform experiments directly
+in  \R{} code, we are more likely to take the time to understand what
+idioms work best in different circumstances.
+
+One example of using a different idiom arises in the \Rpkg{gputools}
+package. Rather than just directly copying the matrix of values from
+\R{} to the GPU's memory, the \C{} code uses \Cfunc{cudaMallocPitch}
+and \Cfunc{cudaMemcpy2D} to transfer the data.  This has a potential
+benefit of padding out the rows of the matrix so that they are aligned
+in a way that makes the GPU more efficient. The GPU can then load
+different blocks of memory in a more efficient manner.
+
+We can change our implementation  to see if this does yield 
+improved performance.
+We can replace the call 
+\begin{RCode}
+ABref = copyToDevice(t(AB))
+\end{RCode}
+in our initial example with an explict
+call to \Rfunc{cudaMallocPitch} and \Rfunc{cudaMemcpy2D}.
+We do this with
+%XXX make this work
+\begin{RCode}
+mem = cudaMallocPitch( ncol(AB) * 4L,  nrow(AB))
+cudaMemcpy2D(mem$devPtr, mem$pitch, 
+             convertToPtr(t(AB), 'float'), 
+             ncol(AB)*4L, ncol(AB)*4L, nrow(AB),
+             RCUDA:::cudaMemcpyHostToDevice)
+\end{RCode}
+Note that we explicitly convert the (transposed)
+matrix to a \C-level array of \Ctype{float} elements.
 
 
-% Get the pitch correct. Getting it wrong in our code.
-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX - Complete
+We had to explicitly create this array as the memory we allocated
+has no information about the type.
+The \Rpkg{RCUDA} package provides a higher-level interface
+for this, built on these SDK bindings.
+We can use \Rfunc{mallocPitch} (without the cuda prefix)
+and specify the type of element with
+\begin{RCode}
+mem = mallocPitch( ncol(AB), nrow(AB), "float")
+\end{RCode}
+With this function, we specify the number of elements and not the
+number of bytes in the first argument.  Furthermore, the resulting
+object returned by \Rfunc{mallocPitch} a class name \Rclass{PitchMemory2D}
+and contains information about the location of the allocated memory,
+its size and type of element.
+This allows us to simply assign an \R{}  object to it and
+have the assignment actually convert the \R{} object and copy it
+to the GPU's memory.
+So we can use
+\begin{RCode}
+mem[] = t(AB)
+\end{RCode}
+to copy the matrix to the GPU.
+% Note that we access the memory and the pitch different as this is an
+% S4 class. This is annoying, but still more convenient. 
+% Dispatch for [<- isn't behaving 
 
 
 
 
+% euclidean_kernel
+\subsection{Distances between two matrices}
+In some circumstances, we start with two matrices, say \Rvar{A} and
+\Rvar{B}, and want to compute the distance between each observation in
+\Rvar{A} and each observation in \Rvar{B}.  We could combine these two
+matrices into one and compute all pairwise-distances between the
+rows. However, this uses more memory by creating a new matrix.  It
+also performs a large number of redundant computations that will be
+ignored, namely the distances between each pair of rows in \Rvar{A}
+and also in \Rvar{B} where we only want those for the observations
+between \Rvar{A} and \Rvar{B}.
+So we would like to do just the computations we want.
+
+The \Rpkg{gputools} package contains a kernel that can handle two
+different matrices as inputs.  This is called
+\Cfunc{euclidean_kernel} (i.e. without the \Cfunc{_same} suffix.)
+We can invoke this with 
+\begin{RCode}
+out = .gpu(mod$euclidean_kernel,
+           t(A), ncol(A), nrow(A), 
+           t(B), ncol(B), nrow(B), 
+           ncol(A), 
+           ans = numeric(nrow(A) * nrow(B)), nrow(A),
+           outputs = "ans", 
+           gridDim = c(nrow(A), nrow(B)),
+           blockDim = 32L)
+\end{RCode}
+%$
+The arguments are very similar to the previous kernel call,
+but there are no ignored parameters.
+
+Note that here we pass the two matrices directly in the call to
+\Rfunc{.gpu}, rather than than copying them to the device ahead of the
+call.  This is because we are not passing the same matrix as two
+separate inputs.  Instead, we can leave it to the \Rfunc{.gpu}
+function to copy the vectors to the device, pass the references
+to each of them to the kernel, and then to release the memory 
+after it is no longer used. This is more convenient.
+
+
+\subsection{A different metric}
 It is easy for us to use a different metric.  We can load a different
-kernel and pass that to our function.  This makes the code simpler, as
-we would expect of a high-level implementation.  It also makes it more
-flexible. If we want to use an entirely different kernel, we can write
-just the code for that kernel, compile and load it.  Our distance
-function does not need to know where the kernel came from or have any
-a priori knowledge about it.
+kernel and pass that to our function. 
+For example, we can use the \Cfunc{canberra_kernel} in the
+\Rpkg{gputools} code.
+We can access it with 
+\begin{RCode}
+mod$canberra_kernel
+\end{RCode}
+%$
+and then pass that to the call to \Rfunc{.gpu} function above without
+changing any of the other arguments.  In this way, the kernel acts
+like a function or a pointer to a routine in \C{} and allows us to
+parameterize the same distance calculations.  This makes the code
+simpler, as we would expect of a high-level implementation.  It also
+makes it more flexible. If we want to use an entirely different
+kernel, we can write just the code for that kernel, compile and load
+it.  Our distance function does not need to know where the kernel came
+from or have any a priori knowledge about it.
 
+
+\subsection{Reusing the computed distances}
 As we have seen before, it is sometimes useful to be able to leave the
 results computed by one kernel on the device and have those be used as
 inputs to a second kernel.  The \Rpkg{gputools} package uses this when

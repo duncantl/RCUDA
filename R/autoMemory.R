@@ -580,15 +580,15 @@ if(is(ans, 'CUresult') && ans != 0)
 ans
 }
 
-
 cudaMemcpy2D <-
-function( dst , dpitch , src , spitch , width , height , kind  )
+function( dst, dpitch, src, spitch, width, height, kind )
 {
-ans = .Call('R_auto_cudaMemcpy2D', as(dst, 'void'), as(dpitch, 'size_t'), as(src, 'void'), as(spitch, 'size_t'), as(width, 'size_t'), as(height, 'size_t'), as(kind, 'cudaMemcpyKind'))
-if(is(ans, 'CUresult') && ans != 0)
+ans = .Call('R_auto_cudaMemcpy2D', as(dst, 'voidPtr'), as(dpitch, 'size_t'), as(src, 'voidPtr'), as(spitch, 'size_t'), as(width, 'size_t'), as(height, 'size_t'), as(kind, 'cudaMemcpyKind'))
+if(is(ans, 'cudaError_t') && ans != 0)
     raiseError(ans, 'R_auto_cudaMemcpy2D')
 ans
-}
+} 
+
 
 
 cudaMemcpy2DToArray <-

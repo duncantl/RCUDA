@@ -102,6 +102,7 @@
 
 * Allow adding hints to indicate what are input and output variables.
   Can we just add const to inputs that are pointers.
+  See RCUDA bindings and also Rnvvm where we compute them from the comment for each routine.
 
 * Allow user to specify opaque data types for which we don't want to generate accessors 
     CXTranslationUnit in RCIndex is an example of wherethe struct is

@@ -65,7 +65,7 @@ function(fun, routineName = "", statusTypes = StatusTypes)
 
 
 
-returnsString =
+returnString =
 function(fun)
      length(fun@params) && isStringType(getType(fun@params[[1]])) && isIntType(getType(fun$params[[2]]))
 
@@ -75,7 +75,7 @@ function(fun, name = sprintf("R_auto_%s", funName),
          funName = gsub("_v[0-9]$", "", getName(fun)),
          stringSize = 10000L,
          returnArg = returnsValueViaArg(fun, getName(fun)),
-         returnsString = returnsString(fun),
+         returnsString = returnString(fun),
          statusTypeName = getName(fun@returnType))
 {
 
@@ -118,7 +118,7 @@ function(fun, name = sprintf("R_auto_%s", funName),
                                           else
                                            sprintf("SET_VECTOR_ELT(r_ans, %d, %s);", i-1L, val)
                                       })),
-                    sprintf('SET_STRING_ELT(r_names, %d, mkChar("%s"));', seq(along = fun@params) - 1L, names(fun@params))
+                    sprintf('SET_STRING_ELT(r_names, %d, mkChar("%s"));', seq(along = fun@params[returnArg]) - 1L, names(fun@params)[returnArg])
                     )
                 else {
                   if(returnsString)
@@ -198,8 +198,8 @@ function(fun, name = gsub("_v[0-9]$", "", getName(fun)), argNames = names(fun@pa
           PACKAGE = NA, defaultValues = character(), guessDefaults = FALSE,
           typeMap = TypeMap,
           returnArg = returnsValueViaArg(fun),
-          returnsString = returnsString(fun),
-          errorClass = "CUresult")
+          returnsString = returnString(fun),
+          errorClass = "CUresult")#XXXX if the return type is cudaError_t or anything else, use that.
 {
 
    if(returnsString) 

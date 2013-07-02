@@ -193,3 +193,14 @@ export(CU_CTX_SCHED_AUTO, CU_CTX_SCHED_SPIN, CU_CTX_SCHED_YIELD, CU_CTX_SCHED_BL
 
 export(cuFuncGetAttributes)
 
+
+export(cudaMemcpy2D)
+
+export(mallocPitch, convertToPtr)
+exportMethods("[<-")
+
+export("cudaMemcpyHostToHost",
+"cudaMemcpyHostToDevice",
+"cudaMemcpyDeviceToHost",
+"cudaMemcpyDeviceToDevice",
+"cudaMemcpyDefault")

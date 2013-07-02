@@ -80,6 +80,11 @@ convertRObjToGPU(SEXP arg, float *floatLoc, void **argLoc)
 	return(argLoc);
     }
 
+    if(arg == R_NilValue) {
+	argLoc[0] = NULL;
+	return(argLoc);
+    }
+
     int len = Rf_length(arg), i;
     if(ty == REALSXP) {
 	if(len == 1) {
