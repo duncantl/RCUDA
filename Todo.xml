@@ -46,6 +46,7 @@ Make  the code that expects a device number consistently us as(, "CUDeviceNum") 
 Auto-generated code such as cudaDeviceGetPCIBusId causes problems as the declaration is integer.
 </item>
 
+
 <item>
 Allow obj[] to take a routine to copy each element to a SEXP.
 Caller specifies a native symbol.
