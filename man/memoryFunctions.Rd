@@ -78,6 +78,11 @@
 \alias{cudaMemsetAsync}
 \alias{cudaMemset2DAsync}
 \alias{cudaMemset3DAsync}
+\alias{cudaMemcpyDefault}
+\alias{cudaMemcpyDeviceToDevice}
+\alias{cudaMemcpyDeviceToHost}
+\alias{cudaMemcpyHostToDevice}
+\alias{cudaMemcpyHostToHost}
 \title{Memory operations}
 \description{cuMemGetInfo
 Gets free and total memory

@@ -3,6 +3,14 @@ library(RCUDA)
 
 source("~/promptFun.R")
 
+if(FALSE) {
+ allDocs = lapply(r.cu[mem], makeFunctionDoc)
+ dd = combineDocs( docs = allDocs, title = "Memory operations")
+ others = c('cudaMemcpyDefault', 'cudaMemcpyDeviceToDevice', 'cudaMemcpyDeviceToHost', 'cudaMemcpyHostToDevice', 'cudaMemcpyHostToHost' )
+ dd$alias = c(dd$alias, others)
+ writeRd(dd, out = "../man/memoryFunctions.Rd")  # force = TRUE
+}
+
 
 # We don't seem to be able to get the documentation for routines that are
 # enclosed within an #ifdef even though the parser does get the routines (so not that the #ifdef condition is false).
