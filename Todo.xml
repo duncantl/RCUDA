@@ -10,21 +10,24 @@
 
 <item status="done">
 cudaMemcpy2D should coerce to a voidPtr, not a void.
+Fixed in the  makeCoerceArg function in the RCodeGen package.
 </item>
 
-<item>
-[Check]
+<item status="check">
 Need a mechanism to convert R object to pointer in cudaMemcpy2D, i.e. the src
+See convertToPtr.
+Checked for float.
 </item>
 
-<item>
+<item status="done">
 AB = matrix(0:(300*299), 300, 299)
 mem = cudaMallocPitch( ncol(AB) * 4L,  nrow(AB))
 RCUDA:::cudaMemcpy2D(mem[[1]], mem[[2]], t(AB), nrow(AB)*4L, nrow(AB)*4L, ncol(AB), RCUDA:::cudaMemcpyHostToDevice)
 </item>
 
-<item>
+<item status="done">
 [Check]  Higher-level R-like functions for cudaMallocPitch &amp; cudaMemcpy2D
+See inst/doc/distPitch.R
 </item>
 
 <item>
