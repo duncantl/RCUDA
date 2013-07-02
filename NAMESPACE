@@ -204,3 +204,5 @@ export("cudaMemcpyHostToHost",
 "cudaMemcpyDeviceToHost",
 "cudaMemcpyDeviceToDevice",
 "cudaMemcpyDefault")
+
+S3method('[<-', "PitchMemory2D")

@@ -1,4 +1,4 @@
-if(TRUE) {
+if(FALSE) {
   setClass("PitchMemory2D",
             representation(pitch = "size_t", dim = "integer", elType = "character", elSize = "integer"),
             contains = "RCReference")
@@ -21,14 +21,29 @@ function (width, height, elType = NA)
   size = getElementSize(type = elType)
   ans = cudaMallocPitch( width * size, height )
 
-  new("PitchMemory2D", ans[[1]], pitch = as(ans[[2]], "size_t"), elType = elType, elSize = size, dim = c(width, height))
-# ans$pitch = as(ans[[2]], "size_t")
-# ans$elType = elType
-# ans$elSize = size
-# ans$dim = c(width, height)
-# structure(ans, class = "PitchMemory2D")
+#  new("PitchMemory2D", ans[[1]], pitch = as(ans[[2]], "size_t"), elType = elType, elSize = size, dim = c(width, height))
+ ans$pitch = as(ans[[2]], "size_t")
+ ans$elType = elType
+ ans$elSize = size
+ ans$dim = c(width, height)
+ structure(ans, class = "PitchMemory2D")
 }
 
+`[<-.PitchMemory2D` =
+ function(x, i, j, force = FALSE, ..., value)
+{
+
+  if(!force) {
+                  # Check the dimensions are consistent with the values              
+    if(!all(dim(value) == x$dim))
+      stop("incompatible dimensions")
+  }
+  val = convertToPtr(value, x$elType)
+  cudaMemcpy2D(x$devPtr, x$pitch, val, nrow(value)*x$elSize, nrow(value)* x$elSize, ncol(value), cudaMemcpyHostToDevice)            
+  x
+}
+
+if(FALSE)
 setMethod("[<-", c("PitchMemory2D", "missing", "missing", value = "matrix"),
           function(x, i, j, force = FALSE, ..., value) {
 
@@ -39,7 +54,6 @@ setMethod("[<-", c("PitchMemory2D", "missing", "missing", value = "matrix"),
             }
             val = convertToPtr(value, x@elType)
             cudaMemcpy2D(x@ref, x@pitch, val, nrow(value)*x@elSize, nrow(value)* x@elSize, ncol(value), cudaMemcpyHostToDevice)
-#           cudaMemcpy2D(x$devPtr, x$pitch, val, nrow(value)*x$elSize, nrow(value)* x$elSize, ncol(value), cudaMemcpyHostToDevice)            
             x
           })
 

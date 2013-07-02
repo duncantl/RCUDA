@@ -26,21 +26,16 @@ AB = rbind(A, B)
 # Can add an argument to
 
 if(FALSE) {
-mem = cudaMallocPitch( ncol(AB) * 4L,  nrow(AB))
-ref = convertToPtr(t(AB), "float")
-cudaMemcpy2D(mem[[1]], mem[[2]], ref, ncol(AB)*4L, ncol(AB)*4L, nrow(AB), RCUDA:::cudaMemcpyHostToDevice)
-pitch = mem$pitch
-memPtr = mem$devPtr
+  mem = cudaMallocPitch( ncol(AB) * 4L,  nrow(AB))
+  ref = convertToPtr(t(AB), "float")
+  cudaMemcpy2D(mem[[1]], mem[[2]], ref, ncol(AB)*4L, ncol(AB)*4L, nrow(AB), RCUDA:::cudaMemcpyHostToDevice)
 } else {
   mem = mallocPitch( ncol(AB), nrow(AB), "float")
   mem[] = t(AB)
-
-pitch = mem@pitch
-memPtr = mem@ref
 }
 
 out = .gpu(mod$euclidean_kernel_same,
-           memPtr, as.integer(pitch/4), nrow(AB),
+           mem$devPtr, as.integer(mem$pitch/4), nrow(AB),
            NULL, 0L, 0L,
            ncol(AB), ans = numeric(nrow(AB)^2), nrow(AB), 2.0,
            outputs = "ans", gridDim = c(nrow(AB), nrow(AB)), blockDim = 32L)
