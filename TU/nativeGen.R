@@ -67,7 +67,7 @@ function(fun, routineName = "", statusTypes = StatusTypes)
 
 returnString =
 function(fun)
-     length(fun@params) && isStringType(getType(fun@params[[1]])) && isIntType(getType(fun$params[[2]]))
+     length(fun@params) && isStringType(getType(fun@params[[1]])) && isIntegerType(getType(fun@params[[2]]))
 
 cuda.createNativeProxy =
 function(fun, name = sprintf("R_auto_%s", funName),
@@ -173,7 +173,7 @@ function(fun, name = sprintf("R_auto_%s", funName),
             localVars,
             call,
             if(cuResult)
-                 checkStatusCode,
+                 checkStatusCode(getName(fun@returnType)),
             if(length(returnArg) > 1 && !returnsString) 
               c(sprintf("PROTECT(r_ans = NEW_LIST(%d));", length(returnArg)),
                 "SEXP r_names;",
@@ -199,7 +199,7 @@ function(fun, name = gsub("_v[0-9]$", "", getName(fun)), argNames = names(fun@pa
           typeMap = TypeMap,
           returnArg = returnsValueViaArg(fun),
           returnsString = returnString(fun),
-          errorClass = "CUresult")#XXXX if the return type is cudaError_t or anything else, use that.
+          errorClass = getName(fun@returnType)) #  c("CUresult", "cudaError_t"))#XXXX if the return type is cudaError_t or anything else, use that.
 {
 
    if(returnsString) 
@@ -221,13 +221,15 @@ function(fun, name = gsub("_v[0-9]$", "", getName(fun)), argNames = names(fun@pa
    if(length(returnArgTypes) == 1) #XXX deal with more
       map = lookupTypeMap(typeMap, getName(returnArgTypes), "RcoerceResult", returnArgTypes, name = "ans")
    else
-     map = character()
+      map = character()
+
+   
    
    fn@code = c(
                 paste("ans =", txt),
                 sprintf("if(is(ans, '%s') && ans != 0)", errorClass),
                 sprintf("    raiseError(ans, '%s')", nativeProxyName),
-               if(length(map)) map else "ans"
+                if(length(map)) map else "ans"
                )
    fn
 }
@@ -264,9 +266,12 @@ function(parm, routineName = "")
 
 
 checkStatusCode =
+function(typeName)
+{  
   c("if(ans)",
-      "   return(R_cudaErrorInfo(ans));")
-
+      sprintf("   return(R_%sInfo(ans));", switch(typeName, CUresult = "cudaError",
+                                                            cudaError_t = "cudaError_t_")))
+}
 
 ###############
 

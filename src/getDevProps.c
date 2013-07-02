@@ -1,3 +1,4 @@
+/* Generated with RGCCTranslationunit. */
 #include "RCUDA.h" 
 
 

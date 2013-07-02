@@ -12,10 +12,11 @@
  Any outputs will be returned via \code{optionValues}. Supported options are
  (types for the option values are specified in parentheses after the option
  name):}
-\usage{cuModuleLoadDataEx(image, numOptions)}
+\usage{cuModuleLoadDataEx(image, options = integer(), opts = FALSE)}
 \arguments{
   \item{image}{Module data to load}
-  \item{numOptions}{Number of options}
+  \item{options}{the vector of options, enumerated types}
+  \item{opts}{a logical value, currently ignored.}
 }
 \value{module
 options

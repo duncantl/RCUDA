@@ -82,20 +82,3 @@ print(max(abs(DD - as.matrix(dist(AB))[1:nrow(A), - (1:nrow(A))])))
 
 
 
-
-
-if(TRUE) {
-AB = t(rbind(A, B))
-mem = cudaMallocPitch( ncol(AB) * 4L,  nrow(AB))
-cudaMemcpy2D()
-ABref = copyToDevice(t(AB), elType = "float")
-ans = cudaMalloc(sum(N)^2, elType = "float")
-.gpu(mod$euclidean_kernel_same,
-     ABref, p, sum(N),
-     ABref, p, sum(N),
-     p, ans, sum(N), 2.0,
-     outputs = FALSE, gridDim = c(nrow(AB), nrow(AB)), blockDim = 32L)
-out = copyFromDevice(ans, sum(N)^2, "float")
-d.AB = matrix(out, sum(N), sum(N))
-
-}

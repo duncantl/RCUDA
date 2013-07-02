@@ -1,61 +1,61 @@
-#include "RCUDA.h"
+# Generated programmatically at 2013-07-02 13:50:20 
 
 
 cuEventCreate <-
-function( Flags  )
+function( Flags )
 {
-ans = .Call('R_cuEventCreate', as(Flags, 'numeric'))
-if(is(ans, 'CUresult') && ans != 0)
-    raiseError(ans, 'R_cuEventCreate')
-ans
+    ans = .Call('R_auto_cuEventCreate', as(Flags, 'numeric'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_auto_cuEventCreate')
+    ans
 }
 
 
 cuEventRecord <-
-function( hEvent , hStream  )
+function( hEvent, hStream )
 {
-ans = .Call('R_cuEventRecord', as(hEvent, 'CUevent'), as(hStream, 'CUstream'))
-if(is(ans, 'CUresult') && ans != 0)
-    raiseError(ans, 'R_cuEventRecord')
-ans
+    ans = .Call('R_auto_cuEventRecord', as(hEvent, 'CUevent'), as(hStream, 'CUstream'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_auto_cuEventRecord')
+    ans
 }
 
 
 cuEventQuery <-
-function( hEvent  )
+function( hEvent )
 {
-ans = .Call('R_cuEventQuery', as(hEvent, 'CUevent'))
-if(is(ans, 'CUresult') && ans != 0)
-    raiseError(ans, 'R_cuEventQuery')
-ans
+    ans = .Call('R_auto_cuEventQuery', as(hEvent, 'CUevent'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_auto_cuEventQuery')
+    ans
 }
 
 
 cuEventSynchronize <-
-function( hEvent  )
+function( hEvent )
 {
-ans = .Call('R_cuEventSynchronize', as(hEvent, 'CUevent'))
-if(is(ans, 'CUresult') && ans != 0)
-    raiseError(ans, 'R_cuEventSynchronize')
-ans
+    ans = .Call('R_auto_cuEventSynchronize', as(hEvent, 'CUevent'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_auto_cuEventSynchronize')
+    ans
 }
 
 
 cuEventDestroy <-
-function( hEvent  )
+function( hEvent )
 {
-ans = .Call('R_cuEventDestroy', as(hEvent, 'CUevent'))
-if(is(ans, 'CUresult') && ans != 0)
-    raiseError(ans, 'R_cuEventDestroy')
-ans
+    ans = .Call('R_auto_cuEventDestroy', as(hEvent, 'CUevent'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_auto_cuEventDestroy')
+    ans
 }
 
 
 cuEventElapsedTime <-
-function( hStart , hEnd  )
+function( hStart, hEnd )
 {
-ans = .Call('R_cuEventElapsedTime', as(hStart, 'CUevent'), as(hEnd, 'CUevent'))
-if(is(ans, 'CUresult') && ans != 0)
-    raiseError(ans, 'R_cuEventElapsedTime')
-ans
+    ans = .Call('R_auto_cuEventElapsedTime', as(hStart, 'CUevent'), as(hEnd, 'CUevent'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_auto_cuEventElapsedTime')
+    ans
 }

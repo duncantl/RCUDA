@@ -94,7 +94,7 @@ mem = grep("^cu(da)?Mem", names(r.cu), value = TRUE)
    # simplifies the result to a numeric vector.  Could identify this programmatically
    # or try to simplify in the R code.
 mem = setdiff(mem, "cuMemGetInfo")
-lapply(r.cu[mem], cuda.createNativeProxy)
+#lapply(r.cu[mem], cuda.createNativeProxy)
 generateCode(r.cu[mem], "Memory")
 
 # Other memory related routines
@@ -162,6 +162,7 @@ manual = c("cudaGetExportTable", "cuGetExportTable", "cudaConfigureCall", "cudaS
 incs = c(".", "/usr/local/cuda/include")
 rincs = c(incs, sprintf("%s/include", R.home()), sprintf("%s/../src/include", R.home()))
 cfiles = list.files("../src", pattern = "*.c$", full.names = TRUE)
+cfiles = grep("^auto", cfiles, invert = TRUE, value = TRUE)
 kalls = unlist(lapply(cfiles, findCalls, includes = rincs))
 
 cuCalls = grep("^cu", unique(unlist(kalls)), value = TRUE)
@@ -169,7 +170,7 @@ deprecated = scan("../deprecated", what = "", quiet = TRUE)
 missingOnes = setdiff(names(r.cu), c(cuCalls, deprecated, manual))
 #missing = setdiff(missing, deprecated)
 
-w = sapply(r.cu[missingOnes], function(x)  { toks = getCursorTokens(x$def) ; any(grepl("__device", toks)) && !any(grepl("__host", toks))})
+w = sapply(r.cu[missingOnes], function(x)  { toks = getCursorTokens(x@def) ; any(grepl("__device", toks)) && !any(grepl("__host", toks))})
 
 want = grep("(^make|Mip|Ipc|Texture|TexRef|Tex|Surface|Surf|curand)", missingOnes, invert = TRUE, value = TRUE)
 

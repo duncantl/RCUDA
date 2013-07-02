@@ -1,3 +1,4 @@
+// Generated programmatically at 2013-07-02 13:25:38 
 #include "RCUDA.h"
 
 
@@ -12,9 +13,14 @@ R_auto_cuMemGetInfo()
     if(ans)
        return(R_cudaErrorInfo(ans));
     PROTECT(r_ans = NEW_LIST(2));
+    SEXP r_names;
+    PROTECT(r_names = NEW_CHARACTER(2));
     SET_VECTOR_ELT(r_ans, 0, ScalarReal(free));
     SET_VECTOR_ELT(r_ans, 1, ScalarReal(total));
-    UNPROTECT(1);
+    SET_STRING_ELT(r_names, 0, mkChar("free"));
+    SET_STRING_ELT(r_names, 1, mkChar("total"));
+    SET_NAMES(r_ans, r_names);
+    UNPROTECT(2);
     return(r_ans);
 }
 
@@ -48,9 +54,14 @@ R_auto_cuMemAllocPitch(SEXP r_WidthInBytes, SEXP r_Height, SEXP r_ElementSizeByt
     if(ans)
        return(R_cudaErrorInfo(ans));
     PROTECT(r_ans = NEW_LIST(2));
+    SEXP r_names;
+    PROTECT(r_names = NEW_CHARACTER(2));
     SET_VECTOR_ELT(r_ans, 0, R_createRef((void*) dptr, "CUdeviceptr"));
     SET_VECTOR_ELT(r_ans, 1, ScalarReal(pPitch));
-    UNPROTECT(1);
+    SET_STRING_ELT(r_names, 0, mkChar("dptr"));
+    SET_STRING_ELT(r_names, 1, mkChar("pPitch"));
+    SET_NAMES(r_ans, r_names);
+    UNPROTECT(2);
     return(r_ans);
 }
 
@@ -81,9 +92,14 @@ R_auto_cuMemGetAddressRange(SEXP r_dptr)
     if(ans)
        return(R_cudaErrorInfo(ans));
     PROTECT(r_ans = NEW_LIST(2));
+    SEXP r_names;
+    PROTECT(r_names = NEW_CHARACTER(2));
     SET_VECTOR_ELT(r_ans, 0, R_createRef((void*) pbase, "CUdeviceptr"));
     SET_VECTOR_ELT(r_ans, 1, ScalarReal(psize));
-    UNPROTECT(1);
+    SET_STRING_ELT(r_names, 0, mkChar("pbase"));
+    SET_STRING_ELT(r_names, 1, mkChar("psize"));
+    SET_NAMES(r_ans, r_names);
+    UNPROTECT(2);
     return(r_ans);
 }
 
@@ -106,7 +122,7 @@ R_auto_cuMemAllocHost(SEXP r_bytesize)
 SEXP R_auto_cuMemFreeHost(SEXP r_p)
 {
     SEXP r_ans = R_NilValue;
-    void * p = GET_REF(r_p, void *);
+    void * p = GET_REF(r_p, void );
     
     CUresult ans;
     ans = cuMemFreeHost(p);
@@ -138,7 +154,7 @@ R_auto_cuMemHostGetDevicePointer(SEXP r_p, SEXP r_Flags)
 {
     SEXP r_ans = R_NilValue;
     CUdeviceptr pdptr;
-    void * p = GET_REF(r_p, void *);
+    void * p = GET_REF(r_p, void );
     unsigned int Flags = REAL(r_Flags)[0];
     CUresult ans;
     ans = cuMemHostGetDevicePointer(& pdptr,  p,  Flags);
@@ -154,7 +170,7 @@ R_auto_cuMemHostGetFlags(SEXP r_p)
 {
     SEXP r_ans = R_NilValue;
     unsigned int pFlags;
-    void * p = GET_REF(r_p, void *);
+    void * p = GET_REF(r_p, void );
     CUresult ans;
     ans = cuMemHostGetFlags(& pFlags,  p);
     if(ans)
@@ -167,7 +183,7 @@ R_auto_cuMemHostGetFlags(SEXP r_p)
 SEXP R_auto_cuMemHostRegister(SEXP r_p, SEXP r_bytesize, SEXP r_Flags)
 {
     SEXP r_ans = R_NilValue;
-    void * p = GET_REF(r_p, void *);
+    void * p = GET_REF(r_p, void );
     size_t bytesize = REAL(r_bytesize)[0];
     unsigned int Flags = REAL(r_Flags)[0];
     
@@ -183,7 +199,7 @@ SEXP R_auto_cuMemHostRegister(SEXP r_p, SEXP r_bytesize, SEXP r_Flags)
 SEXP R_auto_cuMemHostUnregister(SEXP r_p)
 {
     SEXP r_ans = R_NilValue;
-    void * p = GET_REF(r_p, void *);
+    void * p = GET_REF(r_p, void );
     
     CUresult ans;
     ans = cuMemHostUnregister(p);
@@ -232,7 +248,7 @@ SEXP R_auto_cuMemcpyHtoD(SEXP r_dstDevice, SEXP r_srcHost, SEXP r_ByteCount)
 {
     SEXP r_ans = R_NilValue;
     CUdeviceptr dstDevice = REAL(r_dstDevice)[0];
-    const void * srcHost = GET_REF(r_srcHost, const void *);
+    const void * srcHost = GET_REF(r_srcHost, const void );
     size_t ByteCount = REAL(r_ByteCount)[0];
     
     CUresult ans;
@@ -247,7 +263,7 @@ SEXP R_auto_cuMemcpyHtoD(SEXP r_dstDevice, SEXP r_srcHost, SEXP r_ByteCount)
 SEXP R_auto_cuMemcpyDtoH(SEXP r_dstHost, SEXP r_srcDevice, SEXP r_ByteCount)
 {
     SEXP r_ans = R_NilValue;
-    void * dstHost = GET_REF(r_dstHost, void *);
+    void * dstHost = GET_REF(r_dstHost, void );
     CUdeviceptr srcDevice = REAL(r_srcDevice)[0];
     size_t ByteCount = REAL(r_ByteCount)[0];
     
@@ -315,7 +331,7 @@ SEXP R_auto_cuMemcpyHtoA(SEXP r_dstArray, SEXP r_dstOffset, SEXP r_srcHost, SEXP
     SEXP r_ans = R_NilValue;
     CUarray dstArray = (CUarray) getRReference(r_dstArray);
     size_t dstOffset = REAL(r_dstOffset)[0];
-    const void * srcHost = GET_REF(r_srcHost, const void *);
+    const void * srcHost = GET_REF(r_srcHost, const void );
     size_t ByteCount = REAL(r_ByteCount)[0];
     
     CUresult ans;
@@ -330,7 +346,7 @@ SEXP R_auto_cuMemcpyHtoA(SEXP r_dstArray, SEXP r_dstOffset, SEXP r_srcHost, SEXP
 SEXP R_auto_cuMemcpyAtoH(SEXP r_dstHost, SEXP r_srcArray, SEXP r_srcOffset, SEXP r_ByteCount)
 {
     SEXP r_ans = R_NilValue;
-    void * dstHost = GET_REF(r_dstHost, void *);
+    void * dstHost = GET_REF(r_dstHost, void );
     CUarray srcArray = (CUarray) getRReference(r_srcArray);
     size_t srcOffset = REAL(r_srcOffset)[0];
     size_t ByteCount = REAL(r_ByteCount)[0];
@@ -365,7 +381,7 @@ SEXP R_auto_cuMemcpyAtoA(SEXP r_dstArray, SEXP r_dstOffset, SEXP r_srcArray, SEX
 SEXP R_auto_cuMemcpy2D(SEXP r_pCopy)
 {
     SEXP r_ans = R_NilValue;
-    const CUDA_MEMCPY2D * pCopy = GET_REF(r_pCopy, const CUDA_MEMCPY2D *);
+    const CUDA_MEMCPY2D * pCopy = GET_REF(r_pCopy, const CUDA_MEMCPY2D );
     
     CUresult ans;
     ans = cuMemcpy2D_v2(pCopy);
@@ -379,7 +395,7 @@ SEXP R_auto_cuMemcpy2D(SEXP r_pCopy)
 SEXP R_auto_cuMemcpy2DUnaligned(SEXP r_pCopy)
 {
     SEXP r_ans = R_NilValue;
-    const CUDA_MEMCPY2D * pCopy = GET_REF(r_pCopy, const CUDA_MEMCPY2D *);
+    const CUDA_MEMCPY2D * pCopy = GET_REF(r_pCopy, const CUDA_MEMCPY2D );
     
     CUresult ans;
     ans = cuMemcpy2DUnaligned_v2(pCopy);
@@ -393,7 +409,7 @@ SEXP R_auto_cuMemcpy2DUnaligned(SEXP r_pCopy)
 SEXP R_auto_cuMemcpy3D(SEXP r_pCopy)
 {
     SEXP r_ans = R_NilValue;
-    const CUDA_MEMCPY3D * pCopy = GET_REF(r_pCopy, const CUDA_MEMCPY3D *);
+    const CUDA_MEMCPY3D * pCopy = GET_REF(r_pCopy, const CUDA_MEMCPY3D );
     
     CUresult ans;
     ans = cuMemcpy3D_v2(pCopy);
@@ -407,7 +423,7 @@ SEXP R_auto_cuMemcpy3D(SEXP r_pCopy)
 SEXP R_auto_cuMemcpy3DPeer(SEXP r_pCopy)
 {
     SEXP r_ans = R_NilValue;
-    const CUDA_MEMCPY3D_PEER * pCopy = GET_REF(r_pCopy, const CUDA_MEMCPY3D_PEER *);
+    const CUDA_MEMCPY3D_PEER * pCopy = GET_REF(r_pCopy, const CUDA_MEMCPY3D_PEER );
     
     CUresult ans;
     ans = cuMemcpy3DPeer(pCopy);
@@ -458,7 +474,7 @@ SEXP R_auto_cuMemcpyHtoDAsync(SEXP r_dstDevice, SEXP r_srcHost, SEXP r_ByteCount
 {
     SEXP r_ans = R_NilValue;
     CUdeviceptr dstDevice = REAL(r_dstDevice)[0];
-    const void * srcHost = GET_REF(r_srcHost, const void *);
+    const void * srcHost = GET_REF(r_srcHost, const void );
     size_t ByteCount = REAL(r_ByteCount)[0];
     CUstream hStream = (CUstream) getRReference(r_hStream);
     
@@ -474,7 +490,7 @@ SEXP R_auto_cuMemcpyHtoDAsync(SEXP r_dstDevice, SEXP r_srcHost, SEXP r_ByteCount
 SEXP R_auto_cuMemcpyDtoHAsync(SEXP r_dstHost, SEXP r_srcDevice, SEXP r_ByteCount, SEXP r_hStream)
 {
     SEXP r_ans = R_NilValue;
-    void * dstHost = GET_REF(r_dstHost, void *);
+    void * dstHost = GET_REF(r_dstHost, void );
     CUdeviceptr srcDevice = REAL(r_srcDevice)[0];
     size_t ByteCount = REAL(r_ByteCount)[0];
     CUstream hStream = (CUstream) getRReference(r_hStream);
@@ -510,7 +526,7 @@ SEXP R_auto_cuMemcpyHtoAAsync(SEXP r_dstArray, SEXP r_dstOffset, SEXP r_srcHost,
     SEXP r_ans = R_NilValue;
     CUarray dstArray = (CUarray) getRReference(r_dstArray);
     size_t dstOffset = REAL(r_dstOffset)[0];
-    const void * srcHost = GET_REF(r_srcHost, const void *);
+    const void * srcHost = GET_REF(r_srcHost, const void );
     size_t ByteCount = REAL(r_ByteCount)[0];
     CUstream hStream = (CUstream) getRReference(r_hStream);
     
@@ -526,7 +542,7 @@ SEXP R_auto_cuMemcpyHtoAAsync(SEXP r_dstArray, SEXP r_dstOffset, SEXP r_srcHost,
 SEXP R_auto_cuMemcpyAtoHAsync(SEXP r_dstHost, SEXP r_srcArray, SEXP r_srcOffset, SEXP r_ByteCount, SEXP r_hStream)
 {
     SEXP r_ans = R_NilValue;
-    void * dstHost = GET_REF(r_dstHost, void *);
+    void * dstHost = GET_REF(r_dstHost, void );
     CUarray srcArray = (CUarray) getRReference(r_srcArray);
     size_t srcOffset = REAL(r_srcOffset)[0];
     size_t ByteCount = REAL(r_ByteCount)[0];
@@ -544,7 +560,7 @@ SEXP R_auto_cuMemcpyAtoHAsync(SEXP r_dstHost, SEXP r_srcArray, SEXP r_srcOffset,
 SEXP R_auto_cuMemcpy2DAsync(SEXP r_pCopy, SEXP r_hStream)
 {
     SEXP r_ans = R_NilValue;
-    const CUDA_MEMCPY2D * pCopy = GET_REF(r_pCopy, const CUDA_MEMCPY2D *);
+    const CUDA_MEMCPY2D * pCopy = GET_REF(r_pCopy, const CUDA_MEMCPY2D );
     CUstream hStream = (CUstream) getRReference(r_hStream);
     
     CUresult ans;
@@ -559,7 +575,7 @@ SEXP R_auto_cuMemcpy2DAsync(SEXP r_pCopy, SEXP r_hStream)
 SEXP R_auto_cuMemcpy3DAsync(SEXP r_pCopy, SEXP r_hStream)
 {
     SEXP r_ans = R_NilValue;
-    const CUDA_MEMCPY3D * pCopy = GET_REF(r_pCopy, const CUDA_MEMCPY3D *);
+    const CUDA_MEMCPY3D * pCopy = GET_REF(r_pCopy, const CUDA_MEMCPY3D );
     CUstream hStream = (CUstream) getRReference(r_hStream);
     
     CUresult ans;
@@ -574,7 +590,7 @@ SEXP R_auto_cuMemcpy3DAsync(SEXP r_pCopy, SEXP r_hStream)
 SEXP R_auto_cuMemcpy3DPeerAsync(SEXP r_pCopy, SEXP r_hStream)
 {
     SEXP r_ans = R_NilValue;
-    const CUDA_MEMCPY3D_PEER * pCopy = GET_REF(r_pCopy, const CUDA_MEMCPY3D_PEER *);
+    const CUDA_MEMCPY3D_PEER * pCopy = GET_REF(r_pCopy, const CUDA_MEMCPY3D_PEER );
     CUstream hStream = (CUstream) getRReference(r_hStream);
     
     CUresult ans;
@@ -799,7 +815,7 @@ SEXP R_auto_cuMemsetD2D32Async(SEXP r_dstDevice, SEXP r_dstPitch, SEXP r_ui, SEX
 SEXP R_auto_cudaMemcpy3D(SEXP r_p)
 {
     SEXP r_ans = R_NilValue;
-    const struct cudaMemcpy3DParms * p = GET_REF(r_p, const struct cudaMemcpy3DParms *);
+    const struct cudaMemcpy3DParms * p = GET_REF(r_p, const struct cudaMemcpy3DParms );
     
     cudaError_t ans;
     ans = cudaMemcpy3D(p);
@@ -813,7 +829,7 @@ SEXP R_auto_cudaMemcpy3D(SEXP r_p)
 SEXP R_auto_cudaMemcpy3DPeer(SEXP r_p)
 {
     SEXP r_ans = R_NilValue;
-    const struct cudaMemcpy3DPeerParms * p = GET_REF(r_p, const struct cudaMemcpy3DPeerParms *);
+    const struct cudaMemcpy3DPeerParms * p = GET_REF(r_p, const struct cudaMemcpy3DPeerParms );
     
     cudaError_t ans;
     ans = cudaMemcpy3DPeer(p);
@@ -827,7 +843,7 @@ SEXP R_auto_cudaMemcpy3DPeer(SEXP r_p)
 SEXP R_auto_cudaMemcpy3DAsync(SEXP r_p, SEXP r_stream)
 {
     SEXP r_ans = R_NilValue;
-    const struct cudaMemcpy3DParms * p = GET_REF(r_p, const struct cudaMemcpy3DParms *);
+    const struct cudaMemcpy3DParms * p = GET_REF(r_p, const struct cudaMemcpy3DParms );
     cudaStream_t stream = (cudaStream_t) getRReference(r_stream);
     
     cudaError_t ans;
@@ -842,7 +858,7 @@ SEXP R_auto_cudaMemcpy3DAsync(SEXP r_p, SEXP r_stream)
 SEXP R_auto_cudaMemcpy3DPeerAsync(SEXP r_p, SEXP r_stream)
 {
     SEXP r_ans = R_NilValue;
-    const struct cudaMemcpy3DPeerParms * p = GET_REF(r_p, const struct cudaMemcpy3DPeerParms *);
+    const struct cudaMemcpy3DPeerParms * p = GET_REF(r_p, const struct cudaMemcpy3DPeerParms );
     cudaStream_t stream = (cudaStream_t) getRReference(r_stream);
     
     cudaError_t ans;
@@ -860,14 +876,19 @@ R_auto_cudaMemGetInfo()
     SEXP r_ans = R_NilValue;
     size_t free;
     size_t total;
-    CUresult ans;
+    cudaError_t ans;
     ans = cudaMemGetInfo(& free, & total);
     if(ans)
-       return(R_cudaErrorInfo(ans));
+       return(R_cudaError_t_Info(ans));
     PROTECT(r_ans = NEW_LIST(2));
+    SEXP r_names;
+    PROTECT(r_names = NEW_CHARACTER(2));
     SET_VECTOR_ELT(r_ans, 0, ScalarReal(free));
     SET_VECTOR_ELT(r_ans, 1, ScalarReal(total));
-    UNPROTECT(1);
+    SET_STRING_ELT(r_names, 0, mkChar("free"));
+    SET_STRING_ELT(r_names, 1, mkChar("total"));
+    SET_NAMES(r_ans, r_names);
+    UNPROTECT(2);
     return(r_ans);
 }
 
@@ -875,8 +896,8 @@ R_auto_cudaMemGetInfo()
 SEXP R_auto_cudaMemcpy(SEXP r_dst, SEXP r_src, SEXP r_count, SEXP r_kind)
 {
     SEXP r_ans = R_NilValue;
-    void * dst = GET_REF(r_dst, void *);
-    const void * src = GET_REF(r_src, const void *);
+    void * dst = GET_REF(r_dst, void );
+    const void * src = GET_REF(r_src, const void );
     size_t count = REAL(r_count)[0];
     enum cudaMemcpyKind kind = (enum cudaMemcpyKind) INTEGER(r_kind)[0];
     
@@ -892,9 +913,9 @@ SEXP R_auto_cudaMemcpy(SEXP r_dst, SEXP r_src, SEXP r_count, SEXP r_kind)
 SEXP R_auto_cudaMemcpyPeer(SEXP r_dst, SEXP r_dstDevice, SEXP r_src, SEXP r_srcDevice, SEXP r_count)
 {
     SEXP r_ans = R_NilValue;
-    void * dst = GET_REF(r_dst, void *);
+    void * dst = GET_REF(r_dst, void );
     int dstDevice = INTEGER(r_dstDevice)[0];
-    const void * src = GET_REF(r_src, const void *);
+    const void * src = GET_REF(r_src, const void );
     int srcDevice = INTEGER(r_srcDevice)[0];
     size_t count = REAL(r_count)[0];
     
@@ -913,7 +934,7 @@ SEXP R_auto_cudaMemcpyToArray(SEXP r_dst, SEXP r_wOffset, SEXP r_hOffset, SEXP r
     cudaArray_t dst = (cudaArray_t) getRReference(r_dst);
     size_t wOffset = REAL(r_wOffset)[0];
     size_t hOffset = REAL(r_hOffset)[0];
-    const void * src = GET_REF(r_src, const void *);
+    const void * src = GET_REF(r_src, const void );
     size_t count = REAL(r_count)[0];
     enum cudaMemcpyKind kind = (enum cudaMemcpyKind) INTEGER(r_kind)[0];
     
@@ -929,7 +950,7 @@ SEXP R_auto_cudaMemcpyToArray(SEXP r_dst, SEXP r_wOffset, SEXP r_hOffset, SEXP r
 SEXP R_auto_cudaMemcpyFromArray(SEXP r_dst, SEXP r_src, SEXP r_wOffset, SEXP r_hOffset, SEXP r_count, SEXP r_kind)
 {
     SEXP r_ans = R_NilValue;
-    void * dst = GET_REF(r_dst, void *);
+    void * dst = GET_REF(r_dst, void );
     cudaArray_const_t src = (cudaArray_const_t) getRReference(r_src);
     size_t wOffset = REAL(r_wOffset)[0];
     size_t hOffset = REAL(r_hOffset)[0];
@@ -969,9 +990,9 @@ SEXP R_auto_cudaMemcpyArrayToArray(SEXP r_dst, SEXP r_wOffsetDst, SEXP r_hOffset
 SEXP R_auto_cudaMemcpy2D(SEXP r_dst, SEXP r_dpitch, SEXP r_src, SEXP r_spitch, SEXP r_width, SEXP r_height, SEXP r_kind)
 {
     SEXP r_ans = R_NilValue;
-    void * dst = GET_REF(r_dst, void *);
+    void * dst = GET_REF(r_dst, void );
     size_t dpitch = REAL(r_dpitch)[0];
-    const void * src = GET_REF(r_src, const void *);
+    const void * src = GET_REF(r_src, const void );
     size_t spitch = REAL(r_spitch)[0];
     size_t width = REAL(r_width)[0];
     size_t height = REAL(r_height)[0];
@@ -992,7 +1013,7 @@ SEXP R_auto_cudaMemcpy2DToArray(SEXP r_dst, SEXP r_wOffset, SEXP r_hOffset, SEXP
     cudaArray_t dst = (cudaArray_t) getRReference(r_dst);
     size_t wOffset = REAL(r_wOffset)[0];
     size_t hOffset = REAL(r_hOffset)[0];
-    const void * src = GET_REF(r_src, const void *);
+    const void * src = GET_REF(r_src, const void );
     size_t spitch = REAL(r_spitch)[0];
     size_t width = REAL(r_width)[0];
     size_t height = REAL(r_height)[0];
@@ -1010,7 +1031,7 @@ SEXP R_auto_cudaMemcpy2DToArray(SEXP r_dst, SEXP r_wOffset, SEXP r_hOffset, SEXP
 SEXP R_auto_cudaMemcpy2DFromArray(SEXP r_dst, SEXP r_dpitch, SEXP r_src, SEXP r_wOffset, SEXP r_hOffset, SEXP r_width, SEXP r_height, SEXP r_kind)
 {
     SEXP r_ans = R_NilValue;
-    void * dst = GET_REF(r_dst, void *);
+    void * dst = GET_REF(r_dst, void );
     size_t dpitch = REAL(r_dpitch)[0];
     cudaArray_const_t src = (cudaArray_const_t) getRReference(r_src);
     size_t wOffset = REAL(r_wOffset)[0];
@@ -1053,8 +1074,8 @@ SEXP R_auto_cudaMemcpy2DArrayToArray(SEXP r_dst, SEXP r_wOffsetDst, SEXP r_hOffs
 SEXP R_auto_cudaMemcpyToSymbol(SEXP r_symbol, SEXP r_src, SEXP r_count, SEXP r_offset, SEXP r_kind)
 {
     SEXP r_ans = R_NilValue;
-    const void * symbol = GET_REF(r_symbol, const void *);
-    const void * src = GET_REF(r_src, const void *);
+    const void * symbol = GET_REF(r_symbol, const void );
+    const void * src = GET_REF(r_src, const void );
     size_t count = REAL(r_count)[0];
     size_t offset = REAL(r_offset)[0];
     enum cudaMemcpyKind kind = (enum cudaMemcpyKind) INTEGER(r_kind)[0];
@@ -1071,8 +1092,8 @@ SEXP R_auto_cudaMemcpyToSymbol(SEXP r_symbol, SEXP r_src, SEXP r_count, SEXP r_o
 SEXP R_auto_cudaMemcpyFromSymbol(SEXP r_dst, SEXP r_symbol, SEXP r_count, SEXP r_offset, SEXP r_kind)
 {
     SEXP r_ans = R_NilValue;
-    void * dst = GET_REF(r_dst, void *);
-    const void * symbol = GET_REF(r_symbol, const void *);
+    void * dst = GET_REF(r_dst, void );
+    const void * symbol = GET_REF(r_symbol, const void );
     size_t count = REAL(r_count)[0];
     size_t offset = REAL(r_offset)[0];
     enum cudaMemcpyKind kind = (enum cudaMemcpyKind) INTEGER(r_kind)[0];
@@ -1089,8 +1110,8 @@ SEXP R_auto_cudaMemcpyFromSymbol(SEXP r_dst, SEXP r_symbol, SEXP r_count, SEXP r
 SEXP R_auto_cudaMemcpyAsync(SEXP r_dst, SEXP r_src, SEXP r_count, SEXP r_kind, SEXP r_stream)
 {
     SEXP r_ans = R_NilValue;
-    void * dst = GET_REF(r_dst, void *);
-    const void * src = GET_REF(r_src, const void *);
+    void * dst = GET_REF(r_dst, void );
+    const void * src = GET_REF(r_src, const void );
     size_t count = REAL(r_count)[0];
     enum cudaMemcpyKind kind = (enum cudaMemcpyKind) INTEGER(r_kind)[0];
     cudaStream_t stream = (cudaStream_t) getRReference(r_stream);
@@ -1107,9 +1128,9 @@ SEXP R_auto_cudaMemcpyAsync(SEXP r_dst, SEXP r_src, SEXP r_count, SEXP r_kind, S
 SEXP R_auto_cudaMemcpyPeerAsync(SEXP r_dst, SEXP r_dstDevice, SEXP r_src, SEXP r_srcDevice, SEXP r_count, SEXP r_stream)
 {
     SEXP r_ans = R_NilValue;
-    void * dst = GET_REF(r_dst, void *);
+    void * dst = GET_REF(r_dst, void );
     int dstDevice = INTEGER(r_dstDevice)[0];
-    const void * src = GET_REF(r_src, const void *);
+    const void * src = GET_REF(r_src, const void );
     int srcDevice = INTEGER(r_srcDevice)[0];
     size_t count = REAL(r_count)[0];
     cudaStream_t stream = (cudaStream_t) getRReference(r_stream);
@@ -1129,7 +1150,7 @@ SEXP R_auto_cudaMemcpyToArrayAsync(SEXP r_dst, SEXP r_wOffset, SEXP r_hOffset, S
     cudaArray_t dst = (cudaArray_t) getRReference(r_dst);
     size_t wOffset = REAL(r_wOffset)[0];
     size_t hOffset = REAL(r_hOffset)[0];
-    const void * src = GET_REF(r_src, const void *);
+    const void * src = GET_REF(r_src, const void );
     size_t count = REAL(r_count)[0];
     enum cudaMemcpyKind kind = (enum cudaMemcpyKind) INTEGER(r_kind)[0];
     cudaStream_t stream = (cudaStream_t) getRReference(r_stream);
@@ -1146,7 +1167,7 @@ SEXP R_auto_cudaMemcpyToArrayAsync(SEXP r_dst, SEXP r_wOffset, SEXP r_hOffset, S
 SEXP R_auto_cudaMemcpyFromArrayAsync(SEXP r_dst, SEXP r_src, SEXP r_wOffset, SEXP r_hOffset, SEXP r_count, SEXP r_kind, SEXP r_stream)
 {
     SEXP r_ans = R_NilValue;
-    void * dst = GET_REF(r_dst, void *);
+    void * dst = GET_REF(r_dst, void );
     cudaArray_const_t src = (cudaArray_const_t) getRReference(r_src);
     size_t wOffset = REAL(r_wOffset)[0];
     size_t hOffset = REAL(r_hOffset)[0];
@@ -1166,9 +1187,9 @@ SEXP R_auto_cudaMemcpyFromArrayAsync(SEXP r_dst, SEXP r_src, SEXP r_wOffset, SEX
 SEXP R_auto_cudaMemcpy2DAsync(SEXP r_dst, SEXP r_dpitch, SEXP r_src, SEXP r_spitch, SEXP r_width, SEXP r_height, SEXP r_kind, SEXP r_stream)
 {
     SEXP r_ans = R_NilValue;
-    void * dst = GET_REF(r_dst, void *);
+    void * dst = GET_REF(r_dst, void );
     size_t dpitch = REAL(r_dpitch)[0];
-    const void * src = GET_REF(r_src, const void *);
+    const void * src = GET_REF(r_src, const void );
     size_t spitch = REAL(r_spitch)[0];
     size_t width = REAL(r_width)[0];
     size_t height = REAL(r_height)[0];
@@ -1190,7 +1211,7 @@ SEXP R_auto_cudaMemcpy2DToArrayAsync(SEXP r_dst, SEXP r_wOffset, SEXP r_hOffset,
     cudaArray_t dst = (cudaArray_t) getRReference(r_dst);
     size_t wOffset = REAL(r_wOffset)[0];
     size_t hOffset = REAL(r_hOffset)[0];
-    const void * src = GET_REF(r_src, const void *);
+    const void * src = GET_REF(r_src, const void );
     size_t spitch = REAL(r_spitch)[0];
     size_t width = REAL(r_width)[0];
     size_t height = REAL(r_height)[0];
@@ -1209,7 +1230,7 @@ SEXP R_auto_cudaMemcpy2DToArrayAsync(SEXP r_dst, SEXP r_wOffset, SEXP r_hOffset,
 SEXP R_auto_cudaMemcpy2DFromArrayAsync(SEXP r_dst, SEXP r_dpitch, SEXP r_src, SEXP r_wOffset, SEXP r_hOffset, SEXP r_width, SEXP r_height, SEXP r_kind, SEXP r_stream)
 {
     SEXP r_ans = R_NilValue;
-    void * dst = GET_REF(r_dst, void *);
+    void * dst = GET_REF(r_dst, void );
     size_t dpitch = REAL(r_dpitch)[0];
     cudaArray_const_t src = (cudaArray_const_t) getRReference(r_src);
     size_t wOffset = REAL(r_wOffset)[0];
@@ -1231,8 +1252,8 @@ SEXP R_auto_cudaMemcpy2DFromArrayAsync(SEXP r_dst, SEXP r_dpitch, SEXP r_src, SE
 SEXP R_auto_cudaMemcpyToSymbolAsync(SEXP r_symbol, SEXP r_src, SEXP r_count, SEXP r_offset, SEXP r_kind, SEXP r_stream)
 {
     SEXP r_ans = R_NilValue;
-    const void * symbol = GET_REF(r_symbol, const void *);
-    const void * src = GET_REF(r_src, const void *);
+    const void * symbol = GET_REF(r_symbol, const void );
+    const void * src = GET_REF(r_src, const void );
     size_t count = REAL(r_count)[0];
     size_t offset = REAL(r_offset)[0];
     enum cudaMemcpyKind kind = (enum cudaMemcpyKind) INTEGER(r_kind)[0];
@@ -1250,8 +1271,8 @@ SEXP R_auto_cudaMemcpyToSymbolAsync(SEXP r_symbol, SEXP r_src, SEXP r_count, SEX
 SEXP R_auto_cudaMemcpyFromSymbolAsync(SEXP r_dst, SEXP r_symbol, SEXP r_count, SEXP r_offset, SEXP r_kind, SEXP r_stream)
 {
     SEXP r_ans = R_NilValue;
-    void * dst = GET_REF(r_dst, void *);
-    const void * symbol = GET_REF(r_symbol, const void *);
+    void * dst = GET_REF(r_dst, void );
+    const void * symbol = GET_REF(r_symbol, const void );
     size_t count = REAL(r_count)[0];
     size_t offset = REAL(r_offset)[0];
     enum cudaMemcpyKind kind = (enum cudaMemcpyKind) INTEGER(r_kind)[0];
@@ -1269,7 +1290,7 @@ SEXP R_auto_cudaMemcpyFromSymbolAsync(SEXP r_dst, SEXP r_symbol, SEXP r_count, S
 SEXP R_auto_cudaMemset(SEXP r_devPtr, SEXP r_value, SEXP r_count)
 {
     SEXP r_ans = R_NilValue;
-    void * devPtr = GET_REF(r_devPtr, void *);
+    void * devPtr = GET_REF(r_devPtr, void );
     int value = INTEGER(r_value)[0];
     size_t count = REAL(r_count)[0];
     
@@ -1285,7 +1306,7 @@ SEXP R_auto_cudaMemset(SEXP r_devPtr, SEXP r_value, SEXP r_count)
 SEXP R_auto_cudaMemset2D(SEXP r_devPtr, SEXP r_pitch, SEXP r_value, SEXP r_width, SEXP r_height)
 {
     SEXP r_ans = R_NilValue;
-    void * devPtr = GET_REF(r_devPtr, void *);
+    void * devPtr = GET_REF(r_devPtr, void );
     size_t pitch = REAL(r_pitch)[0];
     int value = INTEGER(r_value)[0];
     size_t width = REAL(r_width)[0];
@@ -1303,9 +1324,9 @@ SEXP R_auto_cudaMemset2D(SEXP r_devPtr, SEXP r_pitch, SEXP r_value, SEXP r_width
 SEXP R_auto_cudaMemset3D(SEXP r_pitchedDevPtr, SEXP r_value, SEXP r_extent)
 {
     SEXP r_ans = R_NilValue;
-    struct cudaPitchedPtr pitchedDevPtr = * GET_REF(r_pitchedDevPtr, struct cudaPitchedPtr *);
+    struct cudaPitchedPtr pitchedDevPtr = * (struct cudaPitchedPtr *) getRReference(r_pitchedDevPtr);
     int value = INTEGER(r_value)[0];
-    struct cudaExtent extent = * GET_REF(r_extent, struct cudaExtent *);
+    struct cudaExtent extent = * (struct cudaExtent *) getRReference(r_extent);
     
     cudaError_t ans;
     ans = cudaMemset3D(pitchedDevPtr, value, extent);
@@ -1319,7 +1340,7 @@ SEXP R_auto_cudaMemset3D(SEXP r_pitchedDevPtr, SEXP r_value, SEXP r_extent)
 SEXP R_auto_cudaMemsetAsync(SEXP r_devPtr, SEXP r_value, SEXP r_count, SEXP r_stream)
 {
     SEXP r_ans = R_NilValue;
-    void * devPtr = GET_REF(r_devPtr, void *);
+    void * devPtr = GET_REF(r_devPtr, void );
     int value = INTEGER(r_value)[0];
     size_t count = REAL(r_count)[0];
     cudaStream_t stream = (cudaStream_t) getRReference(r_stream);
@@ -1336,7 +1357,7 @@ SEXP R_auto_cudaMemsetAsync(SEXP r_devPtr, SEXP r_value, SEXP r_count, SEXP r_st
 SEXP R_auto_cudaMemset2DAsync(SEXP r_devPtr, SEXP r_pitch, SEXP r_value, SEXP r_width, SEXP r_height, SEXP r_stream)
 {
     SEXP r_ans = R_NilValue;
-    void * devPtr = GET_REF(r_devPtr, void *);
+    void * devPtr = GET_REF(r_devPtr, void );
     size_t pitch = REAL(r_pitch)[0];
     int value = INTEGER(r_value)[0];
     size_t width = REAL(r_width)[0];
@@ -1355,9 +1376,9 @@ SEXP R_auto_cudaMemset2DAsync(SEXP r_devPtr, SEXP r_pitch, SEXP r_value, SEXP r_
 SEXP R_auto_cudaMemset3DAsync(SEXP r_pitchedDevPtr, SEXP r_value, SEXP r_extent, SEXP r_stream)
 {
     SEXP r_ans = R_NilValue;
-    struct cudaPitchedPtr pitchedDevPtr = * GET_REF(r_pitchedDevPtr, struct cudaPitchedPtr *);
+    struct cudaPitchedPtr pitchedDevPtr = * (struct cudaPitchedPtr *) getRReference(r_pitchedDevPtr);
     int value = INTEGER(r_value)[0];
-    struct cudaExtent extent = * GET_REF(r_extent, struct cudaExtent *);
+    struct cudaExtent extent = * (struct cudaExtent *) getRReference(r_extent);
     cudaStream_t stream = (cudaStream_t) getRReference(r_stream);
     
     cudaError_t ans;

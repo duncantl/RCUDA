@@ -27,7 +27,7 @@ if(FALSE) {
 
 # Find the markup directives, e.g. \brief, \b, \ref
 if(FALSE) {
-  z = sapply(r.cu, function(x) getRawCommentText(x$def))  
+  z = sapply(r.cu, function(x) getRawCommentText(x@def))  
   table(grep("^\\\\\\w+$", unlist(strsplit(z, "[[:space:],.]+")), value = TRUE))
 }
 
@@ -56,12 +56,12 @@ function(desc)
 }
 
 makeFunctionDoc =
-function(fun, name = gsub("_v2", "", getName(fun$def)))
+function(fun, name = gsub("_v2", "", getName(fun@def)))
 {
-   txt = getRawCommentText(fun$def)
+   txt = getRawCommentText(fun@def)
 
    if(txt == "") {
-     txt = readCommentFromFile(fun$def)
+     txt = readCommentFromFile(fun@def)
    }
 
    lines = strsplit(txt, "\\n")[[1]]
@@ -132,7 +132,6 @@ OtherFields = list(references = "\\url{http://docs.nvidia.com/cuda/cuda-driver-a
 writeRd =
 function(doc, otherFields = OtherFields, out = sprintf("../man/%s.Rd", doc$name), force = FALSE)
 {
-
   if(is.null(doc))
     return("")
   
@@ -142,20 +141,32 @@ function(doc, otherFields = OtherFields, out = sprintf("../man/%s.Rd", doc$name)
               el = doc[[id]]
               if(length(el) == 0 || is.na(el))
                 return("")
-              val = if(id == "arguments")
+              if(id == "alias" && length(el) > 1)
+                return(paste(sprintf("\\alias{%s}", el), collapse = "\n"))
+              
+              val = if(id == "arguments") {
+                      if(is.list(el)) {
+                        argNames = unlist(lapply(el, names))
+                        vals = unlist(el, recursive = FALSE)
+                        el = tapply(vals, argNames, unique)
+                      }
+                      
                       c("", sprintf("  \\item{%s}{%s}", names(el), el), "")
-                    else if(id == "seealso") {
+                    } else if(id == "seealso") {
                       el = gsub("\\\\code\\{(.*)}", "\\1", el)
 
                       sapply(el, function(el) {
                                     if(exists(el)) {
-#                                      cat(el, "exists\n")
                                       sprintf("\\code{\\link{%s}}", el)
                                     } else 
                                       sprintf("\\code{%s}", el)
                                   })
-                    } else
-                       el
+                    } else {
+                      if(is.list(el))
+                        unlist(el)
+                      else
+                        el
+                    }
 
 
               sprintf("\\%s{%s}", id, paste(val, collapse = "\n"))
@@ -178,4 +189,25 @@ function(def)
   start = max(grep("/**", txt, fixed = TRUE))
   txt = txt[start:length(txt)]
   paste(txt, collapse = "\n")
+}
+
+
+combineDocs =
+function(..., docs = list(...), title = character())
+{
+  fields = names(docs[[1]])
+
+  ans = lapply(fields,
+                   function(f) {
+                     sapply(docs, `[[`, f)
+                   })
+  names(ans) = fields
+  if(length(title)) {
+     ans$description = mapply(c, sapply(docs, `[[`, "name"), sapply(docs, `[[`, "title"), sapply(docs, `[[`, "description"), rep("", length(docs)))
+     ans$title = title
+  }
+
+  ans$name = ans$name[1]
+
+  structure(ans, class = "MultiDocument")
 }

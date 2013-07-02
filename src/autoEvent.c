@@ -1,8 +1,9 @@
+// Generated programmatically at 2013-07-02 13:50:20 
 #include "RCUDA.h"
 
 
 SEXP
-R_cuEventCreate(SEXP r_Flags)
+R_auto_cuEventCreate(SEXP r_Flags)
 {
     SEXP r_ans = R_NilValue;
     CUevent phEvent;
@@ -16,7 +17,7 @@ R_cuEventCreate(SEXP r_Flags)
 }
 
 
-SEXP R_cuEventRecord(SEXP r_hEvent, SEXP r_hStream)
+SEXP R_auto_cuEventRecord(SEXP r_hEvent, SEXP r_hStream)
 {
     SEXP r_ans = R_NilValue;
     CUevent hEvent = (CUevent) getRReference(r_hEvent);
@@ -31,7 +32,7 @@ SEXP R_cuEventRecord(SEXP r_hEvent, SEXP r_hStream)
 }
 
 
-SEXP R_cuEventQuery(SEXP r_hEvent)
+SEXP R_auto_cuEventQuery(SEXP r_hEvent)
 {
     SEXP r_ans = R_NilValue;
     CUevent hEvent = (CUevent) getRReference(r_hEvent);
@@ -45,7 +46,7 @@ SEXP R_cuEventQuery(SEXP r_hEvent)
 }
 
 
-SEXP R_cuEventSynchronize(SEXP r_hEvent)
+SEXP R_auto_cuEventSynchronize(SEXP r_hEvent)
 {
     SEXP r_ans = R_NilValue;
     CUevent hEvent = (CUevent) getRReference(r_hEvent);
@@ -59,7 +60,7 @@ SEXP R_cuEventSynchronize(SEXP r_hEvent)
 }
 
 
-SEXP R_cuEventDestroy(SEXP r_hEvent)
+SEXP R_auto_cuEventDestroy(SEXP r_hEvent)
 {
     SEXP r_ans = R_NilValue;
     CUevent hEvent = (CUevent) getRReference(r_hEvent);
@@ -74,7 +75,7 @@ SEXP R_cuEventDestroy(SEXP r_hEvent)
 
 
 SEXP
-R_cuEventElapsedTime(SEXP r_hStart, SEXP r_hEnd)
+R_auto_cuEventElapsedTime(SEXP r_hStart, SEXP r_hEnd)
 {
     SEXP r_ans = R_NilValue;
     float pMilliseconds;

@@ -1,81 +1,81 @@
-#include "RCUDA.h"
+# Generated programmatically at 2013-07-02 13:51:14 
 
 
 cuModuleLoad <-
-function( fname  )
+function( fname )
 {
-ans = .Call('R_cuModuleLoad', as(fname, 'character'))
-if(is(ans, 'CUresult') && ans != 0)
-    raiseError(ans, 'R_cuModuleLoad')
-ans
+    ans = .Call('R_auto_cuModuleLoad', as(fname, 'character'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_auto_cuModuleLoad')
+    ans
 }
 
 
 cuModuleLoadData <-
-function( image  )
+function( image )
 {
-ans = .Call('R_cuModuleLoadData', as(image, 'void'))
-if(is(ans, 'CUresult') && ans != 0)
-    raiseError(ans, 'R_cuModuleLoadData')
-ans
+    ans = .Call('R_auto_cuModuleLoadData', as(image, 'voidPtr'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_auto_cuModuleLoadData')
+    ans
 }
 
 
 cuModuleLoadFatBinary <-
-function( fatCubin  )
+function( fatCubin )
 {
-ans = .Call('R_cuModuleLoadFatBinary', as(fatCubin, 'void'))
-if(is(ans, 'CUresult') && ans != 0)
-    raiseError(ans, 'R_cuModuleLoadFatBinary')
-ans
+    ans = .Call('R_auto_cuModuleLoadFatBinary', as(fatCubin, 'voidPtr'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_auto_cuModuleLoadFatBinary')
+    ans
 }
 
 
 cuModuleUnload <-
-function( hmod  )
+function( hmod )
 {
-ans = .Call('R_cuModuleUnload', as(hmod, 'CUmodule'))
-if(is(ans, 'CUresult') && ans != 0)
-    raiseError(ans, 'R_cuModuleUnload')
-ans
+    ans = .Call('R_auto_cuModuleUnload', as(hmod, 'CUmodule'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_auto_cuModuleUnload')
+    ans
 }
 
 
 cuModuleGetFunction <-
-function( hfunc , hmod , name  )
+function( hfunc, hmod, name )
 {
-ans = .Call('R_cuModuleGetFunction', as(hfunc, 'CUfunction'), as(hmod, 'CUmodule'), as(name, 'character'))
-if(is(ans, 'CUresult') && ans != 0)
-    raiseError(ans, 'R_cuModuleGetFunction')
-ans
+    ans = .Call('R_auto_cuModuleGetFunction', as(hfunc, 'CUfunctionPtr'), as(hmod, 'CUmodule'), as(name, 'character'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_auto_cuModuleGetFunction')
+    ans
 }
 
 
 cuModuleGetGlobal <-
-function( hmod , name  )
+function( hmod, name )
 {
-ans = .Call('R_cuModuleGetGlobal', as(hmod, 'CUmodule'), as(name, 'character'))
-if(is(ans, 'CUresult') && ans != 0)
-    raiseError(ans, 'R_cuModuleGetGlobal')
-ans
+    ans = .Call('R_auto_cuModuleGetGlobal', as(hmod, 'CUmodule'), as(name, 'character'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_auto_cuModuleGetGlobal')
+    ans
 }
 
 
 cuModuleGetTexRef <-
-function( hmod , name  )
+function( hmod, name )
 {
-ans = .Call('R_cuModuleGetTexRef', as(hmod, 'CUmodule'), as(name, 'character'))
-if(is(ans, 'CUresult') && ans != 0)
-    raiseError(ans, 'R_cuModuleGetTexRef')
-ans
+    ans = .Call('R_auto_cuModuleGetTexRef', as(hmod, 'CUmodule'), as(name, 'character'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_auto_cuModuleGetTexRef')
+    ans
 }
 
 
 cuModuleGetSurfRef <-
-function( hmod , name  )
+function( hmod, name )
 {
-ans = .Call('R_cuModuleGetSurfRef', as(hmod, 'CUmodule'), as(name, 'character'))
-if(is(ans, 'CUresult') && ans != 0)
-    raiseError(ans, 'R_cuModuleGetSurfRef')
-ans
+    ans = .Call('R_auto_cuModuleGetSurfRef', as(hmod, 'CUmodule'), as(name, 'character'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_auto_cuModuleGetSurfRef')
+    ans
 }

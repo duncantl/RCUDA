@@ -1,12 +1,13 @@
+// Generated programmatically at 2013-07-02 13:50:48 
 #include "RCUDA.h"
 
 
 SEXP
-R_cuFuncGetAttribute(SEXP r_attrib, SEXP r_hfunc)
+R_auto_cuFuncGetAttribute(SEXP r_attrib, SEXP r_hfunc)
 {
     SEXP r_ans = R_NilValue;
     int pi;
-    enum CUfunction_attribute_enum attrib = (enum CUfunction_attribute_enum) INTEGER(r_attrib)[0];
+    CUfunction_attribute attrib = (CUfunction_attribute) INTEGER(r_attrib)[0];
     CUfunction hfunc = (CUfunction) getRReference(r_hfunc);
     CUresult ans;
     ans = cuFuncGetAttribute(& pi,  attrib,  hfunc);
@@ -17,11 +18,11 @@ R_cuFuncGetAttribute(SEXP r_attrib, SEXP r_hfunc)
 }
 
 
-SEXP R_cuFuncSetCacheConfig(SEXP r_hfunc, SEXP r_config)
+SEXP R_auto_cuFuncSetCacheConfig(SEXP r_hfunc, SEXP r_config)
 {
     SEXP r_ans = R_NilValue;
     CUfunction hfunc = (CUfunction) getRReference(r_hfunc);
-    enum CUfunc_cache_enum config = (enum CUfunc_cache_enum) INTEGER(r_config)[0];
+    CUfunc_cache config = (CUfunc_cache) INTEGER(r_config)[0];
     
     CUresult ans;
     ans = cuFuncSetCacheConfig(hfunc, config);
@@ -32,11 +33,11 @@ SEXP R_cuFuncSetCacheConfig(SEXP r_hfunc, SEXP r_config)
 }
 
 
-SEXP R_cuFuncSetSharedMemConfig(SEXP r_hfunc, SEXP r_config)
+SEXP R_auto_cuFuncSetSharedMemConfig(SEXP r_hfunc, SEXP r_config)
 {
     SEXP r_ans = R_NilValue;
     CUfunction hfunc = (CUfunction) getRReference(r_hfunc);
-    enum CUsharedconfig_enum config = (enum CUsharedconfig_enum) INTEGER(r_config)[0];
+    CUsharedconfig config = (CUsharedconfig) INTEGER(r_config)[0];
     
     CUresult ans;
     ans = cuFuncSetSharedMemConfig(hfunc, config);
@@ -47,7 +48,7 @@ SEXP R_cuFuncSetSharedMemConfig(SEXP r_hfunc, SEXP r_config)
 }
 
 
-SEXP R_cuFuncSetBlockShape(SEXP r_hfunc, SEXP r_x, SEXP r_y, SEXP r_z)
+SEXP R_auto_cuFuncSetBlockShape(SEXP r_hfunc, SEXP r_x, SEXP r_y, SEXP r_z)
 {
     SEXP r_ans = R_NilValue;
     CUfunction hfunc = (CUfunction) getRReference(r_hfunc);
@@ -64,7 +65,7 @@ SEXP R_cuFuncSetBlockShape(SEXP r_hfunc, SEXP r_x, SEXP r_y, SEXP r_z)
 }
 
 
-SEXP R_cuFuncSetSharedSize(SEXP r_hfunc, SEXP r_bytes)
+SEXP R_auto_cuFuncSetSharedSize(SEXP r_hfunc, SEXP r_bytes)
 {
     SEXP r_ans = R_NilValue;
     CUfunction hfunc = (CUfunction) getRReference(r_hfunc);

@@ -8,6 +8,12 @@
 </title>
 <items>
 
+<item>
+Problem when checking tag on a reference. 
+Specifically void and voidPtr.
+See inst/doc/distPitch.R.
+</item>
+
 <item status="done">
 cudaMemcpy2D should coerce to a voidPtr, not a void.
 Fixed in the  makeCoerceArg function in the RCodeGen package.

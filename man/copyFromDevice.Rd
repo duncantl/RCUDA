@@ -26,7 +26,8 @@
 }
 \usage{
 copyFromDevice(obj, nels, type)
-copyToDevice(obj, to = cudaMalloc(length(obj), elType = typeof(obj))) 
+copyToDevice(obj, to = cudaMalloc(length(obj), elType = elType),
+              elType = typeof(obj)) 
 cudaMalloc(numEls, sizeof = 4L, elType = NA) 
 }
 \arguments{

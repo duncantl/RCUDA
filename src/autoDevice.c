@@ -1,4 +1,4 @@
-// Generated programmatically at 2013-05-18 13:10:30 
+// Generated programmatically at 2013-07-02 13:48:45 
 #include "RCUDA.h"
 
 
@@ -14,8 +14,7 @@ R_auto_cuDeviceGet(SEXP r_ordinal)
        return(R_cudaErrorInfo(ans));
     r_ans = ScalarInteger(device) ;
     return(r_ans);
-} 
-
+}
 
 
 SEXP
@@ -79,17 +78,17 @@ R_auto_cuDeviceGetAttribute(SEXP r_attrib, SEXP r_dev)
 }
 
 
-SEXP R_auto_cuDeviceGetByPCIBusId(SEXP r_dev, SEXP r_pciBusId)
+SEXP
+R_auto_cuDeviceGetByPCIBusId(SEXP r_pciBusId)
 {
     SEXP r_ans = R_NilValue;
-    CUdevice * dev = GET_REF(r_dev, CUdevice *);
+    CUdevice dev;
     char * pciBusId = CHAR(STRING_ELT(r_pciBusId, 0));
-    
     CUresult ans;
-    ans = cuDeviceGetByPCIBusId(dev, pciBusId);
-    
-    r_ans = Renum_convert_CUresult(ans) ;
-    
+    ans = cuDeviceGetByPCIBusId(& dev,  pciBusId);
+    if(ans)
+       return(R_cudaErrorInfo(ans));
+    r_ans = ScalarInteger(dev) ;
     return(r_ans);
 }
 
@@ -173,10 +172,10 @@ R_auto_cudaDeviceGetLimit(SEXP r_limit)
     SEXP r_ans = R_NilValue;
     size_t pValue;
     enum cudaLimit limit = (enum cudaLimit) INTEGER(r_limit)[0];
-    CUresult ans;
+    cudaError_t ans;
     ans = cudaDeviceGetLimit(& pValue,  limit);
     if(ans)
-       return(R_cudaErrorInfo(ans));
+       return(R_cudaError_t_Info(ans));
     r_ans = ScalarReal(pValue) ;
     return(r_ans);
 }
@@ -187,11 +186,34 @@ R_auto_cudaDeviceGetCacheConfig()
 {
     SEXP r_ans = R_NilValue;
     enum cudaFuncCache pCacheConfig;
-    CUresult ans;
+    cudaError_t ans;
     ans = cudaDeviceGetCacheConfig(& pCacheConfig);
     if(ans)
-       return(R_cudaErrorInfo(ans));
+       return(R_cudaError_t_Info(ans));
     r_ans = Renum_convert_cudaFuncCache(pCacheConfig) ;
+    return(r_ans);
+}
+
+
+SEXP
+R_auto_cudaDeviceGetStreamPriorityRange()
+{
+    SEXP r_ans = R_NilValue;
+    int leastPriority;
+    int greatestPriority;
+    cudaError_t ans;
+    ans = cudaDeviceGetStreamPriorityRange(& leastPriority, & greatestPriority);
+    if(ans)
+       return(R_cudaError_t_Info(ans));
+    PROTECT(r_ans = NEW_LIST(2));
+    SEXP r_names;
+    PROTECT(r_names = NEW_CHARACTER(2));
+    SET_VECTOR_ELT(r_ans, 0, ScalarInteger(leastPriority));
+    SET_VECTOR_ELT(r_ans, 1, ScalarInteger(greatestPriority));
+    SET_STRING_ELT(r_names, 0, mkChar("leastPriority"));
+    SET_STRING_ELT(r_names, 1, mkChar("greatestPriority"));
+    SET_NAMES(r_ans, r_names);
+    UNPROTECT(2);
     return(r_ans);
 }
 
@@ -215,10 +237,10 @@ R_auto_cudaDeviceGetSharedMemConfig()
 {
     SEXP r_ans = R_NilValue;
     enum cudaSharedMemConfig pConfig;
-    CUresult ans;
+    cudaError_t ans;
     ans = cudaDeviceGetSharedMemConfig(& pConfig);
     if(ans)
-       return(R_cudaErrorInfo(ans));
+       return(R_cudaError_t_Info(ans));
     r_ans = Renum_convert_cudaSharedMemConfig(pConfig) ;
     return(r_ans);
 }
@@ -244,10 +266,10 @@ R_auto_cudaDeviceGetByPCIBusId(SEXP r_pciBusId)
     SEXP r_ans = R_NilValue;
     int device;
     char * pciBusId = CHAR(STRING_ELT(r_pciBusId, 0));
-    CUresult ans;
+    cudaError_t ans;
     ans = cudaDeviceGetByPCIBusId(& device,  pciBusId);
     if(ans)
-       return(R_cudaErrorInfo(ans));
+       return(R_cudaError_t_Info(ans));
     r_ans = ScalarInteger(device) ;
     return(r_ans);
 }
@@ -258,12 +280,12 @@ R_auto_cudaDeviceGetPCIBusId(SEXP r_device)
 {
     SEXP r_ans = R_NilValue;
     int device = INTEGER(r_device)[0];
-    CUresult ans;
+    cudaError_t ans;
     char pciBusId[10000];
     int len = 10000;
     ans = cudaDeviceGetPCIBusId( pciBusId,  len,  device);
     if(ans)
-       return(R_cudaErrorInfo(ans));
+       return(R_cudaError_t_Info(ans));
     r_ans = mkString(pciBusId) ;
     return(r_ans);
 }
@@ -276,10 +298,10 @@ R_auto_cudaDeviceGetAttribute(SEXP r_attr, SEXP r_device)
     int value;
     enum cudaDeviceAttr attr = (enum cudaDeviceAttr) INTEGER(r_attr)[0];
     int device = INTEGER(r_device)[0];
-    CUresult ans;
+    cudaError_t ans;
     ans = cudaDeviceGetAttribute(& value,  attr,  device);
     if(ans)
-       return(R_cudaErrorInfo(ans));
+       return(R_cudaError_t_Info(ans));
     r_ans = ScalarInteger(value) ;
     return(r_ans);
 }
@@ -292,10 +314,10 @@ R_auto_cudaDeviceCanAccessPeer(SEXP r_device, SEXP r_peerDevice)
     int canAccessPeer;
     int device = INTEGER(r_device)[0];
     int peerDevice = INTEGER(r_peerDevice)[0];
-    CUresult ans;
+    cudaError_t ans;
     ans = cudaDeviceCanAccessPeer(& canAccessPeer,  device,  peerDevice);
     if(ans)
-       return(R_cudaErrorInfo(ans));
+       return(R_cudaError_t_Info(ans));
     r_ans = ScalarInteger(canAccessPeer) ;
     return(r_ans);
 }

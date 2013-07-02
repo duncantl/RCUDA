@@ -14,6 +14,19 @@ R_cudaErrorInfo(CUresult val)
 }
 
 
+SEXP
+R_cudaError_t_Info(cudaError_t val)
+{
+    SEXP ans;
+    PROTECT(ans = ScalarInteger(val));
+    SET_CLASS(ans, mkString("cudaError_t"));
+//???
+    SET_NAMES(ans, R_cudaGetLastError());
+    UNPROTECT(1);
+    return(ans);
+}
+
+
 /* 
  We want this to be a high-level routine that can allocate space 
  in the appropriate device and then make the copy.
@@ -52,9 +65,9 @@ R_cudaMemcpy(SEXP r_src,  SEXP r_ptr)
 
     }
 
-    CUresult status = cudaMemcpy(ptr, data, elSize * len, cudaMemcpyHostToDevice);
+    cudaError_t status = cudaMemcpy(ptr, data, elSize * len, cudaMemcpyHostToDevice);
     if(status)
-	return(R_cudaErrorInfo(status));
+	return(R_cudaError_t_Info(status));
 
     return(ans);
 }
@@ -96,12 +109,18 @@ convertRObjToGPU(SEXP arg, float *floatLoc, void **argLoc)
 	float *gpu_fl;
 	for(i = 0 ; i < len; i++)
 	    fl[i] = REAL(arg)[i];
-	CUresult status = cudaMalloc((void **)  &gpu_fl, len * sizeof(float));
+	cudaError_t status = cudaMalloc((void **)  &gpu_fl, len * sizeof(float));
 	if(status) {
 	    PROBLEM "cannot allocate memory on the GPU %d", status
 		ERROR;
 	}
-	cudaMemcpy(gpu_fl, fl, len * sizeof(float),  cudaMemcpyHostToDevice);
+	status = cudaMemcpy(gpu_fl, fl, len * sizeof(float),  cudaMemcpyHostToDevice);
+	if(status) {
+	    if(gpu_fl) 
+               cudaFree(gpu_fl);
+	    PROBLEM "cannot copy memory on the GPU %d", status
+		ERROR;
+	}
 
     } else if(ty == INTSXP) {
         if(len == 1) 
@@ -109,13 +128,19 @@ convertRObjToGPU(SEXP arg, float *floatLoc, void **argLoc)
 
 	int *gpu_int = NULL;
 	void *p;
-	CUresult status = cudaMalloc((void **)  &p, len * sizeof(int));
+	cudaError_t status = cudaMalloc((void **)  &p, len * sizeof(int));
 	if(status) {
 	    PROBLEM "cannot allocate memory on the GPU %d", status
 		ERROR;
 	}
 	gpu_int = (int *) p;
-	cudaMemcpy(gpu_int, INTEGER(arg), len * sizeof(int),  cudaMemcpyHostToDevice);	
+	status = cudaMemcpy(gpu_int, INTEGER(arg), len * sizeof(int),  cudaMemcpyHostToDevice);	
+	if(status) {
+	    if(p)
+               cudaFree(p);
+	    PROBLEM "cannot copy memory on the GPU %d", status
+		ERROR;
+	}
 	return(gpu_int);
     }
 
@@ -132,7 +157,7 @@ R_cuLaunchKernel(SEXP r_fun, SEXP r_gridDims, SEXP r_blockDims, SEXP r_args, SEX
     int *gridDims, *blockDims;
     gridDims = INTEGER(r_gridDims);
     blockDims = INTEGER(r_blockDims);
-    CUfunction fun = GET_REF(r_fun, CUfunction);
+    CUfunction fun = (CUfunction) getRReference(r_fun); // was  GET_REF(r_fun, CUfunction) but about to change GET_REF.
     CUstream stream = NULL;
 
     int nargs = Rf_length(r_args), i;
@@ -190,7 +215,7 @@ R_loadModule(SEXP r_filename)
 SEXP
 R_Module_getFunction(SEXP r_module, SEXP r_name)
 {
-    CUmodule mod = GET_REF(r_module, CUmodule);
+    CUmodule mod = (CUmodule) getRReference(r_module); //XX was GET_REF(r_module, CUmodule);
     CUfunction func;
     CUresult status = cuModuleGetFunction(&func, mod, CHAR(STRING_ELT(r_name, 0)));
     if(status != CUDA_SUCCESS) {
@@ -246,9 +271,9 @@ SEXP
 R_cudaMalloc(SEXP r_numBytes)
 {
     void *ptr = NULL;
-    CUresult status = cudaMalloc(&ptr, INTEGER(r_numBytes)[0]);
+    cudaError_t status = cudaMalloc(&ptr, INTEGER(r_numBytes)[0]);
     if(status) {
-	return(ScalarInteger(status));
+	return(R_cudaError_t_Info(status));
     }
     return(R_createReference(ptr, "cudaPtr", "cudaPtr", R_cudaFree));
 }
@@ -257,10 +282,11 @@ R_cudaMalloc(SEXP r_numBytes)
 
 
 
+/* This doesn't seem to currently be called from an R function */
 SEXP
 R_cudaSetDevice(SEXP r_dev)
 {
-    CUresult status = cudaSetDevice(INTEGER(r_dev)[0]);
+    cudaError_t status = cudaSetDevice(INTEGER(r_dev)[0]);
     return(ScalarInteger(status));
 }
 
@@ -279,7 +305,7 @@ R_cuGetVersion()
 {
   SEXP ans = NEW_INTEGER(2);
   int version;
-  CUresult status = cudaDriverGetVersion(&version);
+  cudaError_t status = cudaDriverGetVersion(&version);
   INTEGER(ans)[0] = version;
   status = cudaRuntimeGetVersion(&version);
   INTEGER(ans)[1] = version;
@@ -309,9 +335,9 @@ R_getCudaIntVector(SEXP r_ptr, SEXP r_len)
     SEXP ans = NEW_INTEGER(len);
     void *ptr = getRReference(r_ptr);
 
-    CUresult status = cudaMemcpy(INTEGER(ans), ptr, len * sizeof(int), cudaMemcpyDeviceToHost);
+    cudaError_t status = cudaMemcpy(INTEGER(ans), ptr, len * sizeof(int), cudaMemcpyDeviceToHost);
     if(status) 
-	return(R_cudaErrorInfo(status));
+	return(R_cudaError_t_Info(status));
 
     return(ans);
 }
@@ -330,9 +356,9 @@ R_getCudaFloatVector(SEXP r_ptr, SEXP r_len, SEXP r_indices)
       ERROR;
     }
 
-    CUresult status = cudaMemcpy(fl, ptr, len * sizeof(int), cudaMemcpyDeviceToHost);
+    cudaError_t status = cudaMemcpy(fl, ptr, len * sizeof(int), cudaMemcpyDeviceToHost);
     if(status) 
-	return(R_cudaErrorInfo(status));
+	return(R_cudaError_t_Info(status));
 
     
     if(Rf_length(r_indices)) {
@@ -481,7 +507,7 @@ R_test_cuCtxGetLimit()
 SEXP
 R_isNullExtPtr(SEXP r_obj)
 {
-    void *ptr =  GET_REF(r_obj, void *);
+    void *ptr =  getRReference(r_obj);
     return(ScalarLogical(ptr == NULL));
 }  
 
@@ -492,7 +518,7 @@ R_cuModuleLoadDataEx(SEXP r_image, SEXP r_Options, SEXP retOpts)
 {
     SEXP r_ans = R_NilValue;
     CUmodule module;
-    CUjit_option *options;
+
 
     const void * image;
     if(TYPEOF(r_image) == RAWSXP)
@@ -517,6 +543,6 @@ R_cuModuleLoadDataEx(SEXP r_image, SEXP r_Options, SEXP retOpts)
 SEXP
 R_cudaThreadSynchronize()
 {
-  CUresult ans = cudaThreadSynchronize();
-  return(Renum_convert_CUresult(ans));
+  cudaError_t ans = cudaThreadSynchronize();
+  return(Renum_convert_cudaError_t(ans));
 }
