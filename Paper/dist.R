@@ -8,7 +8,7 @@ mod = loadModule("distance_gputools.ptx")
 N = c(A = 1000L, B = 999L)
 p = 70L
 
-if(FALSE) {
+if(TRUE) {
  N = c(A = 2L, B = 3L)
  p = 2L
 }
@@ -34,7 +34,7 @@ out = copyFromDevice(ans, sum(N)^2, "float")
 d.AB = matrix(out, sum(N), sum(N))
 }
 
-if(TRUE) {
+if(FALSE) {
   # Desired way to do this.
 AB = rbind(A, B)
 kernel = mod$euclidean_kernel_same
@@ -51,23 +51,23 @@ print(max(abs(d.AB - as.matrix(dist(AB)))))
 }
 
 
-if(TRUE) {
+if(FALSE) {
   # Desired way to do this.
 AB = rbind(A, B)
-kernel = mod$euclidean_kernel_same
-
-out = .gpu(kernel,
+tm = system.time({
+out = .gpu(mod$euclidean_kernel_same,
               t(AB), ncol(AB), nrow(AB),
               NULL, 0L, 0L, 
               ncol(AB), ans = numeric(nrow(AB)^2), nrow(AB), 2.0,
               outputs = "ans", gridDim = c(nrow(AB), nrow(AB)), blockDim = 32L)
 d.AB = matrix(out, sum(N), sum(N))
+})
 d.AB - as.matrix(dist(AB))
 print(max(abs(d.AB - as.matrix(dist(AB)))))
 }
 
 
-if(TRUE) {
+if(FALSE) {
 # This is the version that uses the two input kernel
 # and avoids stacking the  matrices in R.
 k = mod$euclidean_kernel

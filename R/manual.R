@@ -393,6 +393,7 @@ function(func)
 cuModuleLoadDataEx <-
 function( image , options = integer(), opts = FALSE)
 {
+  cuGetContext()
   options = if(length(options))
               sapply(options, function(x) as.integer(as(x, "CUjit_option")))
             else
