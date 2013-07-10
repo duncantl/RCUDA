@@ -32,7 +32,7 @@ print(max(abs(d.AB - as.matrix(rd.AB))))
 
 
 
-if(TRUE) {
+if(FALSE) {
 # This is the version that uses the two input kernel
 # and avoids stacking the  matrices in R.
 
