@@ -5,6 +5,8 @@ import(RAutoGenRunTime)
 
 # exportPattern(".*")
 
+exportClass(CUresult)
+
 export(nvcc)
 export(.gpu, .cuda)
 
@@ -15,6 +17,7 @@ export(cudaAlloc, cudaMalloc)
 export(loadModule, getFunction)
 
 export(getNumDevices, getDeviceProps, getDeviceProperties, cuDeviceGetAttributes)
+export(cudaSetDevice )
 
 export(cuInit)
 
@@ -293,3 +296,4 @@ cudaMemsetAsync,
 cudaMemset2DAsync,
 cudaMemset3DAsync
 )
+

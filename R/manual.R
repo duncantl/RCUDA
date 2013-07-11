@@ -408,3 +408,14 @@ function( image , options = integer(), opts = FALSE)
   else
     ans
 }
+
+
+cudaSetDevice = 
+function(device = 1L)
+{
+   device = as.integer(device) - 1L
+   if(device  < 0)
+     stop("negative index for device. Must be a positive number")
+
+   .Call("R_cudaSetDevice", device)
+}
