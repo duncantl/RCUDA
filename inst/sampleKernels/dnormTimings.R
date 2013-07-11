@@ -1,5 +1,5 @@
 library(RCUDA)
-source("determineGridSize.R")
+#source("determineGridSize.R")
 props = getDeviceProperties(1L)
 
 m = loadModule("dnorm.ptx")
@@ -14,9 +14,9 @@ N = c(1e6, 1e7)
 tm = lapply(N,
        function(N) {
          x = rnorm(N)
-	 dims = getGridSize(N)
+#	 dims = getGridSize(N)
          gtm = replicate(B, system.time({ 
-                             replicate(R, .cuda(k, x, N, mu, sigma, gridDim = dims$grid, blockDim = dims$block, outputs = 1L))
+                             replicate(R, .cuda(k, x, N, mu, sigma, gridBy = N, outputs = 1L))
                             }))
          rtm = replicate(B, system.time({ 
                               replicate(R, dnorm(x, mu, sigma))
@@ -27,7 +27,7 @@ tm = lapply(N,
 
 
 tm = do.call(rbind, tm)
-by(tm, list(tm$N, tm$GPU), function(x) tapply(x$times, x$where, median))
+print(by(tm, list(tm$N, tm$GPU), function(x) tapply(x$times, x$where, median)))
 
-tm.Quadro600 = tm
-save(tm.Quadro600, file = "tm.Quadro600.rda")
+#tm.Quadro600 = tm
+#save(tm.Quadro600, file = "tm.Quadro600.rda")

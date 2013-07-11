@@ -12,14 +12,14 @@ B = matrix(rnorm(N["B"]*p), N["B"], p)
 
 
 gdist.same = 
-function(AB, mod, blockSize = 32L)
+function(AB, mod, blockSize = 32L, ...)
 {
    out = .gpu(mod$euclidean_kernel_same,
               t(AB), ncol(AB), nrow(AB),
               NULL, 0L, 0L, 
               ncol(AB), ans = numeric(nrow(AB)^2), nrow(AB), 2.0,
-              outputs = 8L, gridDim = c(nrow(AB), nrow(AB)), blockDim = blockSize)
-    matrix(out, nrow(AB), nrow(AB))
+              outputs = 8L, gridDim = c(nrow(AB), nrow(AB)), blockDim = blockSize, ...)
+       matrix(out, nrow(AB), nrow(AB))
 }
 
 invisible(gdist.same(matrix(rnorm(100), 20, 5), mod))
@@ -30,6 +30,15 @@ gtm.same = system.time(d.AB <- gdist.same(AB, mod))
 rtm.same = system.time({rd.AB = as.matrix(dist(AB))})
 print(max(abs(d.AB - as.matrix(rd.AB))))
 
+
+ns = c(1e2, 1e4, 1e5)
+n.times = sapply(ns,
+        function(n) {
+          print(n)
+          x = matrix(rnorm(n*p), n, p)
+          x = rbind(x, B)
+          system.time(gdist.same(x, mod))
+         })
 
 
 if(FALSE) {
