@@ -279,23 +279,19 @@ R_cudaMalloc(SEXP r_numBytes)
 }
 
 
-
-
-
-/* This doesn't seem to currently be called from an R function */
 SEXP
 R_cudaSetDevice(SEXP r_dev)
 {
     cudaError_t status = cudaSetDevice(INTEGER(r_dev)[0]);
-    return(ScalarInteger(status));
+    return(R_cudaErrorInfo(status));
 }
 
 
 SEXP
-R_cuInit(SEXP r_flags)
+R_cuInit(SEXP r_flags, SEXP r_asCUresult)
 {
     CUresult status = cuInit(INTEGER(r_flags)[0]);
-    return(ScalarInteger(status));
+    return(LOGICAL(r_asCUresult)[0] ? Renum_convert_CUresult(status) : ScalarInteger(status));
 }
 
 
