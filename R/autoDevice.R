@@ -7,7 +7,7 @@ function( ordinal )
     ans = .Call('R_auto_cuDeviceGet', as(ordinal, 'integer'))
     if(is(ans, 'CUresult') && ans != 0)
         raiseError(ans, 'R_auto_cuDeviceGet')
-    as(ans, 'CUdevice')
+    new('CUdevice', ans)
 }
 
 
@@ -57,7 +57,7 @@ function( pciBusId )
     ans = .Call('R_auto_cuDeviceGetByPCIBusId', as(pciBusId, 'character'))
     if(is(ans, 'CUresult') && ans != 0)
         raiseError(ans, 'R_auto_cuDeviceGetByPCIBusId')
-    as(ans, 'CUdevice')
+    new('CUdevice', ans)
 }
 
 
