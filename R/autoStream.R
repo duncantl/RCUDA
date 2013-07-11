@@ -65,7 +65,7 @@ cuStreamQuery <-
 function( hStream )
 {
     ans = .Call('R_auto_cuStreamQuery', as(hStream, 'CUstream'))
-    if(is(ans, 'CUresult') && ans != 0)
+    if(is(ans, 'CUresult') && ans != 0 && ans != CUDA_ERROR_NOT_READY)#XXX last check for NOT_READY manually added for now.
         raiseError(ans, 'R_auto_cuStreamQuery')
     ans
 }
