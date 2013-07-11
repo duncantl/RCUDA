@@ -297,3 +297,15 @@ cudaMemset2DAsync,
 cudaMemset3DAsync
 )
 
+
+export(
+cuStreamCreate,
+cuStreamCreateWithPriority,
+cuStreamGetPriority,
+cuStreamGetFlags,
+cuStreamDestroy,
+cuStreamWaitEvent,
+cuStreamAddCallback,
+cuStreamSynchronize,
+cuStreamQuery
+)

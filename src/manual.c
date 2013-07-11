@@ -1,5 +1,6 @@
 #include "RCUDA.h"
 
+
 SEXP R_cudaGetLastError();
 
 SEXP
@@ -189,6 +190,9 @@ R_cuLaunchKernel(SEXP r_fun, SEXP r_gridDims, SEXP r_blockDims, SEXP r_args, SEX
 
 #endif
 
+    if(Rf_length(r_stream))
+      stream = GET_REF(r_stream, CUstream);
+
     CUresult status = cuLaunchKernel(fun, gridDims[0], gridDims[1], gridDims[2], blockDims[0], blockDims[1], blockDims[2], INTEGER(r_sharedMemBytes)[0], stream, args, NULL);
     if(status != CUDA_SUCCESS) {
 	PROBLEM "error launching CUDA kernel %d", status
@@ -233,7 +237,7 @@ SEXP
 R_createContext(SEXP r_flags, SEXP r_dev)
 {
    CUcontext ctxt;
-   CUresult status =  cuCtxCreate(&ctxt, INTEGER(r_flags)[0], INTEGER(r_dev)[0]);
+   CUresult status = cuCtxCreate(&ctxt, INTEGER(r_flags)[0], INTEGER(r_dev)[0]);
     if(status != CUDA_SUCCESS) {
 	return(ScalarInteger(status));
 
@@ -448,7 +452,7 @@ R_cuCtxDestroy(SEXP r_ctx)
 }
 
 SEXP
-R_cuCtxGetCurrent()
+R_cuCtxGetCurrent(SEXP r_asContext)
 {
   CUcontext ctx = NULL;
   CUresult status = cuCtxGetCurrent(&ctx);
@@ -458,7 +462,7 @@ R_cuCtxGetCurrent()
   if(!ctx)
       return(R_NilValue);
 
-  return(R_createRef(ctx, "CUcontext"));  
+  return(R_createRef(ctx, "CUcontext"))
 }
 
 
@@ -501,15 +505,6 @@ R_test_cuCtxGetLimit()
 
 
 SEXP
-R_isNullExtPtr(SEXP r_obj)
-{
-    void *ptr =  getRReference(r_obj);
-    return(ScalarLogical(ptr == NULL));
-}  
-
-
-
-SEXP
 R_cuModuleLoadDataEx(SEXP r_image, SEXP r_Options, SEXP retOpts)
 {
     SEXP r_ans = R_NilValue;
@@ -541,4 +536,15 @@ R_cudaThreadSynchronize()
 {
   cudaError_t ans = cudaThreadSynchronize();
   return(Renum_convert_cudaError_t(ans));
+}
+
+
+/* To bypass the seg fault in CUDA SDK 5.5 when we unload the DLL w/o having done much. */
+void
+R_initForCUDAFiveFive()
+{
+  CUcontext ctxt;
+  cuCtxCreate(&ctxt, 0L, 0L);
+  float *f;
+  cudaMalloc(&f, 4);
 }

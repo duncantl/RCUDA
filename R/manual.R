@@ -12,6 +12,9 @@ setClass("CUmodule", contains = "RC++Reference")
 setClass("CUfunction", contains = "RC++Reference")
 setClass("CUcontext", contains = "RC++Reference")
 
+setClass("CUstream", contains = "RC++Reference")
+setClass("cudastream_t", contains = "RC++Reference")
+
 setClass("cudaPtr", contains = "RC++Reference")
 setClass("cudaPtrWithLength", representation(nels = "integer", elSize = "integer", elTypeName = "character"), contains = "RC++Reference")
 setClass("cudaFloatPtr", contains = "cudaPtr")
@@ -19,6 +22,8 @@ setClass("cudaIntPtr", contains = "cudaPtr")
 
 setClass("cudaFloatArray", contains= "cudaPtrWithLength")
 setClass("cudaIntArray", contains= "cudaPtrWithLength")
+
+
 
   # This is 0 based.  When converting from integer to CUDeviceNum, we do the subtraction for the user.
 setClass("CUDeviceNum", contains = "integer")
@@ -331,23 +336,18 @@ function(flags = 0L)
 }
 
 cuGetContext =
-function(create = TRUE, ...)
+function(create = TRUE, ..., asContext = TRUE)
 {  
-  ans = .Call("R_cuCtxGetCurrent")
+  ans = .Call("R_cuCtxGetCurrent", as.logica(asContext))
   if(is.integer(ans))
      raiseError(ans, "failed to get current CUDA context")
 
-  if(is.nullExtPtr(ans) && create)
+  if(isNativeNull(ans) && create)
     ans = createContext(...)
   
   ans
 }
 
-is.nullExtPtr =
-function(obj)
-{
-  .Call("R_isNullExtPtr", obj)
-}
 
 
 
