@@ -535,6 +535,34 @@ The \Rfunc{summary} method for the result of \Rfunc{profileCUDA} and
 routine and gives the total counts for each as a new data frame.
 
 \subsection{Memory Management}
+The \Rpkg{RCUDA} package provides both high- and low-level
+functionality to transfer data between the host and the GPU device.
+The low-level functionality mirrors the CUDA API with facilities to
+allocate memory on the device in several different ways, copy memory
+between the host and device, and to release the memory.  These include
+\Rfunc{cudaMalloc} and \Rfunc{cudaMallocPitch} for allocating memory
+and \Rfunc{cudaMemcpy} for copying the contents of memory between the
+two devices.  \Rfunc{cuMemFree} releases the memory.
+We can use these primitives directly or alternatively
+we can use higher-level functionality provided by the package.
+
+
+In a call to \Rfunc{.gpu} (or \Rfunc{.cuda}), any \R{} vector with
+more than one element is automatically transferred from \R{} to the
+GPU.  By default, after the kernel execution has completed, the
+contents of this memory on the GPU are then transferred back to \R{}
+and return by the \Rfunc{.gpu} call.  The memory is then automatically
+released. This is done via a finalizer on the external pointer.
+If a vector argument does not contain any useful output data from the
+kernel, we don't want \Rfunc{.gpu} to transfer its contents back from
+the GPU.  We can avoid this by specifying which arguments
+are to be considered outputs from the kernel via the \Rarg{outputs}
+paramater of \Rfunc{.gpu}.
+
+We can explicitly transfer data from \R{} to the GPU
+with \Rfunc{copyToDevice}.
+By default, this allocates space for us
+
 
 
 

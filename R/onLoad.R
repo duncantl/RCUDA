@@ -1,3 +1,4 @@
 .onLoad =
 function(...)
-  .C("cuInit")
+  .Call("R_cuInit", 0L)
+
