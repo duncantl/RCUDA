@@ -4,7 +4,7 @@ BIN_OPTS= -m64 -gencode arch=compute_10,code=sm_10
 # -m64 -arch sm_21
 
 %.ptx: %.cu
-	$(NVCC) --ptx -o $@ $<
+	$(NVCC) --ptx $(PTX_OPTS) -o $@ $<
 
 %.cubin: %.cu GNUmakefile
 	$(NVCC) -cubin $(BIN_OPTS)  -o $@ $<
