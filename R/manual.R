@@ -89,7 +89,7 @@ function(flags = 0L, device = 1L)
 .gpu = .cuda =
 function(fun, ..., .args = list(...), gridDim, blockDim,
          sharedMemBytes = 0L, stream = NULL, inplace = FALSE,
-          outputs = logical(), .gc = TRUE, gridBy = NULL
+          outputs = logical(), .gc = TRUE, gridBy = NULL, .async = FALSE
 #          ,.gpu = 0L
          )
 {
@@ -145,6 +145,10 @@ function(fun, ..., .args = list(...), gridDim, blockDim,
    if(is.integer(ans))  #  !is(ans, "RC++Reference"))
       raiseError(ans, msg = c("failed to launch kernel"))
 
+   if(.async) 
+     return(.args[mustCopy])
+
+
 #  ans = .Call("R_cudaThreadSynchronize")
 #  if(ans)
 #      raiseError(ans, msg = c("failed to launch kernel"))
@@ -192,16 +196,14 @@ function(numEls, sizeof = 4L, elType = NA)
   if(is.integer(ans))  #  !is(ans, "RC++Reference"))
      raiseError(ans, msg = c("failed to create context"))
 
+  k =  "cudaPtrWithLength"
   if(!is.na(elType)) {
     classType = if(elType %in% c("integer", "logical")) "Int" else if(elType %in% c("float", "double", "numeric")) "Float" else NA
-    if(is.na(classType))
-      k =  "cudaPtrWithLength"
-    else
+    if(!is.na(classType))
       k = sprintf("cuda%sArray",  classType)
-    ans = new(k, ref = ans@ref, nels = as.integer(numEls), elSize = as.integer(sizeof), elTypeName = elType)
   }
 
-  ans
+  new(k, ref = ans@ref, nels = as.integer(numEls), elSize = as.integer(sizeof), elTypeName = as.character(elType))
 }
 
 copyToDevice =
@@ -259,8 +261,10 @@ setMethod("[", c("cudaIntArray", "missing", "missing"),
              copyFromDevice(x, x@nels, type = "integer")
            })
 
+# Called for integer or numeric
 setMethod("[", c("cudaFloatArray", "numeric", "missing"),
            function(x, i, j, ...) {
+
              if(all(i < 0))
                return(x[][i])
 

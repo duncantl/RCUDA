@@ -7,6 +7,30 @@
 <title>
 </title>
 <items>
+<item>
+If GPU supports double, then don't use float.
+(Change the type in cudaMalloc and add code for copying doubles.)
+</item>
+
+<item>
+seg faulting when quitting out of R, at least on lipschitz.
+<br/>
+Could it be the version of gcc, 202.
+<br/>
+If we allocate memory, we don't get the segfault.
+<br/>
+Looks like a clean up issue in libcuruntime.
+Similar issue in pycuda but with libcudarand.
+</item>
+
+<item>
+test syncrhonization 
+</item>
+
+<item>
+cudaMalloc() etc. should return an object derived from cudaPtrWithLength
+so we know the size.
+</item>
 
 <item>
 Problem when checking tag on a reference. 
@@ -25,10 +49,13 @@ See convertToPtr.
 Checked for float.
 </item>
 
-<item status="done">
-AB = matrix(0:(300*299), 300, 299)
+<item>
+AB = matrix(1:(300*299), 300, 299)
 mem = cudaMallocPitch( ncol(AB) * 4L,  nrow(AB))
 RCUDA:::cudaMemcpy2D(mem[[1]], mem[[2]], t(AB), nrow(AB)*4L, nrow(AB)*4L, ncol(AB), RCUDA:::cudaMemcpyHostToDevice)
+<br/>
+Fails trying to coerce the matrix to a voidPtr.
+Should this be a void. But still no method to coerce R object to void.
 </item>
 
 <item status="done">
@@ -36,15 +63,13 @@ RCUDA:::cudaMemcpy2D(mem[[1]], mem[[2]], t(AB), nrow(AB)*4L, nrow(AB)*4L, ncol(A
 See inst/doc/distPitch.R
 </item>
 
-<item>
+<item status="check">
 cudaMemcpy2D should raise an error if the C routine doesn't return 0.
 The C routine returns an object of class cudaError_t.
 This is different CUresult.
 So we have to generate the code differently to understand which
 error type it is getting.
 </item>
-
-
 
 
 <item>
@@ -60,6 +85,7 @@ Caller specifies a native symbol.
 
 <item>
 cudaMalloc should allow specification of the device.
+Implicit in the context.
 </item>
 
 <item status="move">
@@ -81,9 +107,11 @@ Make certain to clean up so don't run out of memory across sessions.
 If quit R, want to release resources.
 </item>
 
-<item>
+<item status="done">
 Examples - perhaps taken from gputools or rgpu
 but done directly  from R code, not with C wrappers.
+<br/>
+See dist stuff in sampleKernels and  Paper/
 </item>
 
 <item status="test">

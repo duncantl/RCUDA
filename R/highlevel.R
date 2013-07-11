@@ -65,8 +65,10 @@ function(value, type)
     .Call("R_makeFloatArray", value)    
   else if(is(value, "externalptr") || type %in% c("int", "double"))
     .Call("R_getRObjectPointer", value)
+  else if(is(value, "RC++Reference") || type %in% c("int", "double"))
+     value@ref
   else
-    stop("no mechanism to handl this yet")
+    stop("no mechanism to handle this yet")
 }
 
 
