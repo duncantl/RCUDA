@@ -338,7 +338,7 @@ function(flags = 0L)
 cuGetContext =
 function(create = TRUE, ..., asContext = TRUE)
 {  
-  ans = .Call("R_cuCtxGetCurrent", as.logica(asContext))
+  ans = .Call("R_cuCtxGetCurrent", as.logical(asContext))
   if(is.integer(ans))
      raiseError(ans, "failed to get current CUDA context")
 
