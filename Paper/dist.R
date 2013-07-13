@@ -71,12 +71,14 @@ if(FALSE) {
 # This is the version that uses the two input kernel
 # and avoids stacking the  matrices in R.
 k = mod$euclidean_kernel
-out = .gpu(k, t(A), p, N["A"], 
-              t(B), p, N["B"], 
-              p, ans = numeric(prod(N)), N["A"], 2.0,
-               outputs = "ans", gridDim = N, blockDim = 32L)
-
-DD = matrix(out, N["A"], N["B"])
+gdist = function(A, B) { 
+    out = .gpu(k, t(A), ncol(A), nrow(A), 
+                  t(B), ncol(A), nrow(B), 
+                  ncol(A), ans = numeric(nrow(A)*nrow(B)), nrow(A), 2.0,
+                 outputs = "ans", gridDim = c(nrow(A), nrow(B)), blockDim = 32L)
+     DD = matrix(out, nrow(A), nrow(B))
+}
+system.time({DD = gdist(A, B)})
 print(max(abs(DD - as.matrix(dist(AB))[1:nrow(A), - (1:nrow(A))])))
 }
 

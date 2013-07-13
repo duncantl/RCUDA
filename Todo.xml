@@ -7,6 +7,12 @@
 <title>
 </title>
 <items>
+
+<item>
+copy to device for a numeric comes back with size of the elements being 8
+and type double. Should this be 4 and float.
+</item>
+
 <item>
 If GPU supports double, then don't use float.
 (Change the type in cudaMalloc and add code for copying doubles.)
@@ -18,6 +24,8 @@ seg faulting when quitting out of R, at least on lipschitz.
 Could it be the version of gcc, R, etc. No, looks like CUDA library issue.
 <br/>
 If we allocate memory, we don't get the segfault.
+So I've added a C routine we call in .onLoad() 
+to create the context and allocate a byte.
 <br/>
 Looks like a clean up issue in libcuruntime.
 Similar issue in pycuda but with libcudarand.
@@ -43,20 +51,16 @@ streams - queues of tasks.
 Example - distances and then  clustering. Get the gputools kernels working
 for the hierarchical clustering.
 </item>
+
 <item>
 Events on streams. Do they make sense in R, i.e. single thread?
-Can use a single routine and a call the R function as user data.
-
+Yes.
+Can use a single routine and a call the R function as user data for callbacks.
 </item>
 
 <item>
 Implement cuCtxGetStreamPriorityRange and any other routines.
 Just have the one for the Device, not the Ctx
-</item>
-
-<item>
-copy to device for a numeric comes back with size of the elements being 8
-and type double. Should this be 4 and float.
 </item>
 
 <item status="check">
@@ -70,7 +74,7 @@ Specifically void and voidPtr.
 See inst/doc/distPitch.R.
 <br/>
 We can disable this but it would be better  to get it right and consistent, not a special case
-or string comparisons.
+or string comparisons on the tag.
 </item>
 
 <item status="done">
@@ -108,13 +112,33 @@ error type it is getting.
 
 
 <item>
-Make  the code that expects a device number consistently us as(, "CUDeviceNum") or as (, "CUdevice").
+Make the code that expects a device number consistently us as(, "CUDeviceNum") or as (, "CUdevice").
 Auto-generated code such as cudaDeviceGetPCIBusId causes problems as the declaration is integer.
 Also, cuDeviceGet() gets back the correct number but then calls as(num, "CUdevice") which decrements
 the value so it is wrong. When we get back from C code, we should leave it as is.
 So new("CUdevice", value) or have the C code do it. 
 When the device is an argument, then do the subtraction.
+
+<item status="check">
+integer to CUdevice should subtract 1.
+And when reutrn a CUdevice, put a class on it
+so that we keep it as is when we pass it to an
+R function/C routine.
+Put this in the typeMap.
 </item>
+
+</item>
+
+<item>
+Subsetting and assigning to parts of a cudaPtrWithLength.
+subsetting done - integer, logical indices.
+Subset assignment not done
+</item>
+
+<item>
+Show how to use structs in PTX code and pass them from R as inputs.
+</item>
+
 
 
 <item>
@@ -122,12 +146,12 @@ Allow obj[] to take a routine to copy each element to a SEXP.
 Caller specifies a native symbol.
 </item>
 
-<item>
+<item status="low">
 cudaMalloc should allow specification of the device.
 Implicit in the current context?
 </item>
 
-<item>
+<item status="low">
 Allow .device/.gpu argument in .gpu/.cuda function to switch
 to a specific device. Probably too much overhead for common use.
 </item>
@@ -140,14 +164,6 @@ Isn't this already done - isNativeNull?
 </item>
 
 <item status="check">
-integer to CUdevice should subtract 1.
-And when reutrn a CUdevice, put a class on it
-so that we keep it as is when we pass it to an
-R function/C routine.
-Put this in the typeMap.
-</item>
-
-<item>
 Make certain to clean up so don't run out of memory across sessions.
 If quit R, want to release resources.
 </item>
@@ -192,15 +208,6 @@ Put length information on it also.
 Make them RC++Reference and not just external pointers.
 </item>
 
-<item>
-Subsetting and assigning to parts of a cudaPtrWithLength.
-subsetting done - integer, logical indices.
-Subset assignment not done
-</item>
-
-<item>
-Use structs in PTX code and pass them from R
-</item>
 
 <item status="done">
 Find out what the problem is with cubin files and not being able to load them.
