@@ -36,7 +36,7 @@ R_cudaError_t_Info(cudaError_t val)
  to copy it back.
 */
 SEXP
-R_cudaMemcpy(SEXP r_src,  SEXP r_ptr)
+R_cudaMemcpy(SEXP r_src,  SEXP r_ptr, SEXP r_elSize)
 {
     SEXP ans = R_NilValue;
     void *ptr = getRReference(r_ptr);
@@ -53,11 +53,16 @@ R_cudaMemcpy(SEXP r_src,  SEXP r_ptr)
 	  break;
     case REALSXP:
     {
-	elSize = 4;
+      elSize = INTEGER(r_elSize)[0];
+      if(elSize == 8)
+	data = REAL(r_src);
+      else {
+        elSize = 4;
 	float *fl = (float *) R_alloc(len, elSize);
 	for(i = 0; i < len; i++)
 	    fl[i] = REAL(r_src)[i];
 	  data = fl;
+      }
     }
           break;
     default:
@@ -191,7 +196,7 @@ R_cuLaunchKernel(SEXP r_fun, SEXP r_gridDims, SEXP r_blockDims, SEXP r_args, SEX
 #endif
 
     if(Rf_length(r_stream))
-      stream = GET_REF(r_stream, CUstream);
+      stream = (CUstream) getRReference(r_stream);
 
     CUresult status = cuLaunchKernel(fun, gridDims[0], gridDims[1], gridDims[2], blockDims[0], blockDims[1], blockDims[2], INTEGER(r_sharedMemBytes)[0], stream, args, NULL);
     if(status != CUDA_SUCCESS) {
@@ -275,7 +280,7 @@ SEXP
 R_cudaMalloc(SEXP r_numBytes)
 {
     void *ptr = NULL;
-    cudaError_t status = cudaMalloc(&ptr, INTEGER(r_numBytes)[0]);
+    cudaError_t status = cudaMalloc(&ptr, REAL(r_numBytes)[0]);
     if(status) {
 	return(R_cudaError_t_Info(status));
     }
@@ -342,6 +347,20 @@ R_getCudaIntVector(SEXP r_ptr, SEXP r_len)
     return(ans);
 }
 
+SEXP
+R_getCudaDoubleVector(SEXP r_ptr, SEXP r_len)
+{
+    int len = INTEGER(r_len)[0];
+    SEXP ans = NEW_NUMERIC(len);
+    void *ptr = getRReference(r_ptr);
+
+    cudaError_t status = cudaMemcpy(REAL(ans), ptr, len * sizeof(double), cudaMemcpyDeviceToHost);
+    if(status) 
+	return(R_cudaError_t_Info(status));
+
+    return(ans);
+}
+
 
 SEXP
 R_getCudaFloatVector(SEXP r_ptr, SEXP r_len, SEXP r_indices)
@@ -375,6 +394,8 @@ R_getCudaFloatVector(SEXP r_ptr, SEXP r_len, SEXP r_indices)
 
     return(ans);
 }
+
+
 
 
 
@@ -545,6 +566,6 @@ R_initForCUDAFiveFive()
 {
   CUcontext ctxt;
   cuCtxCreate(&ctxt, 0L, 0L);
-  float *f;
+  void *f;
   cudaMalloc(&f, 4);
 }

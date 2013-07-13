@@ -1,5 +1,10 @@
 Version 0.4-0
 
+   *  Can pass R numeric() as double * in .gpu()/.cuda() calls via .numericAsDouble
+      or via a global option CUDA.useDouble.
+
+   *  cudaDoubleArray
+
    *  Enabled stream in .gpu()/.cuda(). See tests/streamUse.R
 
    *  Added async argument to .gpu()/.cuda()

@@ -7,10 +7,15 @@
 <title>
 </title>
 <items>
-
 <item>
+global option to use double rather than float.
+And use it everywhere. Connect to strict for cudaMalloc.
+</item>
+
+<item status="done">
 copy to device for a numeric comes back with size of the elements being 8
 and type double. Should this be 4 and float.
+See tests/doubleFloat.R
 </item>
 
 <item>
@@ -72,6 +77,16 @@ so we know the size.
 Problem when checking tag on a reference. 
 Specifically void and voidPtr.
 See inst/doc/distPitch.R.
+<r:code>
+library(RCUDA)
+m = matrix(as.numeric(1:20), 5, 4)
+mem = cudaMallocPitch(ncol(m) * 4L, nrow(m))
+ref = convertToPtr(t(m), "float")
+
+setAs("externalptr", "voidPtr", function(from) new("voidPtr", ref = from))
+cudaMemcpy2D(mem[[1]], mem[[2]], ref, ncol(m)*4L, ncol(m)*4L, nrow(m), cudaMemcpyHostToDevice)
+cudaMemcpy2D(ref, mem[[2]], mem[[1]], ncol(m)*4L, ncol(m)*4L, nrow(m), cudaMemcpyDeviceToHost)
+</r:code>
 <br/>
 We can disable this but it would be better  to get it right and consistent, not a special case
 or string comparisons on the tag.
@@ -129,19 +144,17 @@ Put this in the typeMap.
 
 </item>
 
-<item>
+<item status="optimize">
 Subsetting and assigning to parts of a cudaPtrWithLength.
 subsetting done - integer, logical indices.
 Subset assignment not done
 </item>
 
-<item>
+<item status="low">
 Show how to use structs in PTX code and pass them from R as inputs.
 </item>
 
-
-
-<item>
+<item status="low">
 Allow obj[] to take a routine to copy each element to a SEXP.
 Caller specifies a native symbol.
 </item>

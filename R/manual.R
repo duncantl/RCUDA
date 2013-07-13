@@ -12,14 +12,21 @@ setClass("CUmodule", contains = "RC++Reference")
 setClass("CUfunction", contains = "RC++Reference")
 setClass("CUcontext", contains = "RC++Reference")
 
+setClass("CUdeviceptr", contains = "RC++Reference")
+
 setClass("CUstream", contains = "RC++Reference")
 setClass("cudastream_t", contains = "RC++Reference")
+
+setClass("CUevent", contains = "RC++Reference")
+setClass("cudaEvent_t", contains = "RC++Reference")
+
 
 setClass("cudaPtr", contains = "RC++Reference")
 setClass("cudaPtrWithLength", representation(nels = "integer", elSize = "integer", elTypeName = "character"), contains = "RC++Reference")
 setClass("cudaFloatPtr", contains = "cudaPtr")
 setClass("cudaIntPtr", contains = "cudaPtr")
 
+setClass("cudaDoubleArray", contains= "cudaPtrWithLength")
 setClass("cudaFloatArray", contains= "cudaPtrWithLength")
 setClass("cudaIntArray", contains= "cudaPtrWithLength")
 
@@ -33,9 +40,13 @@ setAs("numeric", "CUDeviceNum", tmp)
 setAs("integer", "CUDeviceNum", tmp)
 
 setMethod("[[", c("CUmodule", "character", "missing"),
-           function(x, i, j, ...) {
-              getFunction(x, i)
+           function(x, i, j, globalVar = FALSE, ...) {
+              if(globalVar)
+                cuModuleGetGlobal(x, i)
+              else
+                getFunction(x, i)
            })
+
 setMethod("$", c("CUmodule"),
            function(x, name) {
               getFunction(x, name)
@@ -92,11 +103,13 @@ function(flags = 0L, device = 1L)
 
 
 .gpu = .cuda =
+# should we have a .gpu argument to specify which GPU to use
+# Problem is we have to get the context also. 
+# User can do this directly and avoid overhead by doing it once.
 function(fun, ..., .args = list(...), gridDim, blockDim,
          sharedMemBytes = 0L, stream = NULL, inplace = FALSE,
-          outputs = logical(), .gc = TRUE, gridBy = NULL, .async = FALSE
-#          ,.gpu = 0L
-         )
+          outputs = logical(), .gc = TRUE, gridBy = NULL, 
+          .async = !is.null(stream), .numericAsDouble = getOption("CUDA.useDouble", FALSE))
 {
    if(.gc)
      gc()
@@ -132,7 +145,6 @@ function(fun, ..., .args = list(...), gridDim, blockDim,
                 length(gridBy)
      tmp = getGridSize(lens, blockDim)
      gridDim = tmp$grid
-#cat(prod(c(gridDim, blockDim)), "\n")
    }
    
    fun = as(fun, "CUfunction")
@@ -144,7 +156,9 @@ function(fun, ..., .args = list(...), gridDim, blockDim,
    
    mustCopy = sapply(.args, function(x) is.atomic(x) && length(x) > 1)
    if(any(mustCopy))
-     .args[mustCopy] = lapply(.args[mustCopy], copyToDevice)
+     .args[mustCopy] = mapply(function(obj, strict)
+                                 copyToDevice(obj, strict = strict),
+                             .args[mustCopy], .numericAsDouble)
    
    ans = .Call("R_cuLaunchKernel", fun, as.integer(gridDim), as.integer(blockDim), .args, as.integer(sharedMemBytes), stream)
    if(is.integer(ans))  #  !is(ans, "RC++Reference"))
@@ -178,10 +192,13 @@ function(fun, ..., .args = list(...), gridDim, blockDim,
 
 
 getElementSize =
-function(obj, type = typeof(obj))
+function(obj, type = typeof(obj), strict = inherits(obj, "AsIs"))
 {
+    if(!strict && type == "double")
+       type = "float"
+
     i = match(type, names(CUDAStructSizes))
-    if(!is.na(i))
+    if(!is.na(i)) 
       return(CUDAStructSizes[i])
 
    switch(type,
@@ -191,19 +208,24 @@ function(obj, type = typeof(obj))
 }
 
 cudaAlloc = cudaMalloc =
-function(numEls, sizeof = 4L, elType = NA)
+function(numEls, sizeof = 4L, elType = NA, strict = !missing(elType) || inherits(elType, "AsIs"))
 {
-  if(missing(sizeof) && !missing(elType)) {
-     sizeof = getElementSize(type = elType)
-  }
+  if(missing(sizeof) && !missing(elType)) 
+     sizeof = getElementSize(type = elType, strict = strict)
 
-  ans = .Call("R_cudaMalloc", as.integer(numEls * sizeof))
+  ans = .Call("R_cudaMalloc", as.numeric(as.numeric(numEls) * sizeof))
   if(is.integer(ans))  #  !is(ans, "RC++Reference"))
      raiseError(ans, msg = c("failed to create context"))
 
   k =  "cudaPtrWithLength"
   if(!is.na(elType)) {
-    classType = if(elType %in% c("integer", "logical")) "Int" else if(elType %in% c("float", "double", "numeric")) "Float" else NA
+    classType = if(elType == "double" && strict)
+                  "Double"
+                else if(elType %in% c("integer", "logical")) 
+                  "Int" 
+                else if(elType %in% c("float", "double", "numeric")) 
+                  "Float" 
+                else NA
     if(!is.na(classType))
       k = sprintf("cuda%sArray",  classType)
   }
@@ -212,9 +234,10 @@ function(numEls, sizeof = 4L, elType = NA)
 }
 
 copyToDevice =
-function(obj, to = cudaMalloc(length(obj), elType = elType), elType = typeof(obj))
+function(obj, to = cudaMalloc(length(obj), elType = elType, strict = strict), 
+          elType = typeof(obj), strict = !missing(elType))
 {
-  ans = .Call("R_cudaMemcpy", obj, to)
+  ans = .Call("R_cudaMemcpy", obj, to, to@elSize)
   if(is(ans, "CUresult"))
     raiseError(ans, "copying data to GPU")
 
@@ -229,9 +252,20 @@ setMethod("copyFromDevice", "cudaFloatArray",
             function(obj, nels, type)
                 copyFromDevice(obj@ref, obj@nels, "float"))
 
+setMethod("copyFromDevice", "cudaDoubleArray",
+            function(obj, nels, type)
+                copyFromDevice(obj@ref, obj@nels, "double"))
+
+
+setMethod("copyFromDevice", "cudaFloatArray",
+            function(obj, nels, type)
+                copyFromDevice(obj@ref, obj@nels, "float"))
+
+
 setMethod("copyFromDevice", "cudaIntArray",
             function(obj, nels, type)
                 copyFromDevice(obj@ref, obj@nels, "integer"))
+
 
 
 setMethod("copyFromDevice", c("ANY"),
@@ -242,8 +276,10 @@ function(obj, nels, type)
           .Call("R_getCudaIntVector", obj, nels)
         else if(type == "logical")
           .Call("R_getCudaIntVector", obj, nels)
-        else if(type == "float" || type == "numeric" || type == "double")
+        else if(type == "float" || type == "numeric")
           .Call("R_getCudaFloatVector", obj, nels, NULL)
+        else if(type == "double")
+          .Call("R_getCudaDoubleVector", obj, nels, NULL)
 
   if(is(ans, "CUresult"))
       raiseError(ans, "copying data on device")
@@ -259,6 +295,11 @@ function(obj, nels, type)
 setMethod("[", c("cudaFloatArray", "missing", "missing"),
            function(x, i, j, ...) {
              copyFromDevice(x, x@nels, type = "float")
+           })
+
+setMethod("[", c("cudaDoubleArray", "missing", "missing"),
+           function(x, i, j, ...) {
+             copyFromDevice(x, x@nels, type = "double")
            })
 
 setMethod("[", c("cudaIntArray", "missing", "missing"),

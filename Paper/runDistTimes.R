@@ -77,7 +77,7 @@ gdist = function(A, B) {
     out = .gpu(k, t(A), ncol(A), nrow(A), 
                   t(B), ncol(A), nrow(B), 
                   ncol(A), ans = numeric(nrow(A)*nrow(B)), nrow(A), 2.0,
-                 outputs = "ans", gridDim = c(nrow(A), nrow(B)), blockDim = 32L)
+                  outputs = "ans", gridDim = c(nrow(A), nrow(B)), blockDim = 32L)
      DD = matrix(out, nrow(A), nrow(B))
 }
 
@@ -87,6 +87,12 @@ ans <- gdist(X, Y, mod)
 stopifnot(max(abs(ans - as.matrix(dist(rbind(X, Y)))[1:nrow(X), -(1:nrow(X))])) < 1e-5)
 
 tm.twomatrices = system.time({DD = gdist(A, B)})
+
+#
+#  Basic result:  
+#  gtm.same/tm.twomatrices
+#                            c(6.630,  1.257,   7.898)/c( 2.132 ,  0.486 ,  2.619 )
+#  3.109756 2.586420 3.015655
 
 p1 = profileCUDA(gdist(A, B))
 p2 = profileCUDA(gdist.same(AB, mod))
@@ -101,7 +107,10 @@ p$approach = rep(c("twoMatrices", "stacked"), c(nrow(p1), nrow(p2)))
 
 if(FALSE) {
 # See how the time varies with changing values of n.
-ns = c(1e2, 1e4, 1e5)
+ns = c(1e2, 1e3, 1e4, 1e5)
+p = 200
+N2 = 1e3
+B = matrix(rnorm(N2*p), N2, p)
 n.times = sapply(ns,
         function(n) {
           print(n)

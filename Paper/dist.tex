@@ -219,6 +219,13 @@ function to copy the vectors to the device, pass the references
 to each of them to the kernel, and then to release the memory 
 after it is no longer used. This is more convenient.
 
+Passing the two matrices separately rather than stacking them into one
+single matrix avoids unnecessary overhead in \R{} before invoking the
+GPU kernel. Ignoring this overhead, this form of the computation that
+avoids the redundant computations of within-matrix distances runs 3
+times faster for a pair of $10,000$ and $5000$ matrices than the GPU
+version of the computation involving stacking.
+
 
 \subsection{A different metric}
 It is easy for us to use a different metric.  We can load a different
@@ -273,6 +280,9 @@ to the next kernel.
 This reduces the complexity and also allows the \R{} programmer
 to combine the kernels in different ways than the original
 developers planned.
+
+
+\endinput
 
 
 
