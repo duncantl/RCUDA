@@ -397,11 +397,6 @@ R_getCudaFloatVector(SEXP r_ptr, SEXP r_len, SEXP r_indices)
 
 
 
-
-
-
-
-
 SEXP
 R_cudaGetLastError()
 {

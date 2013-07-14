@@ -7,7 +7,7 @@
 <title>
 </title>
 <items>
-<item>
+<item status="complete">
 global option to use double rather than float.
 And use it everywhere. Connect to strict for cudaMalloc.
 </item>
@@ -18,7 +18,7 @@ and type double. Should this be 4 and float.
 See tests/doubleFloat.R
 </item>
 
-<item>
+<item status="done">
 If GPU supports double, then don't use float.
 (Change the type in cudaMalloc and add code for copying doubles.)
 </item>
@@ -57,10 +57,11 @@ Example - distances and then  clustering. Get the gputools kernels working
 for the hierarchical clustering.
 </item>
 
-<item>
+<item status="done">
 Events on streams. Do they make sense in R, i.e. single thread?
 Yes.
 Can use a single routine and a call the R function as user data for callbacks.
+See tests/event.R tests/eventSync.R
 </item>
 
 <item>
@@ -83,12 +84,11 @@ m = matrix(as.numeric(1:20), 5, 4)
 mem = cudaMallocPitch(ncol(m) * 4L, nrow(m))
 ref = convertToPtr(t(m), "float")
 
-setAs("externalptr", "voidPtr", function(from) new("voidPtr", ref = from))
 cudaMemcpy2D(mem[[1]], mem[[2]], ref, ncol(m)*4L, ncol(m)*4L, nrow(m), cudaMemcpyHostToDevice)
 cudaMemcpy2D(ref, mem[[2]], mem[[1]], ncol(m)*4L, ncol(m)*4L, nrow(m), cudaMemcpyDeviceToHost)
 </r:code>
 <br/>
-We can disable this but it would be better  to get it right and consistent, not a special case
+We can disable this test on the tag but it would be better  to get it right and consistent, not a special case
 or string comparisons on the tag.
 </item>
 
