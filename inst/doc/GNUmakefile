@@ -14,4 +14,5 @@ clean:
 
 # make distance_gputools.ptx PTX_OPTS="-O3 -gencode arch=compute_35,code=sm_35"
 %.ptx: %.cu
-	$(MAKE) -f ../inst/sampleKernels/GNUmakefile  distance_gputools.ptx
+	$(MAKE) -f ../inst/sampleKernels/GNUmakefile  $@
+

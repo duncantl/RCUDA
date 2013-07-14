@@ -18,7 +18,9 @@
   The function \code{.gpu} is another name for \code{.cuda}.
 }
 \usage{
-.cuda(fun, ..., .args = list(...), gridDim, blockDim, sharedMemBytes = 0L, stream = NULL, inplace = FALSE, outputs = logical(), .gc = TRUE, gridBy = NULL)
+.cuda(fun, ..., .args = list(...), gridDim, blockDim, sharedMemBytes = 0L, 
+      stream = NULL, inplace = FALSE, outputs = logical(), 
+      .gc = TRUE, gridBy = NULL, .async = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -55,6 +57,12 @@
     identify what we are vectorizing on the GPU. The function then determines
     the grid and block dimensions to use.
  }
+\item{.async}{a logical value that, if \code{TRUE}, 
+  causes the function to return immediately after launching the kernel.
+ This allows the GPU to continue working while we can do work on the CPU within the 
+ R session. We can then call \code{\link{cudaSynchronizeThread}} to
+ wait  until all of the operations have been completed.
+  }
 }
 \value{
   The result depends on \code{outputs} and the actual values of the
@@ -70,6 +78,10 @@
 
   All RCUDA functions  may raise an error and the class of this is
   the name of the error.  This can be caught with \code{tryCatch}.
+
+  If \code{.async} is \code{TRUE}, the function returns the objects which
+  were copied from \R{} to the GPU by this function. This allows the caller
+  to retrieve the results after synchronizing with the GPU.
 }
 \references{
  \url{http://developer.download.nvidia.com/compute/cuda/4_1/rel/toolkit/docs/online/group__CUDA__EXEC_gb8f3dc3031b40da29d5f9a7139e52e15.html}

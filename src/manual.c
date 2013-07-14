@@ -1,5 +1,6 @@
 #include "RCUDA.h"
 
+
 SEXP R_cudaGetLastError();
 
 SEXP
@@ -35,7 +36,7 @@ R_cudaError_t_Info(cudaError_t val)
  to copy it back.
 */
 SEXP
-R_cudaMemcpy(SEXP r_src,  SEXP r_ptr)
+R_cudaMemcpy(SEXP r_src,  SEXP r_ptr, SEXP r_elSize)
 {
     SEXP ans = R_NilValue;
     void *ptr = getRReference(r_ptr);
@@ -52,11 +53,16 @@ R_cudaMemcpy(SEXP r_src,  SEXP r_ptr)
 	  break;
     case REALSXP:
     {
-	elSize = 4;
+      elSize = INTEGER(r_elSize)[0];
+      if(elSize == 8)
+	data = REAL(r_src);
+      else {
+        elSize = 4;
 	float *fl = (float *) R_alloc(len, elSize);
 	for(i = 0; i < len; i++)
 	    fl[i] = REAL(r_src)[i];
 	  data = fl;
+      }
     }
           break;
     default:
@@ -189,6 +195,9 @@ R_cuLaunchKernel(SEXP r_fun, SEXP r_gridDims, SEXP r_blockDims, SEXP r_args, SEX
 
 #endif
 
+    if(Rf_length(r_stream))
+      stream = (CUstream) getRReference(r_stream);
+
     CUresult status = cuLaunchKernel(fun, gridDims[0], gridDims[1], gridDims[2], blockDims[0], blockDims[1], blockDims[2], INTEGER(r_sharedMemBytes)[0], stream, args, NULL);
     if(status != CUDA_SUCCESS) {
 	PROBLEM "error launching CUDA kernel %d", status
@@ -233,7 +242,7 @@ SEXP
 R_createContext(SEXP r_flags, SEXP r_dev)
 {
    CUcontext ctxt;
-   CUresult status =  cuCtxCreate(&ctxt, INTEGER(r_flags)[0], INTEGER(r_dev)[0]);
+   CUresult status = cuCtxCreate(&ctxt, INTEGER(r_flags)[0], INTEGER(r_dev)[0]);
     if(status != CUDA_SUCCESS) {
 	return(ScalarInteger(status));
 
@@ -271,7 +280,7 @@ SEXP
 R_cudaMalloc(SEXP r_numBytes)
 {
     void *ptr = NULL;
-    cudaError_t status = cudaMalloc(&ptr, INTEGER(r_numBytes)[0]);
+    cudaError_t status = cudaMalloc(&ptr, REAL(r_numBytes)[0]);
     if(status) {
 	return(R_cudaError_t_Info(status));
     }
@@ -279,23 +288,19 @@ R_cudaMalloc(SEXP r_numBytes)
 }
 
 
-
-
-
-/* This doesn't seem to currently be called from an R function */
 SEXP
 R_cudaSetDevice(SEXP r_dev)
 {
     cudaError_t status = cudaSetDevice(INTEGER(r_dev)[0]);
-    return(ScalarInteger(status));
+    return(R_cudaErrorInfo(status));
 }
 
 
 SEXP
-R_cuInit(SEXP r_flags)
+R_cuInit(SEXP r_flags, SEXP r_asCUresult)
 {
     CUresult status = cuInit(INTEGER(r_flags)[0]);
-    return(ScalarInteger(status));
+    return(LOGICAL(r_asCUresult)[0] ? Renum_convert_CUresult(status) : ScalarInteger(status));
 }
 
 
@@ -342,6 +347,20 @@ R_getCudaIntVector(SEXP r_ptr, SEXP r_len)
     return(ans);
 }
 
+SEXP
+R_getCudaDoubleVector(SEXP r_ptr, SEXP r_len)
+{
+    int len = INTEGER(r_len)[0];
+    SEXP ans = NEW_NUMERIC(len);
+    void *ptr = getRReference(r_ptr);
+
+    cudaError_t status = cudaMemcpy(REAL(ans), ptr, len * sizeof(double), cudaMemcpyDeviceToHost);
+    if(status) 
+	return(R_cudaError_t_Info(status));
+
+    return(ans);
+}
+
 
 SEXP
 R_getCudaFloatVector(SEXP r_ptr, SEXP r_len, SEXP r_indices)
@@ -375,9 +394,6 @@ R_getCudaFloatVector(SEXP r_ptr, SEXP r_len, SEXP r_indices)
 
     return(ans);
 }
-
-
-
 
 
 
@@ -452,7 +468,7 @@ R_cuCtxDestroy(SEXP r_ctx)
 }
 
 SEXP
-R_cuCtxGetCurrent()
+R_cuCtxGetCurrent(SEXP r_asContext)
 {
   CUcontext ctx = NULL;
   CUresult status = cuCtxGetCurrent(&ctx);
@@ -462,7 +478,7 @@ R_cuCtxGetCurrent()
   if(!ctx)
       return(R_NilValue);
 
-  return(R_createRef(ctx, "CUcontext"));  
+  return(R_createRef(ctx, "CUcontext"))
 }
 
 
@@ -505,15 +521,6 @@ R_test_cuCtxGetLimit()
 
 
 SEXP
-R_isNullExtPtr(SEXP r_obj)
-{
-    void *ptr =  getRReference(r_obj);
-    return(ScalarLogical(ptr == NULL));
-}  
-
-
-
-SEXP
 R_cuModuleLoadDataEx(SEXP r_image, SEXP r_Options, SEXP retOpts)
 {
     SEXP r_ans = R_NilValue;
@@ -545,4 +552,15 @@ R_cudaThreadSynchronize()
 {
   cudaError_t ans = cudaThreadSynchronize();
   return(Renum_convert_cudaError_t(ans));
+}
+
+
+/* To bypass the seg fault in CUDA SDK 5.5 when we unload the DLL w/o having done much. */
+void
+R_initForCUDAFiveFive()
+{
+  CUcontext ctxt;
+  cuCtxCreate(&ctxt, 0L, 0L);
+  void *f;
+  cudaMalloc(&f, 4);
 }

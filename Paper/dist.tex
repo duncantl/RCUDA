@@ -96,8 +96,19 @@ of values and any integer values.  \Rfunc{.gpu} transfers the \R{}
 value to the kernel as the \C{} value \Cnull.
 Ideally, the code should be changed to remove the parameters that are
 not used. However, this happens when the code itself is complex to
-develop and maintain and is an argument for writing in a high-level
+develop and maintain and we don't want to modify it once it is working.
+This is an argument for writing in a high-level
 language such as \R{} and \Rpkg{RCUDA}.
+
+
+\begin{comment}
+Timings
+See runDistTimes.R
+For $224,970,001$ distances (14999^2),
+R's \Rfunc{dist} takes 285.6 seconds (elapsed time).
+On the Tesla K20, it takes 8.47 seconds.
+This is is a speed-up factor of 33.7. And we see about 33 - 35 on different runs.
+\end{comment}
 
 % cudaMallocPitch
 \subsection{Different approaches to allocating memory} 
@@ -208,6 +219,13 @@ function to copy the vectors to the device, pass the references
 to each of them to the kernel, and then to release the memory 
 after it is no longer used. This is more convenient.
 
+Passing the two matrices separately rather than stacking them into one
+single matrix avoids unnecessary overhead in \R{} before invoking the
+GPU kernel. Ignoring this overhead, this form of the computation that
+avoids the redundant computations of within-matrix distances runs 3
+times faster for a pair of $10,000$ and $5000$ matrices than the GPU
+version of the computation involving stacking.
+
 
 \subsection{A different metric}
 It is easy for us to use a different metric.  We can load a different
@@ -262,6 +280,9 @@ to the next kernel.
 This reduces the complexity and also allows the \R{} programmer
 to combine the kernels in different ways than the original
 developers planned.
+
+
+\endinput
 
 
 

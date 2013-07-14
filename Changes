@@ -1,6 +1,17 @@
 Version 0.4-0
 
+   *  Can pass R numeric() as double * in .gpu()/.cuda() calls via .numericAsDouble
+      or via a global option CUDA.useDouble.
+
+   *  cudaDoubleArray
+
+   *  Enabled stream in .gpu()/.cuda(). See tests/streamUse.R
+
+   *  Added async argument to .gpu()/.cuda()
+
    *  High-level mechanism for mallocPitch() and copying an R object to the memory.
 
    *  Regenerated the code with improvements to the code generation mechanism.
+
+   *  Made functions returning CUdevice not decrement the value.
 

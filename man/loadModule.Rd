@@ -8,11 +8,13 @@
 \title{Load a GPU module and access its Routines}
 \description{
   These functions load a module and allow us to get a reference
-  to any of the named functions/routines it contains.
+  to any of the named functions/routines or global variables it contains.
 }
 \usage{
 loadModule(filename, ctx = cuGetContext(TRUE), ...)
 getFunction(module, name) 
+module$name
+module[[name, globalVar = FALSE]]
 }
 
 \arguments{
@@ -29,6 +31,7 @@ getFunction(module, name)
 \item{name}{the name of the function to find in the module.
    It is imperative that the kernel we want be compiled with the
    declaration \code{extern "C"} so that its name is not mangled.}
+ \item{globalVar}{a logical that controls whether we are looking for a variable or a routine/function in the module.}
 }
 \value{
   \code{loadModule} returns an reference to the C object
