@@ -430,6 +430,8 @@ and cache configuration.
 
 
 
+
+
 \subsection{Querying Devices}
 The function \Rfunc{getNumDevices} tells us the number of devices on
 the local machine.  
@@ -559,11 +561,73 @@ the GPU.  We can avoid this by specifying which arguments
 are to be considered outputs from the kernel via the \Rarg{outputs}
 paramater of \Rfunc{.gpu}.
 
-We can explicitly transfer data from \R{} to the GPU
-with \Rfunc{copyToDevice}.
-By default, this allocates space for us
+Rather than have \Rfunc{.gpu} implicitly transfer data to the device,
+we can explicitly transfer data from \R{} to the GPU with
+\Rfunc{copyToDevice}.  By default, this allocates space on the device
+for us, determining the number of bytes from the length of the \R{}
+object and the size of each element, mapped to GPU types.  We can
+specify this target element type.  We can also allocate the space
+ourselves with \Rfunc{cudaMalloc} and pass this explicitly as the
+value of the \Rarg{to} parameter.  This allows us to allocate space
+once and copy different \R{} objects to that same space on the GPU at
+different times.  This is slightly more efficient if we are applying
+one or more kernels to different \R{} vectors or matrices with the
+same number of elements.
+
+THe \Rfunc{copyToDevice} function retrns an object that is an instance
+of the class \Rfunc{cudaPtrWithLength}.  These objects have the
+address of the memory on the GPU in which the data are
+stored. However, they also contain the number of elements and the size
+of each element on the GPU.  This allows us to retrieve all of the
+values in the array from the GPU as the object is fully
+self-describing (unlike a simple pointer).
+We can use the simple empty-subsetting operator to copy the
+contents from the GPU back to \R. For example, the following
+shows how to copy an \R{} vector to the GPU and retrieve it:
+\begin{RCode}
+x = rnorm(1e6)
+ptr = copyToDevice(x)
+ptr[]
+\end{RCode}
+The final expression retrieves the collections values from the GPU as
+into a new \R{} vector, separate from the original vector in \Rvar{x}.
+We can also a subset of the  elements in the usual manner, e.g.
+\begin{RCode}
+ptr[1:10]
+ptr[which(x) > 0 ]
+ptr[ - c(11:1e6)]
+\end{RCode}
+% Verify these are doing what we think they are.
+
+We can explicitly free memory we allocate on the GPU with
+\Rfunc{cudaMalloc} via the function \Rfunc{cuMemFree}.  However, \R{}
+will do this for us via the usual garbage collection.  When an \R{}
+object referencing memory on the GPU is deleted, the finalizer routine
+calls \Cfunc{cuMemFree} for us.  We have to remember to remove such
+variables when we no longer need them as otherwise the memory will not
+be released.  We also have to wait until the \R{} garbage collector is
+invoked for the GPU memory to actually be freed.  This is why the
+\Rfunc{.gpu} function explicitly calls \Rfunc{gc}, by default. If it
+did not, it is possible that memory on the GPU used from a previous
+call to \Rfunc{.gpu} would still appear to be in use and so not
+released.  This may mean we do not have enough memory on the GPU to
+perform this new call to \Rfunc{.gpu}, eventhough we could use the
+memory from the previous call.
+
+In addition to the \Rfunc{cudaMalloc} function, there
+are other functions to allocate memory on the GPU.
+We can allocate 2-dimensional and 3-dimensional arrays
+using \Rfunc{cudaMalloc}.
 
 
+
+\subsection{Asynchronous execution}
+A typical mode of using the GPU is to launch a kernel and wait for it
+to complete and then return the results to the \R{} calling command.
+We can, however, launch the kernel asynchronously.  This allows us to
+dispatch one or more tasks to the GPU while we continue to perform
+tasks in the \R{} session.  This allows us to truly use the GPU as a
+co-processor.
 
 
 \subsection{Other Routines in the API}
