@@ -5,9 +5,12 @@
 %\usetikzlibrary{shadows,trees}
 \usepackage{fancyvrb}
 \usepackage{cprotect}
-
+\usepackage{color}
+\usepackage{amsmath}
 %\usepackage[firstpage]{draftwatermark}
 %\SetWatermarkLightness{.95}
+
+\newcommand{\note}[1]{\textbf{\textcolor{red}{#1}}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% declarations for jss.cls %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -111,28 +114,42 @@
 \begin{document}
 
 \section{Introduction}\label{sec:Introduction}
-GPUs have emerged as a computational platform for massively parallel
-computations. Unlike CPUs, their performance continues to grow
-dramatically.  They are very good for particular classes of
-computations, some quite common in statistics.  It is important for
-statisticians to be able to leverage these so that we have another
-approach to make computations faster and so scale to larger data sets
-or simulations.
+In recent years Graphics Processing Units (GPUs) have emerged as the 
+dominant computational platform for massively  parallel computation. 
+Fortunately, unlike CPUs, the performance of GPUs continues to improve
+dramatically from year to year. While the high-throughput, memory-light
+paradigm of GPU programming is not well-suited to all problems, it is
+well-suited to particular classes of computations, some quite common in
+statistics. As the size of both modern data sets and modern computational
+requirements continue to grow it is increasingly important for statisticians
+to be able to leverage the power of GPUs to conduct these computations in 
+an efficient manner.
 
 % Compute Unified Device Architecture
 
-
-GPUs require the programmer to use a different computational model
-when implementing an algorithm.  They also use a slightly extended
-version of the  \C{}  programming language and require
+In presenting the \pkg{RCUDA} package we assume the reader has a basic
+familiarity with GPUs and the NVIDIA-specific Compute Unified Device
+Architecture (CUDA) programming model. For an introduction to GPU
+programming and CUDA see~\cite{bib:pmpp}. As we will see in later sections
+\pkg{RCUDA} provides a high-level interface to the CUDA SDK and lessens
+the burden for \R{} programmers seeking to utilize the power of GPUs.
+Nonetheless, GPUs are tailored for massively parallel computation and
+perform best when the programmer understands the fundamentally different
+computational model required by GPUs.
+Most general purpose programming on GPUs (GPGPU) is built upon a slightly extended
+version of the  \C{}  programming language (e.g., CUDA, OpenCL) and requires
 the programmer to think about two processing units - the host CPU
-and the  GPU  device. The programmer must allocate and move data from the
-host to the device and back.  This consumes resources.
-
+and the GPU device. When coding in CUDA C the programmer must explicitly 
+allocate and move data from the host to the device and back. This memory 
+management and data transfer introduces a programming burden as well as a 
+performance cost. As we will see in section~\ref{subsec:memory}, \pkg{RCUDA} 
+has the ability to automatically handle much of the programming burden. 
+The performance costs of data transfer to/from the device are problem specific
+and are an important consideration when designing and optimizing GPU code.
 
 The \pkg{RCUDA} package is quite different in intent and functionality
-than other GPU-related \R packages such as
-\Rpkg{gputools}~\cite{bib:gputools} and \Rpkg{rgpu}~\cite{bib:rgpu}.
+than other GPU-related \R\, packages such as
+\Rpkg{gputools}~\citep{bib:gputools} and \Rpkg{rgpu}~\citep{bib:rgpu}.
 \Rpkg{gputools} implements several commonly used statistical
 algorithms in \C{} code that runs on a GPU and provides \R{} functions
 to invoke those with data in \R.  The set of functions is fixed and
@@ -151,10 +168,13 @@ We discuss in section~\ref{sec:LLVM} how might be able to compile a
 larger subset of the \R{} language to native GPU code.
 
 The \Rpkg{RCUDA} package is similar in nature to
-\Rpkg{OpenCL}~\cite{bib:ROpenCl}.  It targets the CUDA SDK and NVIDIA
-GPUs. This is based on the belief that the dedicated SDK can
-outperform the more general OpenCL~\cite{bib:OpenCL} SDK.  Also,
-\Rpkg{RCUDA} aims to expose the entire SDK to \R{} programmers. The
+\Rpkg{OpenCL}~\citep{bib:ROpenCl}. Whereas \Rpkg{OpenCL} can 
+in principal be used with all GPUs, \Rpkg{RCUDA} specifically targets
+the CUDA SDK and NVIDIA GPUs. This is based on both the belief that 
+the dedicated CUDA SDK can outperform the more general OpenCL
+programming model~\citep{bib:OpenCL} and the wider popularity of CUDA in the GPGPU 
+community. In addition, \Rpkg{RCUDA} aims to expose the entire SDK to \R{} 
+programmers. The
 \Rpkg{OpenCL} package provides the essential functionality to invoke
 kernels on the GPU, passing data from \R{} to the GPU and back.  This
 difference illustrates one of the primary motivations of the
@@ -170,30 +190,39 @@ rather than fix them statically in a language such as \C.
 %Norm Matloff's thrust package.
 
 
-
-\section[The Basics of the RCUDA Package]{The Basics of the \Rpkg{RCUDA} package}\label{sec:}
+\section[The Basics of the RCUDA Package]{The Basics of the \Rpkg{RCUDA} package}\label{sec:basics}
 In this section, we describe both the essential concepts of the CUDA
 SDK and the \R{} interface to it provided by the \Rpkg{RCUDA} package.
 
-At its very simplest, computing with GPUs involves 
+At its simplest, computing with GPUs involves 
 \begin{enumerate}
 \item writing (and compiling) a kernel that performs the computations,
 \item allocating memory on the GPU device, 
 \item copying data from the host to the device
 \item invoking the kernel
-\item copying the results from the device to the host.
+\item copying the results back from the device to the host.
 \end{enumerate}
-We will discuss each of these steps.
+We now discuss each of these steps and how they are handled by \Rpkg{RCUDA}.
 
-For now, we require that the kernel be compiled outside of \R.  This
+The most fundamantal component of any GPGPU code is the kernel. 
+At present we recommend that the kernel be compiled outside of \R.  This
 means that an \R{} programmer can write and compile a kernel or
 perhaps that it be compiled by somebody else and made available to the
 \R{} programmer.  The \Rpkg{RCUDA} package can compile a kernel for
-the \R{} user but it is often more convenient to use the command-line
-to compile the code directly. 
-We'll use the \Cfunc{dnorm} kernel as an example.
-Our kernel code is reasonably simple for a CUDA kernel and is shown in
-figure~\ref{fig:dnormKernelCode}.
+the \R{} user but it is typically more convenient to use the command-line
+to compile the code directly. We now use the \Cfunc{dnorm} kernel as an example.
+The code is reasonably simple for a CUDA kernel and is shown in
+figure~\ref{fig:dnormKernelCode}. Again, we assume the reader has some
+familiarity with CUDA kernels, and include the code in figure~\ref{fig:dnormKernelCode}
+for illustration only. For readers who are less familiar with CUDA C, 
+the key parts of the code are the \texttt{\_\_global\_\_} 
+qualifier (which indicates that this is indeed a kernel), the 
+thread/block indexing (handled using standard CUDA conventions) and the
+actual calculation of the normal density. As written, the kernel is designed 
+to be executed over a specfied number of threads as chosen by the 
+programmer. The indexing portion of the code ensures that each 
+thread operates on a unique element of the input vector (or does nothing
+if the index is out of bounds). 
  % should we show the code for the kernel?
 % This probably requires a separate section  describing the basic idea
 % of kernels and how they  know what to operate on and where to put
@@ -233,7 +262,7 @@ process, i.e. \R.  We do this by loading the compiled code as a
 this. It can read the code in various formats - the PTX text format
 and the two binary formats cubin and fatbin.
 
-We compile it with 
+The code can be compiled at the command line using 
 \begin{ShCode}
 nvcc --ptx -o dnorm.ptx dnorm.cu
 \end{ShCode}
@@ -242,9 +271,7 @@ Alternatively, we can compile the two binary formats with
 nvcc -cubin -m64 -gencode arch=compute_10,code=sm_10 -o dnorm.cubin dnorm.cu
 nvcc -fatbin -m64 -gencode arch=compute_10,code=sm_10 -o dnorm.fatbin dnorm.cu
 \end{ShCode}
-respectively.
-The \ShFlag{arch} flag specifies the GPU compatability level.%! Fix this
-
+respectively. Note that the \ShFlag{arch} flag specifies the GPU compatability level. %! Fix this
 Once we have compiled the code, we can load it with
 \begin{RCode}
 filename = system.file("sampleKernels", "dnorm.ptx", package = "RCUDA")
@@ -259,57 +286,71 @@ kernel = mod$dnorm_kernel
 %$ - fool latex mode
 to get this reference.
 
-We now have the kernel, but need the data to pass to it.  We'll use a simple example
-and simulate it in \R{} via the \Rfunc{rnorm} function.
+We now have the kernel, so before executing it we need the data to pass to it. Here for simplicity 
+we just simulate the data in \R{} via the \Rfunc{rnorm} function.
 \begin{RCode}
 N = 1e6
 mean = 2.3
 sd =  2.1
 x = rnorm(N, mean, sd)
 \end{RCode}
-
-We have outlined the explicit steps involved in calling a kernel.
-However, we can shortcut these steps using the \R{} interface.  The
-\Rfunc{.cuda} (or the synonomous \Rfunc{.gpu}) will copy an \R{} vector
-argument to the device. So we can invoke the kernel with
+As outlined at the beginning of section~\ref{sec:basics}, memory needs
+to be allocated on the device, and the data copied from host to device 
+before invoking the kernel. However, using the \R{} interface to the GPU
+provided by \Rpkg{RCUDA} we can simply call the kernel with host data 
+using the \Rfunc{.cuda} (or the synonomous \Rfunc{.gpu}) and the 
+\R{} interface will allocate memory and copy the \R{} vector
+argument to the device without user input. In short, we can invoke the 
+kernel with
 \begin{RCode}
 ans = .cuda(kernel, x, N, mean, sd, gridDim = c(62, 32), blockDim = 512)
 \end{RCode}
-We must explicitly specify the dimension for the grid and block to be
-used when invoking the kernel. Each of these can specify
-three-dimensions, however, any omitted dimension defaults to $1$.
-We have chose $62$, $32$ and $512$ for this example as the product
-of these exceeds the number of elements \Rvar{N}. We will have some
-redundant threads on the GPU, but that is cheap.
+Note that we must explicitly specify the dimension for the grid and block to be
+used when launching the kernel. Both arguments can take positive integer 
+inputs of up to three-dimensions with any omitted dimensions defaulting to $1$.
+We chose $62$, $32$ and $512$ for this example as the product
+of these exceeds the number of elements \Rvar{N}. Since the number of
+threads exceeds the number of elements to be operated on, there will be
+some redundant threads on the GPU (as determined by the \texttt{if}
+statement in figure~\ref{fig:dnormKernelCode}). Since thread launches
+are exceptionally cheap on GPUs, this over-saturation strategy is 
+standard practice for GPU programming.
 
 The \Rfunc{.cuda} function recognizes the inputs and determines which
 to copy to the device and which can be passed directly (i.e. the
-scalar values \Rvar{N}, \Rvar{mean} and \Rvar{sd}). We'll see later
-that we can pass arguments that refer to data or memory already on the
+scalar values \Rvar{N}, \Rvar{mean} and \Rvar{sd}). As we will see later
+we can pass arguments that refer to data or memory already on the
 GPU and \Rfunc{.cuda} recognizes that it doesn't need to transfer
-this, but merely pass the reference as-is.
+this, but merely pass the reference as-is. The option of using 
+either host or device resident arguments in the call to \Rfunc{.cuda}
+provides flexibility and simplicity while retaining the ability to
+produce highly efficient code that minimizes data transfers between
+the host and device.
 
-The \Rfunc{.cuda} function also recognizes that since the data was
-passed from \R{}, it may be modified and returns that vector.  If
-there are multiple vector inputs, it returns all of these as list in
-the same way the \Rfunc{.C} function behaves. However, \Rfunc{.cuda}
-recognizes if a single input argument is a vector and so \Rvar{ans} in
-our example contains the actual vector of normal density values.  More
+%Q: does the following stuff apply for matrix/array inputs?
+
+When calling the \Rfunc{.cuda} function with an \R{} vector as an input argument,
+\Rfunc{.cuda} recognizes that since the data was passed from \R{}, it 
+may be modified by the kernel and thus returns the vector.  If
+there are multiple vector inputs, \Rfunc{.cuda} returns all of these as
+a list in the same style as the \Rfunc{.C} function. However, \Rfunc{.cuda}
+also recognizes if only one input argument is a vector, and thus \Rvar{ans} in
+our example also contains the actual vector of normal density values.  More
 generally, we can specify which inputs are to be copied back to \R{}
 from the device via the \Rarg{outputs} parameter of the \Rfunc{.cuda}
 function.
 
-\Rfunc{.cuda} executs the kernel calls using the current context which
-we describe in section~\ref{sec:Contexts}.  This same context must be
-used to both load the module and call any of its kernels.
+We conclude this simple example by noting that \Rfunc{.cuda} executes the kernel calls using
+the current context which we describe in section~\ref{subsec:Contexts}. 
+This same context must be used to both load the module and call any of its kernels.
 
-\subsection{Allocating Memory on the Device}
+\subsection{Manually Allocating Memory on the Device}\label{subsec:memory}
 While the \Rfunc{.cuda} function processes (most) \R{} vectors for us,
-we often want to explicitly control how values are passed from the
+we may want to explicitly control how values are passed from the
 host (CPU) to the device (GPU). The \Rpkg{RCUDA} package provides
 functions to control this and also some short-hand, covenient
 mechanisms for implementing the transfers.  The two fundamental
-functions are \Rfunc{copToDevice} and \Rfunc{copyFromDevice}.  These
+functions are \Rfunc{copyToDevice} and \Rfunc{copyFromDevice}.  These
 are reasonably flexible functions.  \Rfunc{copyToDevice} takes an \R{}
 object and copies its contents to memory on the GPU device.  By
 default, it allocates the space on the device, using information about
@@ -332,13 +373,19 @@ ptr = cudaAlloc(N, elType = "numeric")
 copyToDevice(x, ptr)
 \end{RCode}
 
+% Duncan -- think you meant non-parametric bootstrap here?
+
 Why would we want to explicitly allocate space on the device rather
-then letting \R{} copy vectors for us?  We may want to allocate the
-space once and then reuse it to store different values at different
-times. For example, consider a simple parametric bootstrap.  We
-generate many samples each of the same length and we can reuse the
-same memory.  We allocate the space once and then copy data to it
-in each iteration and then use it via a call to a GPU kernel, e.g.,
+then letting \R{} copy vectors for us?  The most common situation in
+which this is desirable is when we want to allocate space on the 
+device once and then reuse it to store different values at different
+times. For example, consider a simple non-parametric bootstrap in which we
+generate many samples of the same length by sampling with replacement
+and apply some kernel to each generated dataset. In this context we can
+reuse the same memory for each bootstrap dataset. In the code below we 
+demonstrate how to allocate the space once, copy the boostrap data to it
+each iteration and then compute the necessary summaries via a call
+to a GPU kernel, e.g.,
 \begin{RCode}
 ptr = cudaMalloc(length(x), elType = class(x))
 replicate(B, {
@@ -352,10 +399,10 @@ the space on the device.  \Rfunc{cudaMalloc} returns an object that
 points to the allocated memory, but also contains the number and the
 type of the elements, if specified.  This allows us to retrieve the
 contents of the memory on the device.  The \Rfunc{copyFromDevice}
-function does this.  It takes the pointer, the number of elements and
-the type of each element.
-We can specify these explicitly, but in many cases, we can use the 
-more convenient  subset operator
+function allows for explicitly copying data from the device to host.
+It takes the pointer, the number of elements and
+the type of each element. While we can specify these arguments explicitly,
+in many cases it is more convenient to use the subset operator
 \begin{RCode}
 p[]
 \end{RCode}
@@ -366,18 +413,20 @@ copyFromDevice(p, p@nels, p@elTypeName)
 \end{RCode}
 
 We can also use the subset syntax to assign values to an existing
-memory location on the device. 
+memory location on the device. For example, 
 \begin{RCode}
 p[] <- rnorm(N)
 \end{RCode}
-copies the the values on the right-hand side.
+copies the the values on the right-hand side to the device memory 
+specified by \texttt{p[]}.
 
-We can use \Rfunc{cudaMalloc} to allocate space for arbitrary data
-types as we only need the size of each element.  For known data types
+In addition to this standard usage it is also worth noting that we can
+use \Rfunc{cudaMalloc} to allocate space for arbitrary data
+types since we only need the size of each element. For known data types
 such as \Ctype{float} or \Ctype{int} values, \Rpkg{RCUDA} knows how to
-copy data both to and from the device.  This does not work for
-arbitrary data types as we don't know how to copy each element.
-
+copy data both to and from the device. For more general data types
+this can be done by the \R{} programmer using the functionality 
+provided by \Rpkg{RCUDA} 
 
 When we no longer have an \R{} reference memory on the device (i.e. in
 an \R{} variable), \R{} releases the memory using a finalizer routine
@@ -388,10 +437,11 @@ as a regular \R{} object.
 
 %Pinned memory and other functions in the API.
 
-\subsection{Contexts}
+\subsection{Contexts}\label{subsec:Contexts}
 We can call many of the functions in the \Rpkg{RCUDA}  package
 without having to know about CUDA context objects.
-However, they are important for some computations.
+However, they are important for some computations and so we 
+address them briefly here.
 
 Most \Rpkg{RCUDA} functions require an active context.  We can
 explicitly create a default context using \Rfunc{createContext} or we
@@ -411,23 +461,21 @@ c("SCHED_AUTO", "BLOCKING_SYNC", "MAP_HOST")
 c("CU_CTX_SCHED_AUTO", "CU_CTX_BLOCKING_SYNC", "CU_CTX_MAP_HOST")
 CU_CTX_SCHED_AUTO | CU_CTX_BLOCKING_SYNC | CU_CTX_MAP_HOST
 \end{RCode}
-The first avoids the \texttt{"CU_CTX"} prefix.
-
-There are also functions that can query and set attributes of a
+Note that the first variant avoids the \texttt{"CU_CTX"} prefix.
+Similarly, there are also functions that can query and set attributes of a
 context such as the stack and heap size, shared memory configuration
 and cache configuration.
 
- CUDA maintains a stack of contexts (per host thread, of which there
- is only one in \R).  When we create a context, it becomes the active
- one and is used in subsequent computations.  We can also explicitly
- push an existing context on to the top of the stack with
- \Rfunc{cuCtxPushCurrent}.  We can pop the current context off the top
- of the stack with \Rfunc{cuCtxPopCurrent}.  At present, \R{} users
- must explicitly release a context with \Rfunc{cuCtxtDestroy}.  It
- would be preferable to release the memory using \R's finalizer
- mechanism. However, this is, at best, complex because it is difficult
- to determine if CUDA is still using the context.
-
+CUDA maintains a stack of contexts (per host thread, of which there
+is only one in \R).  When we create a context, it becomes the active
+one and is used in subsequent computations.  We can also explicitly
+push an existing context on to the top of the stack with
+\Rfunc{cuCtxPushCurrent}.  We can pop the current context off the top
+of the stack with \Rfunc{cuCtxPopCurrent}.  At present, \R{} users
+must explicitly release a context with \Rfunc{cuCtxtDestroy}.  It
+would be preferable to release the memory using \R's finalizer
+mechanism. However, this is, at best, complex because it is difficult
+to determine if CUDA is still using the context.
 
 
 \subsection{Querying Devices}
@@ -446,7 +494,7 @@ the \Rfunc{getDeviceProperties} function or
 in the CUDA API, while the second queries all of the individual
 attributes.  The queryable attributes include the maximum dimensions
 of a grid and a block, the maximum number of threads per block and per
-processor, the warp size, the number of multi-processors, shared
+processor, the warp size, the number of multi-processors and the shared
 memory per block.  The names of the entire set of attributes are
 available  via the \Rvar{CUdevice\_attributeValues} variable in the package.
 Rather than querying all of the attributes in one call,
@@ -457,7 +505,7 @@ of the elements in \Rvar{CUdevice\_attributeValues}.
 
 In addition to querying information about a device,
 we can query the version of the CUDA SDK with
-\Rfunc{cudaVersion}, e.g.
+\Rfunc{cudaVersion} e.g.,
 \begin{RCode}
 cudaVersion()
 \end{RCode}
@@ -469,41 +517,50 @@ cudaVersion()
 
 We can determine the amount of memory a device has with the function
 \Rfunc{cuMemInfo}. Unlike the other functions for querying a device,
-this doesn't take a device as an argument. Instead, it uses the device
-associated with the current context.  Thus we have to have created a
+\Rfunc{cuMemInfo} does not take a device as an argument. Instead, it uses the device
+associated with the current context.  Thus we must have created a
 context before calling this function, either explicitly or implicitly.
 The function reports the total memory on the device, the amount free
 and the proportion free.
 
 
 \subsection{Profiling}
-The reason to use GPUs for scientific computing is to improve
-performance. Copying data between the host and the device is an
-overhead and different approaches in the kernel code and even the
-dimensions of the grid and block for controlling the threads.  It is
+The primary reason to use GPUs for scientific computing is usually to improve
+performance. Key considerations in the performance of GPU code include 
+the overhead of copying data between the host and the device, the 
+efficiency of the kernel code and even the
+dimensions of the grid and block for controlling the threads.
+In light of this, it is
 useful to understand where the entire code spends time in order to
 improve the performance by reducing these bottlenecks.  As in \R{}
 itself, we can profile computations involving the GPU with several
 routines in the CUDA API.
 
+% Duncan -- I removed the product from the bootstrap example below, 
+% and made it more general. It now computes summary statistics over
+% bootstrapped datasets rather than computing the likelihood
+% for each bootstrapped data set (I couldn't see why you would
+% want to do this in practice -- maybe I am missing something though).
+
 We can profile an entire sequence of \R{} expressions with the \R{}
 function \Rfunc{profileCUDA}.  This takes one or more \R{} expressions
-(enclosed within {} for more than one expression) and returns the
+(enclosed within \texttt{\{\}} for more than one expression) and returns the
 profiling information as a data frame.
-The following allocates space and reuses it for a simple bootstrap
-to compute the likelihood for each sample:  
+The following bootstrap example allocates space and reuses it for each
+bootstrapped data set, with GPU code used to compute summary statistics 
+for each sample:  
 \begin{RCode}
 B = 100
 prof = profileCUDA( {
   p = copyToDevice(x)
   replicate(B, {
       p[] = sample(x, N, replace = TRUE)
-      prod(.cuda(kernel, p, N, mean, sd, outputs = 1,  
-                   gridDim = c(62, 32), blockDim = 512))
+      .cuda(kernel, p, N, mean, sd, outputs = 1,  
+                   gridDim = c(62, 32), blockDim = 512)
   })
 })
 \end{RCode}
-This returns a data frame with rows for each line of output generated
+This returns a data frame with one row for each line of output generated
 by the CUDA profiler.  Each row corresponds to a particular CUDA
 routine, kernel routine or routine called by the kernel.  There are
 typically multiple rows for the same routine corresponding to when the
@@ -511,7 +568,7 @@ routine was observed by the profiler.  The columns of the data frame
 correspond to the \dquote{counters} we specified for the profiler to
 record.  We specify this via a configuration file the profiler reads
 when it is instantiated. The \Rpkg{RCUDA} package provides a default
-confugration file and uses that if the caller does not specify one.
+configuration file and uses that if the caller does not specify one.
 We can use a different configuration file either by explicitly passing
 a file name in the call to \Rfunc{profileCUDA} via the \Rarg{config}
 parameter, or globally via the \R{} option
@@ -527,7 +584,7 @@ profiler writes the information, and we can select either of two
 formats - CSV or name=value pairs.  We start and stop the profiler
 with \Rfunc{cudaStartProfiler} and \Rfunc{cudaStopProfiler}.  We can
 read the CSV output from the profiler with \Rfunc{readCUDAProfile}.
-\Rfunc{profileCUDA} is merely a wrapper that uses all of these
+Note that \Rfunc{profileCUDA} is merely a wrapper that uses all of these
 functions.
 
 The \Rfunc{summary} method for the result of \Rfunc{profileCUDA} and
@@ -535,9 +592,12 @@ The \Rfunc{summary} method for the result of \Rfunc{profileCUDA} and
 routine and gives the total counts for each as a new data frame.
 
 \subsection{Memory Management}
-The \Rpkg{RCUDA} package provides both high- and low-level
-functionality to transfer data between the host and the GPU device.
-The low-level functionality mirrors the CUDA API with facilities to
+As discussed in section~\ref{sec:basics}, the \Rpkg{RCUDA} package provides
+both high- and low-level functionality to transfer data between the host
+and the GPU device. In this section we describe some of the richer
+memory management functionality offered by the package.
+As may be expected, the low-level functionality mirrors the CUDA 
+API with the ability to
 allocate memory on the device in several different ways, copy memory
 between the host and device, and to release the memory.  These include
 \Rfunc{cudaMalloc} and \Rfunc{cudaMallocPitch} for allocating memory
@@ -546,36 +606,100 @@ two devices.  \Rfunc{cuMemFree} releases the memory.
 We can use these primitives directly or alternatively
 we can use higher-level functionality provided by the package.
 
-
 In a call to \Rfunc{.gpu} (or \Rfunc{.cuda}), any \R{} vector with
 more than one element is automatically transferred from \R{} to the
 GPU.  By default, after the kernel execution has completed, the
 contents of this memory on the GPU are then transferred back to \R{}
-and return by the \Rfunc{.gpu} call.  The memory is then automatically
+and returned by the \Rfunc{.gpu} call.  The memory is then automatically
 released. This is done via a finalizer on the external pointer.
-If a vector argument does not contain any useful output data from the
-kernel, we don't want \Rfunc{.gpu} to transfer its contents back from
-the GPU.  We can avoid this by specifying which arguments
-are to be considered outputs from the kernel via the \Rarg{outputs}
-paramater of \Rfunc{.gpu}.
+Typically if a vector argument does not contain any useful output data from the
+kernel then we would not want \Rfunc{.gpu} to spend time transfering
+its contents back from the GPU. Fortunately we can avoid this by 
+specifying which arguments are to be considered outputs from the kernel
+via the \Rarg{outputs} paramater of \Rfunc{.gpu}.
 
-We can explicitly transfer data from \R{} to the GPU
-with \Rfunc{copyToDevice}.
-By default, this allocates space for us
+% This seemed a little repetitive (think it was all covered in earlier section)
+%
+% By default, this allocates space on the device
+% for us, determining the number of bytes from the length of the \R{}
+% object and the size of each element, mapped to GPU types.  We can
+% specify this target element type.  We can also allocate the space
+% ourselves with \Rfunc{cudaMalloc} and pass this explicitly as the
+% value of the \Rarg{to} parameter.  This allows us to allocate space
 
+As discussed in section~\ref{sec:basics}, rather than have \Rfunc{.gpu}
+implicitly transfer data to the device, we can also explicitly control
+the transfer of data from \R{} to the GPU with \Rfunc{copyToDevice}.
+Manually copying data from host to device is often preferable if
+we are applying one or more kernels to different \R{} vectors or matrices
+with the same number of elements. The \Rfunc{copyToDevice} function 
+returns an object that is an instance
+of the class \Rfunc{cudaPtrWithLength}.  These objects have the
+address of the memory on the GPU in which the data are
+stored. However, they also contain the number of elements and the size
+of each element on the GPU.  This allows us to retrieve all of the
+values in the array from the GPU as the object is fully
+self-describing (unlike a simple pointer).
+We can use the simple empty-subsetting operator to copy the
+contents from the GPU back to \R. For example, the following
+shows how to copy an \R{} vector to the GPU and retrieve it:
+\begin{RCode}
+x = rnorm(1e6)
+ptr = copyToDevice(x)
+ptr[]
+\end{RCode}
+The final expression retrieves the collections values from the GPU as
+into a new \R{} vector, separate from the original vector in \Rvar{x}.
+We can also a subset of the  elements in the usual manner, e.g.
+\begin{RCode}
+ptr[1:10]
+ptr[which(x) > 0 ]
+ptr[ - c(11:1e6)]
+\end{RCode}
+% Verify these are doing what we think they are.
 
+We can explicitly free memory we allocate on the GPU with
+\Rfunc{cudaMalloc} via the function \Rfunc{cuMemFree}.  However, \R{}
+will also do this for us via the usual garbage collection.  When an \R{}
+object referencing memory on the GPU is deleted, the finalizer routine
+calls \Cfunc{cuMemFree} for us.  We have to remember to remove such
+variables when we no longer need them as otherwise the memory will not
+be released.  We also have to wait until the \R{} garbage collector is
+invoked for the GPU memory to actually be freed.  This is why the
+\Rfunc{.gpu} function explicitly calls \Rfunc{gc}, by default. If it
+did not, it is possible that memory on the GPU used from a previous
+call to \Rfunc{.gpu} would still appear to be in use and so not
+released. This could have lead to situations where there was 
+insufficient memory on the GPU to perform this new call to \Rfunc{.gpu},
+when in practice we could have used the memory from the previous call.
 
+In addition to the \Rfunc{cudaMalloc} function, there
+are other functions available for memory allocation and data transfer to/from
+the GPU such as \Rfunc{cudaMallocPitch}, \Rfunc{cudaMemcpy2D} 
+and \Rfunc{cudaMemcpy3D} which allow for the transfer of 
+2-dimensional and 3-dimensional arrays. Further discussion
+of some aspects of this functionality is provided in~\ref{subsec:distances}.
+
+\subsection{Asynchronous execution}
+A typical mode of using the GPU is to launch a kernel and wait for it
+to complete and then return the results to the \R{} calling command.
+We can, however, launch the kernel asynchronously.  This allows us to
+dispatch one or more tasks to the GPU while we continue to perform
+tasks in the \R{} session.  This allows us to truly use the GPU as a
+co-processor.
+
+\note{TODO: Mention how this is done (if it is implemented yet).}
 
 \subsection{Other Routines in the API}
 % Briefly mention the general groupings of other routines, e.g. stream,
 % event  and what we omitted
 
-For the most part, there is an \R{} function corresponding 
-to  each routine in the CUDA SDK  that can run on the host.
+For the most part, there is a corresponding \R{} function for 
+each routine in the CUDA SDK that can run on the host. At present 
+we have not created bindings to the routines associated with textures
+and surfaces. However, should these prove useful for the community, 
+these bindings can be generated in a similar manner.
 
-We have not created bindings to the routines associated with textures
-and surfaces.  Should these be important, we can generate this code.
- 
 
 
 \input{Examples}
@@ -706,15 +830,16 @@ and return value.
 
 \section[Compiling R code to native GPU code]{Compiling \R{} code to native GPU code}\label{sec:LLVM}
 % Move into Future work if we don't get this running.
-The following is not yet fully implemented, but is something 
-we know to be possible and related to work we are pursuing in a
-slightly related project.
-\llvm{} stands for the Low Level Virtual Machine
-and is a compiler toolkit which we can embed in \R. 
+In this section we describe experimental work designed to 
+allow programmers to utilize the power of the GPU without
+ever needing to leave \R{} i.e., to allow the creation of CUDA
+kernels directly from \R{} code. The approach to achieve this
+is to use \llvm{} (Low Level Virtual Machine), a compiler toolkit 
+that can be embedded within \R. 
 This allows us to dynamically generate machine code within an \R{}
 session and invoke those newly created routines, passing them 
 inputs from \R{} and obtaining the results in \R.
-This is very powerful and allows us to ``compile around the \R{}
+This simple approach is very powerful and allows us to ``compile around the \R{}
 interpreter'' and gain significant speedups for some common \R{}
 idioms~\cite{bib:StatSciLLVM}.
 
@@ -730,23 +855,25 @@ languages and GPUs.
 \section{Future Work}
 
 Now that we have the general-purpose bindings and access to the CUDA
-API, we, and hopefully others, will explore how to map statistical
-algorithms onto the GPU to take advantage of their potential.  We plan
-to explore different examples and approaches and understand their
-characteristics.  
+API, we, and hopefully others, will explore how to map commonly used
+statistical algorithms onto the GPU to take advantage of their potential.  
+We plan to explore different examples and approaches and understand their
+characteristics in the context of GPU applications.  
 
 We also plan to explore the potential benefits of aspects of the API
-such as pinned memory, streams for interleaving computations,
-peer-to-peer communication between two or more GPUs.
+not addressed in this paper such as pinned memory, streams for
+interleaving computations and peer-to-peer communication between 
+two or more GPUs.
 
 As the need arises, we may generate bindings to other GPU-related
-libraries and APIs. These include There is no need to have \R{}
+libraries and APIs. It is useful to note though that there is no need to have \R{}
 bindings to interface with kernel-level libraries such as
-Thrust~\cite{bib:Thrust} and parts of curand~\cite{bib:curand}.
-However, we may need to determine the sizes of the different data
-structures they use that should be allocated by the host on the
-device.
-
+Thrust~\cite{bib:Thrust} and parts of curand~\cite{bib:curand} as 
+these can be accessed in the usual manner when implementing the kernel.
+While this handles many such uses, however, we may need to determine
+the sizes of the different data structures they use that should be allocated
+by the host on the device (see \texttt{curand} examples in the \Rpkg{RCUDA}
+documentation for more details).
 
 \bibliography{gpu}
 

@@ -1,9 +1,10 @@
-\section{Computing distances}
+\subsection{Computing distances}\label{subsec:distances}
 
-In this example, we will explore how to compute distances on the GPU.
-The \Rpkg{gputools} package already does this, so we will consider its
-code.  Our aim is to contrast how this is done with \R{} bindings to
-CUDA and how it is done with \C{} code.
+In this final example, we will explore how to compute distances on the GPU.
+Since the \Rpkg{gputools} package already does this, we here consider how
+to use the kernels provided by that package within the \Rpkg{RCUDA}
+framework. Our aim is to contrast how interaction with the GPU is done
+with \R{} bindings to CUDA and how it is done with \C{} code.
 
 The \Rfunc{gpuDist} function in the \Rpkg{gputools} package is similar
 to \R's own \Rfunc{dist} function.  It takes a matrix of observations
@@ -22,10 +23,10 @@ and the GPU is actually involved in the computations.
 
 
 We can invoke any of the kernels in the \Rpkg{gputools} packages
-directly from \R and so remove the need for the \C{} routines
+directly from \R{} and so remove the need for the \C{} routines
 described above. This not only greatly simplifies the understanding
 and development of the code, but also leads to more flexible, reusable
-code.  We'll illustrate how to call the \Cfunc{euclidean_kernel_same}
+code.  We now illustrate how to call the \Cfunc{euclidean_kernel_same}
 kernel.  We start by extracting it from the \C{} code and compiling it
 directly into PTX code (or cubin or fatbin format).  We then load this
 into the \R{} session with \Rfunc{loadModule}.
@@ -45,11 +46,12 @@ Note that we have transposed the matrix as the kernel
 expects the elements of each observation to be contiguous.
 This contrasts with \R's column-oriented representation of a matrix.
 
-We can now launch the kernel. We pass the reference
+Having loaded the module and extracted the function, 
+we can now launch the kernel. We pass the reference
 to the matrix values (\Rvar{ABref}) and also
 the stride/pitch between observations (the number of columns in 
 the matrix) and the number of observations.
-We pass these twice, eventhough the second set of parameters is not
+Note that we pass these twice, even though the second set of parameters is not
 used in the kernel.
 We also pass space to insert the distances. This is an $n \times n$
 matrix  (where $n$ is the number of rows in \Rvar{AB})
@@ -84,14 +86,13 @@ between the cooperating threads.
 Therefore, we use a block dimension of $32$.
 
 Once the call to \Rfunc{.gpu} returns, the variable \Rvar{d} contains
-the vector of all pairwise distances.  We can convert this to a matrix
-and we have our result.  We should remove the variable \Rvar{ABref}
-since we no longer need it. When we remove it, the garbage collector
-can release the associated memory. This is on the GPU device and so we
-do want to release it so that the memory is available for other tasks.
+the vector of all pairwise distances.  These distances are converted
+to a matrix to produce the desired result. Once completed, we should
+ideally remove the variable \Rvar{ABref} so that the garbage collector
+can release the associated memory on the GPU device.
 
-We mentioned that the second set of inputs are not actually used in
-this kernel. As a result, we could specify \Rnull{} for the matrix
+Note that since the second set of inputs are not actually used in
+this kerne, we could also specify \Rnull{} for the matrix
 of values and any integer values.  \Rfunc{.gpu} transfers the \R{}
 value to the kernel as the \C{} value \Cnull.
 Ideally, the code should be changed to remove the parameters that are
@@ -162,8 +163,8 @@ mem = mallocPitch( ncol(AB), nrow(AB), "float")
 \end{RCode}
 With this function, we specify the number of elements and not the
 number of bytes in the first argument.  Furthermore, the resulting
-object returned by \Rfunc{mallocPitch} a class name \Rclass{PitchMemory2D}
-and contains information about the location of the allocated memory,
+object returned by \Rfunc{mallocPitch}, of class \Rclass{PitchMemory2D},
+contains information about the location of the allocated memory,
 its size and type of element.
 This allows us to simply assign an \R{}  object to it and
 have the assignment actually convert the \R{} object and copy it
@@ -182,18 +183,19 @@ to copy the matrix to the GPU.
 
 % euclidean_kernel
 \subsection{Distances between two matrices}
-In some circumstances, we start with two matrices, say \Rvar{A} and
-\Rvar{B}, and want to compute the distance between each observation in
-\Rvar{A} and each observation in \Rvar{B}.  We could combine these two
-matrices into one and compute all pairwise-distances between the
-rows. However, this uses more memory by creating a new matrix.  It
+For certain statistical applications it is useful to compute the distance between
+each observation of two matrices, say \Rvar{A} and \Rvar{B}.  Given the
+existing distance function code one way to do this is to combine the two
+matrices into a single matrix and compute all pairwise-distances between the
+rows. While simple to implement, such an approach is clearly sub-optimal.
+First, this approach uses much more memory by creating a new matrix.  It
 also performs a large number of redundant computations that will be
 ignored, namely the distances between each pair of rows in \Rvar{A}
 and also in \Rvar{B} where we only want those for the observations
 between \Rvar{A} and \Rvar{B}.
-So we would like to do just the computations we want.
 
-The \Rpkg{gputools} package contains a kernel that can handle two
+To avoid these inefficiencies, the \Rpkg{gputools} package contains
+ a kernel that can handle two
 different matrices as inputs.  This is called
 \Cfunc{euclidean_kernel} (i.e. without the \Cfunc{_same} suffix.)
 We can invoke this with 
@@ -217,7 +219,7 @@ call.  This is because we are not passing the same matrix as two
 separate inputs.  Instead, we can leave it to the \Rfunc{.gpu}
 function to copy the vectors to the device, pass the references
 to each of them to the kernel, and then to release the memory 
-after it is no longer used. This is more convenient.
+after it is no longer used. 
 
 Passing the two matrices separately rather than stacking them into one
 single matrix avoids unnecessary overhead in \R{} before invoking the
@@ -228,8 +230,9 @@ version of the computation involving stacking.
 
 
 \subsection{A different metric}
-It is easy for us to use a different metric.  We can load a different
-kernel and pass that to our function. 
+With the flexibility provided by the \Rpkg{RCUDA} package it
+is straightforward to use different distance metrics. To do so, 
+we can simply load a different kernel and pass that to our function. 
 For example, we can use the \Cfunc{canberra_kernel} in the
 \Rpkg{gputools} code.
 We can access it with 
@@ -251,7 +254,7 @@ from or have any a priori knowledge about it.
 \subsection{Reusing the computed distances}
 As we have seen before, it is sometimes useful to be able to leave the
 results computed by one kernel on the device and have those be used as
-inputs to a second kernel.  The \Rpkg{gputools} package uses this when
+inputs to a second kernel.  The \Rpkg{gputools} package does this when
 performing hierarhical clustering.  Starting with a collection of
 observations (i.e. a data frame or matrix), we calculate the pair-wise
 distances between all observations.  Then we pass these to the
@@ -259,7 +262,7 @@ distances between all observations.  Then we pass these to the
 \Rfunc{gpuDist} and then \Rfunc{gpuHclust}, we wil have moved the
 distances from the GPU device back to \R, and then copy them back to
 the device.  \Rpkg{gputools} provides \Rfunc{gpuDistClust} to avoid
-this unnecessary overhead .  This is implemented with a separate, but
+this unnecessary overhead.  This is implemented with a separate, but
 very similar, routine to \Cfunc{distance}.  Again, this allocates and
 copies the inputs on the GPU.  So there is a separate \R{} function
 and a separate \C{} routine to implement this, adding to the

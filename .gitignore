@@ -13,6 +13,8 @@ RError.h
 *.bbl
 *.out
 *.blg
+*~
+*.backup
 config.log
 config.status
 
