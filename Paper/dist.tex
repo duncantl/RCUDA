@@ -1,9 +1,10 @@
-\section{Computing distances}
+\subsection{Computing distances}\label{subsec:distances}
 
-In this example, we will explore how to compute distances on the GPU.
-The \Rpkg{gputools} package already does this, so we will consider its
-code.  Our aim is to contrast how this is done with \R{} bindings to
-CUDA and how it is done with \C{} code.
+In this final example, we will explore how to compute distances on the GPU.
+Since the \Rpkg{gputools} package already does this, we here consider how
+to use the kernels provided by that package within the \Rpkg{RCUDA}
+framework. Our aim is to contrast how interaction with the GPU is done
+with \R{} bindings to CUDA and how it is done with \C{} code.
 
 The \Rfunc{gpuDist} function in the \Rpkg{gputools} package is similar
 to \R's own \Rfunc{dist} function.  It takes a matrix of observations
@@ -22,10 +23,10 @@ and the GPU is actually involved in the computations.
 
 
 We can invoke any of the kernels in the \Rpkg{gputools} packages
-directly from \R and so remove the need for the \C{} routines
+directly from \R{} and so remove the need for the \C{} routines
 described above. This not only greatly simplifies the understanding
 and development of the code, but also leads to more flexible, reusable
-code.  We'll illustrate how to call the \Cfunc{euclidean_kernel_same}
+code.  We now illustrate how to call the \Cfunc{euclidean_kernel_same}
 kernel.  We start by extracting it from the \C{} code and compiling it
 directly into PTX code (or cubin or fatbin format).  We then load this
 into the \R{} session with \Rfunc{loadModule}.
@@ -45,11 +46,12 @@ Note that we have transposed the matrix as the kernel
 expects the elements of each observation to be contiguous.
 This contrasts with \R's column-oriented representation of a matrix.
 
-We can now launch the kernel. We pass the reference
+Having loaded the module and extracted the function, 
+we can now launch the kernel. We pass the reference
 to the matrix values (\Rvar{ABref}) and also
 the stride/pitch between observations (the number of columns in 
 the matrix) and the number of observations.
-We pass these twice, eventhough the second set of parameters is not
+Note that we pass these twice, even though the second set of parameters is not
 used in the kernel.
 We also pass space to insert the distances. This is an $n \times n$
 matrix  (where $n$ is the number of rows in \Rvar{AB})

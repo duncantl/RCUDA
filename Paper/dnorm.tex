@@ -1,4 +1,4 @@
-\section{Computing the Normal density}
+\subsection{Computing the Normal density}\label{subsec:normal}
 Performance in \R{} puts a great premium on vectorized
 operations.  Since most of the primitives are vectorized,
 expressions that use these primitives are also vectorized. 
@@ -132,7 +132,7 @@ we are extracting only the \Rvar{out} element.
 By explicitly specifying which objects to transfer in
 the call to \Rfunc{.gpu}, we avoid the overhead.
 
-
+\note{TODO: Do we want timings here? If we don't then I think we need to say we don't provide them\ldots}
 
 % The performance on the Quadro 600 GPUs does not 
 % outperform R's own dnorm().

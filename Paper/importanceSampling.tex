@@ -1,51 +1,43 @@
-\section{Importance Sampling} 
+\subsection{Importance Sampling}\label{subsec:IS}
 
-Importance sampling allows us to efficiently approximate expected
-values.  The basic idea is that we want to approximate an expected
-value via simulation. 
-Suppose we want $E[h(X)]$ as 
-$$
- E[h(X)] = \int_f h(x) f(x) dx
-$$
-We would approximate it with
-$$
-  \frac{1}{n} \sum_{i=1}^n h(x_i)
-$$
-where $x_i$ are values sampled from the density $f$.
-Suppose it is difficult or computationally intensive to sample from
-the density $f$.
-Instead, we can sample from another  density $g$ with
-the same support as $f$.
-We can then use $h(x_i) w(x_i)$ in our summation
-to compute the approximate value of $E[h(X)]$,
-where $w(x_i) = f(x_i)/g(x_i)$.
+Importance sampling is a standard approach that allows for the numerical
+approximation of expected values that cannot be computed directly. 
+Suppose we want to compute $E_{f}[h(X)]$ where $f$ denotes the 
+probability density (or mass) function of the random variable X i.e., 
+\begin{align}\label{eq:IS}
+ E_{f}[h(X)] = \int h(x) f(x) dx .
+\end{align}
+If we are able to sample independent random variates $x_{1},\ldots,x_{n}$
+from $f$ then we can approximate the expectation in~\eqref{eq:IS} in a
+straightforward manner using:
+\begin{align}\label{eq:ISbasicapprox}
+  E_{f}[h(X)] = \frac{1}{n} \sum_{i=1}^{n} h(x_i) .
+\end{align}
+Now suppose it is difficult or computationally intensive to sample from
+the density $f$. Instead, we can sample $x_{1},\ldots,x_{n}$ from another
+density $g$ with the same support as $f$. By a simple importance weighting
+scheme we can modify the approximation in~\eqref{eq:ISbasicapprox} to obtain
+\begin{align}\label{eq:ISapprox}
+  E_{f}[h(X)] = \frac{1}{n} \sum_{i=1}^{n} w(x_{i})h(x_{i}) ,
+\end{align}
+where $w(x_i) = f(x_i)/g(x_i)$ is the importance weight given to $x_{i}$.
 
-% Should we explain here why this works.
-
-We'll use a simple example from Mathew Shum
+We now apply this technique to a simple example from Mathew Shum
 (\url{www.hss.caltech.edu/~mshum/gradio/simulation.pdf}).
-We want to simulate from a truncated standard Normal with support
-$[0,1]$.
-The density is 
+Suppose we want to compute the expectation of a truncated standard 
+Normal with support $[0,1]$. Note that the density of the truncated Normal is
 $$f(x) = \frac{\phi(x)}{\int_{0}^{1} \phi(x)} dx$$ 
-where $\phi(x)$ is the
-standard normal density.  Instead of sampling from $f(x)$, we will
-sample from a standard Uniform. So we use $g(x) = 1$ as the density
-corresonding to this $U(0, 1)$.  We now generate a $N$ values from
-this standard Uniform and compute $\sum h(x_i) w(x_i)$.  In this
-particular case, $w(x_i)$ is simply $\phi(x_i)/.34134$ divided by
-$g(x_i) = 1$.
-
-We can implement this easily in \R{}.
-We'll use $h(x) = x$.
-The code is then
+where $\phi(x)$ is the standard normal density. Instead of sampling
+from $f(x)$, we instead sample $N$ variates from a standard Uniform
+i.e., we select $g(x) = 1_{\left\{0<x<1\right\}}$. Since $g(x)=1$ the
+importance weights in~\eqref{eq:ISapprox} can just be seen to 
+be $w(x_{i})=\phi(x_i)/.34134$. This can be easily implemented in \R{} using
 \begin{RCode}
 N = 1e6
 x = runif(N)
 mean(x * dnorm(x)/.34134)
 \end{RCode}
 %This yields $0.46$.
-This is definitely quite simple. 
 
 Like the \Rfunc{dnorm} example, we could also implement this
 vectorized computation in \R{} as a computation on a GPU
@@ -76,10 +68,9 @@ The actual computations are very simple
 \begin{CCode}
 out[idx] = unifVals[idx] * dnorm(unifVals[idx], 0, 1)/phi_0_1;
 \end{CCode}
-We haven't shown the code for the \Cfunc{dnorm} routine. It is very
-similar to that in the previous example, however it is much simpler as
-it just returns the value rather than storing it in shared memory.
-It is available at \url{http://www.omegahat.org/RCUDA/importanceSample.cu},
+We omit the code for the \Cfunc{dnorm} routine since it is very
+similar to that in the previous example. Full code is 
+available at \url{http://www.omegahat.org/RCUDA/importanceSample.cu},
 along with some additional kernels.
 
 We compile this code and load it with
@@ -132,5 +123,8 @@ We note that we have elected to compute the random values from the
 uniform density in \R{} and explicitly pass these to the kernel.
 Alternatively, we could use the CUDA random number generators.
 This avoids transferring data from \R{} to the GPU memory.
-It also allows us to compute these values in parallel.
+It also allows us to compute these values in parallel. Examples
+involving the generation of random numbers on the GPU using
+the CURAND library~\citep{bib:curand} are also 
+available in the \texttt{examples} directory of \Rpkg{RCUDA}. 
 
