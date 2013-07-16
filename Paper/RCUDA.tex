@@ -830,15 +830,16 @@ and return value.
 
 \section[Compiling R code to native GPU code]{Compiling \R{} code to native GPU code}\label{sec:LLVM}
 % Move into Future work if we don't get this running.
-The following is not yet fully implemented, but is something 
-we know to be possible and related to work we are pursuing in a
-slightly related project.
-\llvm{} stands for the Low Level Virtual Machine
-and is a compiler toolkit which we can embed in \R. 
+In this section we describe experimental work designed to 
+allow programmers to utilize the power of the GPU without
+ever needing to leave \R{} i.e., to allow the creation of CUDA
+kernels directly from \R{} code. The approach to achieve this
+is to use \llvm{} (Low Level Virtual Machine), a compiler toolkit 
+that can be embedded within \R. 
 This allows us to dynamically generate machine code within an \R{}
 session and invoke those newly created routines, passing them 
 inputs from \R{} and obtaining the results in \R.
-This is very powerful and allows us to ``compile around the \R{}
+This simple approach is very powerful and allows us to ``compile around the \R{}
 interpreter'' and gain significant speedups for some common \R{}
 idioms~\cite{bib:StatSciLLVM}.
 
@@ -854,23 +855,25 @@ languages and GPUs.
 \section{Future Work}
 
 Now that we have the general-purpose bindings and access to the CUDA
-API, we, and hopefully others, will explore how to map statistical
-algorithms onto the GPU to take advantage of their potential.  We plan
-to explore different examples and approaches and understand their
-characteristics.  
+API, we, and hopefully others, will explore how to map commonly used
+statistical algorithms onto the GPU to take advantage of their potential.  
+We plan to explore different examples and approaches and understand their
+characteristics in the context of GPU applications.  
 
 We also plan to explore the potential benefits of aspects of the API
-such as pinned memory, streams for interleaving computations,
-peer-to-peer communication between two or more GPUs.
+not addressed in this paper such as pinned memory, streams for
+interleaving computations and peer-to-peer communication between 
+two or more GPUs.
 
 As the need arises, we may generate bindings to other GPU-related
-libraries and APIs. These include There is no need to have \R{}
+libraries and APIs. It is useful to note though that there is no need to have \R{}
 bindings to interface with kernel-level libraries such as
-Thrust~\cite{bib:Thrust} and parts of curand~\cite{bib:curand}.
-However, we may need to determine the sizes of the different data
-structures they use that should be allocated by the host on the
-device.
-
+Thrust~\cite{bib:Thrust} and parts of curand~\cite{bib:curand} as 
+these can be accessed in the usual manner when implementing the kernel.
+While this handles many such uses, however, we may need to determine
+the sizes of the different data structures they use that should be allocated
+by the host on the device (see \texttt{curand} examples in the \Rpkg{RCUDA}
+documentation for more details).
 
 \bibliography{gpu}
 
