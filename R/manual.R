@@ -63,8 +63,19 @@ function(module, name)
 }
 
 loadModule =
-function(filename, ctx = cuGetContext(TRUE), ...)
+#
+#
+#
+function(filename, ctx = cuGetContext(TRUE), 
+         isCode = is(filename, "raw") || is(filename, "AsIs") || grepl(" __cudaparm", filename),
+          ...)
 {
+  
+  if(isCode) {
+     force(ctx)
+     return(cuModuleLoadDataEx(filename, ...))
+  } 
+
   filename = path.expand(filename)
   if(!file.exists(filename))
     stop("no such file ", filename)
