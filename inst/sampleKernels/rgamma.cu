@@ -1,3 +1,58 @@
+/*
+ *  rgamma.cu : GPU-based generation of Gamma random variates, 
+ *  based on rgamma.c. 
+ *
+ *  Full license for rgamma.c below...
+ *
+ *  Mathlib : A C Library of Special Functions
+ *  Copyright (C) 1998 Ross Ihaka
+ *  Copyright (C) 2000--2008 The R Core Team
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, a copy is available at
+ *  http://www.r-project.org/Licenses/
+ *
+ *  SYNOPSIS
+ *
+ *    #include <Rmath.h>
+ *    double rgamma(double a, double scale);
+ *
+ *  DESCRIPTION
+ *
+ *    Random variates from the gamma distribution.
+ *
+ *  REFERENCES
+ *
+ *    [1] Shape parameter a >= 1.  Algorithm GD in:
+ *
+ *	  Ahrens, J.H. and Dieter, U. (1982).
+ *	  Generating gamma variates by a modified
+ *	  rejection technique.
+ *	  Comm. ACM, 25, 47-54.
+ *
+ *
+ *    [2] Shape parameter 0 < a < 1. Algorithm GS in:
+ *
+ *	  Ahrens, J.H. and Dieter, U. (1974).
+ *	  Computer methods for sampling from gamma, beta,
+ *	  poisson and binomial distributions.
+ *	  Computing, 12, 223-246.
+ *
+ *    Input: a = parameter (mean) of the standard gamma distribution.
+ *    Output: a variate from the gamma(a)-distribution
+ */
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
