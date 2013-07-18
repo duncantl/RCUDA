@@ -1,5 +1,7 @@
 Version 0.4-0
 
+   *  loadModule() can also load the PTX code directly. See isCode argument.
+
    *  Can pass R numeric() as double * in .gpu()/.cuda() calls via .numericAsDouble
       or via a global option CUDA.useDouble.
 

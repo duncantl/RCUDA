@@ -63,8 +63,19 @@ function(module, name)
 }
 
 loadModule =
-function(filename, ctx = cuGetContext(TRUE), ...)
+#
+#
+#
+function(filename, ctx = cuGetContext(TRUE), 
+         isCode = is(filename, "raw") || is(filename, "AsIs") || grepl(" __cudaparm", filename),
+          ...)
 {
+  
+  if(isCode) {
+     force(ctx)
+     return(cuModuleLoadDataEx(filename, ...))
+  } 
+
   filename = path.expand(filename)
   if(!file.exists(filename))
     stop("no such file ", filename)
@@ -161,14 +172,17 @@ function(fun, ..., .args = list(...), gridDim, blockDim,
                              .args[mustCopy], .numericAsDouble)
    
    ans = .Call("R_cuLaunchKernel", fun, as.integer(gridDim), as.integer(blockDim), .args, as.integer(sharedMemBytes), stream)
-   if(is.integer(ans))  #  !is(ans, "RC++Reference"))
+
+   if(is(ans, "cudaError_t"))  #  !is(ans, "RC++Reference"))
       raiseError(ans, msg = c("failed to launch kernel"))
 
    if(.async) 
      return(.args[mustCopy])
 
+  ans = cuCtxSynchronize() # cuStreamSynchronize(stream) 
+  if(is(ans, "cudaError_t"))  #  !is(ans, "RC++Reference"))
+      raiseError(ans, msg = c("failed to launch kernel"))
 
-#  ans = .Call("R_cudaThreadSynchronize")
 #  if(ans)
 #      raiseError(ans, msg = c("failed to launch kernel"))
 

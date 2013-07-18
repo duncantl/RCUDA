@@ -11,7 +11,9 @@
   to any of the named functions/routines or global variables it contains.
 }
 \usage{
-loadModule(filename, ctx = cuGetContext(TRUE), ...)
+loadModule(filename, ctx = cuGetContext(TRUE),
+           isCode = is(filename, "raw") || is(filename, "AsIs") || grepl(" __cudaparm", filename),  
+           ...)
 getFunction(module, name) 
 \S4method{$}{CUmodule}(x, name)
 \S4method{[[}{CUmodule,character,missing}(x, i,j, globalVar = FALSE, ...)
@@ -25,6 +27,13 @@ getFunction(module, name)
   \item{ctx}{the context into which to load the module. If none has been
   created, this creates  default contet that is used for this and
   subsequent computations.}
+\item{isCode}{a logical value that indicates whether \code{filename} is actually the  PTX
+   code itself or the name of a file containing the code. This allows us to 
+   obtain the code in R as a string and load it directly.
+ One can use this argument or alternatively wrap the PTX text
+  within a call to \code{I()} to indicate that it is the PTX code and not the name of a
+  file. We also use some heuristic to determine if the text is PTX code.
+  } 
  \item{\dots}{additional parameters for methods}
  \item{module,x}{the module object returned by \code{loadModule} in which
   we will find the named function}
