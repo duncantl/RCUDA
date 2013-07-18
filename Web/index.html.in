@@ -11,6 +11,10 @@
 <p align="right"><a href="https://github.com/duncantl/RCUDA.git">RCUDA
 on github</a></p>
 <p>
+Paul Baines<br/>
+Duncan Temple Lang
+
+<p>
 
 This R package is an interface to the CUDA API and libraries. It
 allows R programmers to invoke code on a Nvidia (GP)GPU.
@@ -29,19 +33,27 @@ programmed in C and leverage the GPU through that C code.  OpenCL and
 RCUDA aim to make writing that code feasible in R.  This is allows us
 to use higher-level programming languages and also makes it much
 easier to experiment with GPUs.
+This leads to more flexible code and much less of it.
 
-<h2>Plans</h2>
+<h2>Current Status</h2>
 <p>
-In the near future, we will complete the bindings by
-programmatically generating the R and C code for each of the routines.
-(The enums are already present, along with some of the structs, etc.)
+We have programmatically generated bindings
+to almost all of the routines in the CUDA SDK API
+and to the enumerated constants and non-opaque data structures.
 
-<p> Also in the near future, we will connect the <a
-href="../Rllvm">Rllvm</a> and <a
-href="../RLLVMCompile">RLLVMCompile</a> packages with this so that we
-can directly compile R functions to act as kernels on the GPU.
-This will both make it easier to write kernels and remove
-the need for nvcc (a reasonably trivial issue).
+<p>
+We have also managed to translate/compile a very simple kernel
+written in R code to PTX code and load and invoke that with RCUDA.
+The compilation is done in R using the 
+<a href="../Rllvm">Rllvm</a> and <a
+href="../RLLVMCompile">RLLVMCompile</a> packages.
+(See the development versions on github at present)
+
+<p>
+We have also developed an interface to libNVVM for converting
+LLVM Intermediate Representation (IR) code to PTX.
+This gives us two ways to generate the PTX from R code.
+
 
 <h2>Examples</h2>
 <dl>
@@ -62,12 +74,30 @@ the need for nvcc (a reasonably trivial issue).
   <dt>
   <li> <a href="UserGuide.Rdb">brief user's guide</a> in development.
   <dd>
+
+  <dt>
+  <li> <a href="tests">Examples in tests/</a>
+  <dd>
+  <dt>
+  <li> <a href="tests">Complete collection of examples in explorations/</a>
+  <dd>      
+      
+  <dt>
+  <li> <a href="RCUDA.pdf">Draft of a paper describing RCUDA</a>
+  <dd>
+
+  <dt>
+  <li> <a href="../Rllvm/ptxNVVMExample.html">Compiling R code to
+  PTX</a>
+      with <a href="../Rllvm">Rllvm</a>, <a  href="../RLLVMCompile">RLLVMCompile</a>
+      and optionally <a href="../Rnvvm">Rnvvm</a>
+  <dd>
 </dl>
 
 <hr>
 <address><a href="http://www.stat.ucdavis.edu/~duncan">Duncan Temple Lang</a>
 <a href=mailto:dtemplelang@ucdavis.edu>&lt;dtemplelang@ucdavis.edu&gt;</a></address>
 <!-- hhmts start -->
-Last modified: Wed May 15 07:03:56 PDT 2013
+Last modified: Thu Jul 18 07:39:32 PDT 2013
 <!-- hhmts end -->
 </body> </html>
