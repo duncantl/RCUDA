@@ -11,6 +11,7 @@
 %\SetWatermarkLightness{.95}
 
 \newcommand{\note}[1]{\textbf{\textcolor{red}{#1}}}
+\def\Rtrue{\textbf{TRUE}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% declarations for jss.cls %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -688,7 +689,58 @@ dispatch one or more tasks to the GPU while we continue to perform
 tasks in the \R{} session.  This allows us to truly use the GPU as a
 co-processor.
 
-\note{TODO: Mention how this is done (if it is implemented yet).}
+There are several ways to excute tasks asynchronously.  The simplest
+is, perhaps, to use the \Rarg{.async} parameter in the \Rfunc{.gpu}
+function.  If this is \Rtrue, the \Rfunc{.gpu} function launches the
+kernel and does not wait for it it to complete.  It returns the
+references to memory on the GPU device for any objects it copied to
+the GPU.  At this point, we can evaluate other \R{} expressions while
+the GPU is processing the kernel threads.  To obtain the results from
+the kernel, we can simply copy the values from the GPU memory.
+Copying the memory from the device will cause CUDA to synchronize with
+the GPU.  Alternatively, we can explicitly synchronize with the GPU by
+calling \Rfunc{cudaDeviceSynchronize} or \Rfunc{cuCtxSynchronize}.
+
+A different approach than using \Rfunc{.async} is to use streams.  We
+can think of a stream as managing a collection of tasks. A task can be
+an invocation of a kernel or copying data to or from the GPU.  We can
+add a kernel invocation to a stream by passing the stream object to
+the \Rfunc{.gpu} function.
+We first create the stream with
+\begin{RCode}
+stream = cudaStreamCreate()
+\end{RCode}
+We then launch a kernel with
+\begin{RCode}
+out = .gpu(mod$kernel, ..., stream = stream)
+\end{RCode}
+%$
+By default, the presence of the \Rarg{stream} argument
+will cause \Rarg{.async} to be \Rtrue and 
+\Rfunc{.gpu} will return without waiting for the kernel
+to complete.
+
+We can queue multiple kernel invocations on the same stream via
+repeated calls to \Rfunc{.gpu}.  The GPU can interleave and schedule
+the threads across these kernels in a way that improves the overall
+performance relative to serial scheduling.
+
+We can also add requests to a stream to copy memory to or from the
+GPU.  For example, the \Rfunc{cudaMemcpyAsync} accepts a \Rarg{stream}
+argument, as do any of the Async variants of the memory copying
+functions.
+
+While we can synchronize on the device or context, we can also use
+more fine-grained synchronization using a stream. The
+\Rfunc{cudaStreamSynchronize} function will wait in \R{} until the
+entire collection of tasks in the stream have completed.  Rather than
+blocking until the tasks are complete, we can use
+\Rfunc{cudaStreamQuery} to query whether the stream's task are all
+finished.  This allows us to periodically ``check in'' with stream
+without actually waiting for it to complete.
+
+
+%\note{TODO: Mention how this is done (if it is implemented yet).}
 
 \subsection{Other Routines in the API}
 % Briefly mention the general groupings of other routines, e.g. stream,

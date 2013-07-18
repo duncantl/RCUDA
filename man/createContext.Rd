@@ -17,7 +17,7 @@
 }
 \usage{
 createContext(flags = 0L, device = 1L)
-cuGetContext(create = TRUE, ...)
+cuGetContext(create = TRUE, ..., asContext = TRUE)
 }
 \arguments{
   \item{flags}{an integer vector specifying the configuration options
@@ -26,6 +26,7 @@ cuGetContext(create = TRUE, ...)
   \item{create}{a logical value that controls whether we create a context
     if none is established.}
   \item{\dots}{additional arguments passed to \code{createContext}}
+  \item{asContext}{a logical value currently ignored.}
 }
 \value{
   Both functions return an object of class \code{CUcontext}.

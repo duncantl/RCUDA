@@ -2,8 +2,9 @@
 \alias{cudaGetDevice}
 \title{Returns which device is currently being used}
 \description{ Returns  the current device for the calling host thread.}
-\usage{cudaGetDevice()}
-
+\usage{
+cudaGetDevice()
+}
 \value{device}
 \seealso{\code{cudaGetDeviceCount}
 \code{cudaSetDevice}

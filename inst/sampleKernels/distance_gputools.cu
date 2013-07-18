@@ -1,8 +1,6 @@
 #define NUM_THREADS 32
 #define size_t int
 
-typedef double float;
-
 extern "C"
 __global__ void 
 euclidean_kernel(const float * vg_a, size_t pitch_a, size_t n_a,

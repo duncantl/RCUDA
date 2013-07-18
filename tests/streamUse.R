@@ -30,7 +30,7 @@ o = gdist.same(AB, mod, .async = TRUE, stream = stream)
 print(cuStreamQuery(stream))
 print(cuStreamQuery(stream))
  # Then we just wait
-cuStreamSynchronize(stream)
+cudaStreamSynchronize(stream)
  # Get the answer
 (o$ans[])[1:10]
 cuStreamDestroy(stream)

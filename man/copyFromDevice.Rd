@@ -3,6 +3,7 @@
 \alias{cudaMalloc}
 \alias{copyFromDevice}
 \alias{copyToDevice}
+\alias{[,cudaDoubleArray,missing,missing-method}
 \alias{[,cudaFloatArray,missing,missing-method}
 \alias{[,cudaIntArray,missing,missing-method}
 \alias{[,cudaFloatArray,numeric,missing-method}
@@ -12,6 +13,7 @@
 \alias{[<-,cudaIntArray,missing,missing-method}
 \alias{[<-,cudaPtrWithLength,missing,missing-method}
 
+\alias{copyFromDevice,cudaDoubleArray-method}
 \alias{copyFromDevice,cudaFloatArray-method}
 \alias{copyFromDevice,cudaIntArray-method}
 \alias{copyFromDevice,ANY-method}
@@ -26,9 +28,10 @@
 }
 \usage{
 copyFromDevice(obj, nels, type)
-copyToDevice(obj, to = cudaMalloc(length(obj), elType = elType),
-              elType = typeof(obj)) 
-cudaMalloc(numEls, sizeof = 4L, elType = NA) 
+copyToDevice(obj, to = cudaMalloc(length(obj), elType = elType, strict = strict),
+              elType = typeof(obj), strict = !missing(elType) )
+cudaMalloc(numEls, sizeof = 4L, elType = NA, 
+            strict = !missing(elType) || inherits(elType, "AsIs")) 
 }
 \arguments{
   \item{obj}{the R object to be copied to the GPU or the reference to
@@ -39,6 +42,10 @@ cudaMalloc(numEls, sizeof = 4L, elType = NA)
   \item{sizeof}{the size of the element in the array/vector on the GPU to be allocated}
   \item{to}{a reference to space on the GPU to store the data being
     copied from R to the GPU}
+  \item{strict}{a logical value that controls whether we treat the value
+    \code{elType} as verbatim and use it exactly or whether we can map
+    it to another type. If this is \code{FALSE}, \code{"double"} is
+   mapped to \code{"float"}.}
 }
 \value{
 

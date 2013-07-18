@@ -20,7 +20,8 @@
 \usage{
 .cuda(fun, ..., .args = list(...), gridDim, blockDim, sharedMemBytes = 0L, 
       stream = NULL, inplace = FALSE, outputs = logical(), 
-      .gc = TRUE, gridBy = NULL, .async = FALSE)
+      .gc = TRUE, gridBy = NULL, .async = !is.null(stream),
+       .numericAsDouble = getOption("CUDA.useDouble", FALSE))
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -60,8 +61,18 @@
 \item{.async}{a logical value that, if \code{TRUE}, 
   causes the function to return immediately after launching the kernel.
  This allows the GPU to continue working while we can do work on the CPU within the 
- R session. We can then call \code{\link{cudaSynchronizeThread}} to
+ R session. We can then call \code{\link{cudaStreamSynchronize}}, 
+ \code{\link{cudaDeviceSynchronize}}, \code{\link{cudaEventSynchronize}}
+ or \code{\link{cuCtxSynchronize}} to
  wait  until all of the operations have been completed.
+  }
+  \item{.numericAsDouble}{a logical value that controls whether numeric
+  vectors should be mapped to the GPU as arrays of  \code{double} 
+  or \code{float} elements. By default, they are currently mapped as
+  \code{float} arrays.
+  \code{.numericAsDouble} can be a logical vector
+  with an element for each of the multi-element vectors in the arguments
+  for the kernel.
   }
 }
 \value{

@@ -13,8 +13,8 @@
 \usage{
 loadModule(filename, ctx = cuGetContext(TRUE), ...)
 getFunction(module, name) 
-module$name
-module[[name, globalVar = FALSE]]
+\S4method{$}{CUmodule}(x, name)
+\S4method{[[}{CUmodule,character,missing}(x, i,j, globalVar = FALSE, ...)
 }
 
 \arguments{
@@ -26,11 +26,12 @@ module[[name, globalVar = FALSE]]
   created, this creates  default contet that is used for this and
   subsequent computations.}
  \item{\dots}{additional parameters for methods}
- \item{module}{the module object returned by \code{loadModule} in which
+ \item{module,x}{the module object returned by \code{loadModule} in which
   we will find the named function}
-\item{name}{the name of the function to find in the module.
+\item{name,i}{the name of the function to find in the module.
    It is imperative that the kernel we want be compiled with the
    declaration \code{extern "C"} so that its name is not mangled.}
+\item{j}{missing/not supplied}
  \item{globalVar}{a logical that controls whether we are looking for a variable or a routine/function in the module.}
 }
 \value{

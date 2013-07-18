@@ -3,6 +3,8 @@ useDynLib(RCUDA)
 import(methods)
 import(RAutoGenRunTime)
 
+#exportMethods("$", "[[")
+
 # exportPattern(".*")
 
 exportClass(CUresult)

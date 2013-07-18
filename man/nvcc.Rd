@@ -44,6 +44,7 @@ Duncan Temple Lang
 
 %\seealso{}
 \examples{
+f = system.file("sampleKernels", "dnormOutput.ptx", package = "RCUDA")
 nvcc(f, .run = FALSE)
 nvcc(f, target = "fatbin", .run = FALSE)
 nvcc(f, target = "cubin", .run = FALSE)
