@@ -75,7 +75,7 @@ x_i_mem <- copyToDevice(x_int)
 
 cat("Launching all-in-one CUDA kernel...\n")
 cu_all_in_one_time <- system.time({
-    .cuda(k_allinone, x_d_mem, N, mu, sigma, inplace = TRUE, gridDim = grid_dims, blockDim = block_dims)
+    .cuda(k_allinone, x_d_mem, N, mu, sigma, gridDim=grid_dims, blockDim=block_dims)
 })
 cat("Copying result back from device...\n")
 cu_all_in_one_copy_time <- system.time({
@@ -94,7 +94,7 @@ print(quantile(cu_rnorm_allinone))
 # Initializing RNG's...
 cat("Launching CUDA kernel for RNG setup...\n")
 cu_init_time <- system.time({
-    .cuda(k_setup, rng_states, inplace = TRUE, gridDim = grid_dims, blockDim = block_dims)
+    .cuda(k_setup, rng_states, gridDim=grid_dims, blockDim=block_dims, outputs=NULL)
 })
 
 # Call RNGs...
