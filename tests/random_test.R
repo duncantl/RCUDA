@@ -14,7 +14,7 @@ k_rpois = m$rpois_kernel
 k_allinone = m$rnorm_all_in_one_kernel
 
 cat("done. Setting up miscellaneous stuff...\n")
-N = 250000 # 1e6L fails on my mac... :/
+N = 25000 # 1e6L fails on my mac... :/
 
 # Uniform parameters:
 lo <- -1.0

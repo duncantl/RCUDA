@@ -105,7 +105,7 @@ __global__ void rnorm_all_in_one_kernel(float *vals, int n, float mu, float sigm
     return;
 }
 
-__global__ void rnrom_improved_kernel(curandState *state, int state_len, float *vals, int n, float mu, float sigma)
+__global__ void rnorm_improved_kernel(curandState *state, int state_len, float *vals, int n, float mu, float sigma)
 {
     // 
     // INPUTS
