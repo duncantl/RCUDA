@@ -15,6 +15,7 @@ RError.h
 *.blg
 *~
 *.backup
+*.swp
 config.log
 config.status
 

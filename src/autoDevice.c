@@ -195,6 +195,7 @@ R_auto_cudaDeviceGetCacheConfig()
 }
 
 
+#if 1 				/* version >= 5.5 */
 SEXP
 R_auto_cudaDeviceGetStreamPriorityRange()
 {
@@ -216,6 +217,7 @@ R_auto_cudaDeviceGetStreamPriorityRange()
     UNPROTECT(2);
     return(r_ans);
 }
+#endif
 
 
 SEXP R_auto_cudaDeviceSetCacheConfig(SEXP r_cacheConfig)

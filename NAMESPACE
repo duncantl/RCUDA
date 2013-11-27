@@ -314,5 +314,8 @@ export(
 getCuRNGStates,
 setCuRNGStates,
 summarizeCuRNGStates,
-cu.rgamma
+cu.rgamma,
+cu.rnorm,
+compute_grid
+
 )
