@@ -7,7 +7,7 @@
 #
 #
 
-"setCuRNGStates" <- function(n_states,rng_seeds,gridDim,blockDim)
+"setCuRNGStates" <- function(n_states,rng_seeds,gridDim,blockDim,verbose=FALSE)
 {
     # Need to setup RNG (this doesn't work automatically
     # yet since
@@ -29,13 +29,28 @@
     # Check if this is first call:
     if (!exists(".cu_rng_setup")){
         # Yes it is, load the module:
+        if (verbose){
+            cat("Loading setup kernel...\n")
+        }
         .cu_rng_module <- loadModule(system.file("sampleKernels", paste("rcuda_rng.ptx",sep=""), package = "RCUDA"))
         .cu_rng_setup <<- .cu_rng_module$setup_kernel
+        if (verbose){
+            cat("Setup kernel loaded successfully...\n")
+        }
     }
     # Allocate space for RNG's on device:
+    if (verbose){
+        cat("Allocating space on device for the RNG states...\n")
+    }
     .cu_rng_states <<- cudaMalloc(elType = "curandState", numEls=n_states, sizeof=48L) 
+    if (verbose){
+        cat("Allocation successful. Setting up RNG states...\n")
+    }
     # Setup the RNG's using the seeds (.cu_rng_states is initialized in place):
     .cuda(.cu_rng_setup, .cu_rng_states, rng_seeds, n_states, gridDim=gridDim, blockDim=blockDim, outputs=NULL)
+    if (verbose){
+        cat("CUDA RNG initialization successful.\n")
+    }
     return()
 }
 
@@ -46,7 +61,7 @@
         cat("CUDA RNG states not found\n")
     } else {
         cat("CUDA RNG states found:\n")
-        cat("Length = ",length(.cu_rng_states),"\n",sep="")
+        cat("Length = ",.cu_rng_states@nels,"\n",sep="")
     }
     return()
 }

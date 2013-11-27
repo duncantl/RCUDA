@@ -6,6 +6,8 @@
 extern "C"
 {
 
+// .cuda(setup_kernel, .cu_rng_states, rng_seeds, n_states, gridDim=gridDim, blockDim=blockDim, outputs=NULL)
+
 __global__ void setup_kernel(curandState  *state, int *seeds, int n)
 {
     // Usual block/thread indexing...
