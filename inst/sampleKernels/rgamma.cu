@@ -120,12 +120,26 @@ __global__ void rgamma_kernel(curandState *state, int state_len, float *vals, in
     float a6 = -0.1367177;
     float a7 = 0.1233795;
 
-    // Maybe want each thread to generate multiple...
-    // -- Would cut down on bloat from curandState *state,
-    // -- Would increase computation per thread + scalability
     // 
+    // INPUTS
+    // ======
+    //
+    // state        :: RNG states (vector of length state_len)
+    //
     // state_len    :: length of rng states (one thread per rng_state)
     //                 if (idx >= state_len){ do nothing... }
+    //
+    // vals         :: storage for the n samples to be generated
+    //
+    // n            :: length of vector to sample
+    //
+    // a            :: alpha
+    //
+    // scale        :: (1/beta) [possibly -- check, may be beta]
+    //
+    // ===================================================================
+    //
+    // From these we derive:
     //
     // n_per_thread :: number of rng's to generate per thread
     //                 heurestically, each thread computes
