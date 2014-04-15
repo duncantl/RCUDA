@@ -23,6 +23,9 @@ vals = cudaAlloc(N, elType = "numeric")
 vals[]
 stopifnot(identical(vals[], ans))
 
+
+###########
+#
 tm1 = replicate(5, system.time({ ans = .cuda(kernel, x, N, mu, sigma, out = numeric(N), gridBy = N, outputs = "out")}))
 
    # This version by-passes the call to numeric(N) and just allocates space on the GPU, avoiding the 
