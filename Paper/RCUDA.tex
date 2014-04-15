@@ -18,8 +18,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %% almost as usual
-\author{Paul Baines\\University of California at Davis\\
-        Duncan Temple Lang\\University of California at Davis}
+\author{Paul Baines\\University of California at Davis \\
+ Duncan Temple Lang\\University of California at Davis}
 \title{RCUDA: General programming facilities for GPUs in R}
 
 %% for pretty printing and a nice hypersummary also set:
@@ -63,7 +63,7 @@
   University of California at Davis \\
   One Shields Avenue\\
   Davis, CA 95616\\
-  E-mail: \email{pbaines@ucdavis.edu}\\
+  E-mail: \email{pdbaines@ucdavis.edu}\\
   URL: \url{http://www.stat.ucdavis.edu/~pdbaines/}
 \\
 \\
@@ -113,6 +113,19 @@
 \DefineVerbatimEnvironment{ROutput}{Verbatim}{fontshape=bf}
 
 \begin{document}
+
+%%% @Paul: I think the intro is a little meandering, working at
+%%% different levels of detail and specificity. So we need to refine a
+%%% little.  We probably need to say what GPUs do, what RCUDA provides
+%%% in very high-level terms.  The comparison with gputools and rgpu
+%%% may be too specific at this point, especially rgpu.  We could say
+%%% that it does not interpret R code on the GPU but allows us to
+%%% control data transfer between the CPU and GPU and launch existing
+%%% kernels written in C. However, we have a prototype mechanism to
+%%% compile R code to kernels so can do the entire programming in R.
+%%% But this is different from running R on a GPU; it is mapping R
+%%% code to kernels.
+
 
 \section{Introduction}\label{sec:Introduction}
 In recent years Graphics Processing Units (GPUs) have emerged as the 
