@@ -132,6 +132,11 @@ function(fun, ..., .args = list(...), gridDim, blockDim,
 
    .args = list(...)   
 
+   .numericAsDouble = as.logical(.numericAsDouble)
+
+   if(length(.numericAsDouble) == 1)
+      .numericAsDouble = rep(.numericAsDouble, length(.args))
+
    if(!missing(gridBy) && missing(gridDim)) {
 #
 # We could use the names of the arguments by 
@@ -169,9 +174,10 @@ function(fun, ..., .args = list(...), gridDim, blockDim,
    if(any(mustCopy))
      .args[mustCopy] = mapply(function(obj, strict)
                                  copyToDevice(obj, strict = strict),
-                             .args[mustCopy], .numericAsDouble)
+                             .args[mustCopy], .numericAsDouble[mustCopy]) #, SIMPLIFY = FALSE, USE.NAMES = FALSE)
    
-   ans = .Call("R_cuLaunchKernel", fun, as.integer(gridDim), as.integer(blockDim), .args, as.integer(sharedMemBytes), stream)
+   ans = .Call("R_cuLaunchKernel", fun, as.integer(gridDim), as.integer(blockDim), .args, 
+                                   as.integer(sharedMemBytes), stream, .numericAsDouble)
 
    if(is(ans, "cudaError_t"))  #  !is(ans, "RC++Reference"))
       raiseError(ans, msg = c("failed to launch kernel"))
@@ -183,14 +189,11 @@ function(fun, ..., .args = list(...), gridDim, blockDim,
   if(is(ans, "cudaError_t"))  #  !is(ans, "RC++Reference"))
       raiseError(ans, msg = c("failed to launch kernel"))
 
-#  if(ans)
-#      raiseError(ans, msg = c("failed to launch kernel"))
-
    if(!missing(outputs)) {
      if(length(outputs) == 0 || is.logical(outputs) && !any(outputs))
          return(NULL)
-     vals = .args[outputs]
-     ans = lapply(vals, function(x) if(is(x, "cudaPtrWithLength")) x[] else x)
+
+     ans = lapply(.args[outputs], function(x) if(is(x, "cudaPtrWithLength")) x[] else x)
      return(if(length(ans) == 1) ans[[1]] else ans)
    }
    
