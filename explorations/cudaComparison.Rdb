@@ -1,0 +1,131 @@
+<doc
+	 xmlns:r="http://www.r-project.org">
+
+<r:code>
+trace(cudaAlloc)
+trace(copyToDevice)
+trace(copyFromDevice)
+trace(.cuda)
+trace(getDeviceProperties)
+trace(cuCtxSynchronize)
+</r:code>
+
+<r:code>
+{ ans = .cuda(kernel, x, N, mu, sigma, out = numeric(N), gridBy = N, outputs = "out")}
+<r:output>
+trace: .cuda(kernel, x, N, mu, sigma, out = numeric(N), gridBy = N,  outputs = "out")
+trace: getDeviceProperties(1L)
+trace: copyToDevice(obj, strict = strict)
+trace: copyToDevice(obj, strict = strict)
+trace: cuCtxSynchronize()
+trace: copyFromDevice(x, x@nels, type = "float")
+trace: copyFromDevice(obj@ref, obj@nels, "float")
+</r:output>
+</r:code>
+
+
+<r:code>
+{ ans = .cuda(kernel, x, N, mu, sigma, out = cudaAlloc(N, elType = "numeric"), gridBy = N, outputs = "out")}
+<r:output>
+trace: .cuda(kernel, x, N, mu, sigma, out = cudaAlloc(N, elType = "numeric"), gridBy = N, outputs = "out")
+trace: cudaAlloc(N, elType = "numeric")
+trace: getDeviceProperties(1L)
+trace: copyToDevice(obj, strict = strict)
+trace: cuCtxSynchronize()
+trace: copyFromDevice(x, x@nels, type = "float")
+trace: copyFromDevice(obj@ref, obj@nels, "float")
+</r:output>
+</r:code>
+<r:code>
+{ 
+  cx = copyToDevice(x)
+  vals = cudaAlloc(N, elType = "numeric")
+  .cuda(kernel, cx, N, mu, sigma, vals, gridBy = N, outputs = FALSE)
+  invisible(vals[])
+}
+<r:output>
+trace: copyToDevice(x)
+trace: cudaAlloc(N, elType = "numeric")
+trace: .cuda(kernel, cx, N, mu, sigma, vals, gridBy = N, outputs = FALSE)
+trace: getDeviceProperties(1L)
+trace: cuCtxSynchronize()
+trace: copyFromDevice(x, x@nels, type = "float")
+trace: copyFromDevice(obj@ref, obj@nels, "float")
+</r:output>
+</r:code>
+
+
+So there is an extra copyToDevice in the initial call and the best call.
+How costly is this?
+<r:code>
+replicate(5, system.time(copyToDevice(x)))
+</r:code>
+So 0.045 seconds.
+
+Now let's look at how much time is involved in creating the output
+vector. We allocate the vector and fill it in on the GPU.
+We also have to allocate the vector in <r/>.
+So consider also allocating the vector in <r/> and then copying the values
+<r:code>
+replicate(5, system.time(copyToDevice(numeric(N))))
+</r:code>
+This takes about 0.0565 seconds.
+
+<p>
+How long does <r:expr eval="false">numeric(N)</r:expr> and
+<r:expr eval="false">copyToDevice(x)</r:expr> take:
+<r:code>
+replicate(5, system.time(numeric(N)))
+<r:output>
+user.self  0.007 0.007 0.008 0.006 0.006
+sys.self   0.004 0.005 0.003 0.006 0.005
+elapsed    0.012 0.011 0.012 0.011 0.012
+</r:output>
+</r:code>
+<r:code>
+replicate(5, system.time(copyToDevice(x)))
+<r:output>
+user.self  0.040 0.041 0.043 0.040 0.042
+sys.self   0.005 0.004 0.002 0.005 0.002
+elapsed    0.045 0.045 0.045 0.044 0.045
+</r:output>
+</r:code>
+Now, compare this to merely allocating the space on the GPU without
+copying elements or setting their values.
+<r:code>
+replicate(5, system.time(cudaAlloc(N, elType = "numeric")))
+<r:output>
+user.self  0.000 0.001 0.000 0.001 0.000
+sys.self   0.000 0.000 0.000 0.000 0.000
+elapsed    0.001 0.000 0.001 0.000 0.001
+</r:output>
+</r:code>
+Given the very short times, we may want to repeat the allocation multiple:
+<r:code>
+replicate(5, system.time(replicate(10, cudaAlloc(N, elType = "numeric")))/10)
+<r:output>
+user.self  0.0000 4e-04 4e-04 3e-04 5e-04
+sys.self   0.0000 1e-04 1e-04 2e-04 0e+00
+elapsed    0.0011 4e-04 5e-04 5e-04 4e-04
+</r:output>
+</r:code>
+So our initial version in which we allocate the output vector in <r/>
+and then copy the elements to the GPU
+essentially adds .0565 seconds.
+</p>
+
+<p>
+So it is more appropriate to compare <r:var>tm1a</r:var> and <r:var>tm2a</r:var>
+since both use <r:func>cudaAlloc</r:func>.
+But  why is there still a difference of approximately 55% in the elapsed
+time?
+We can compare computing the outputs in <r:func>.cuda</r:func> or 
+extracting the values ourselves.
+This is done in tm2a and tm2b, indicating that leaving this to
+<r:func>.cuda</r:func> takes some time, i.e.
+compare .139 with .121, i.e. 15% overhead (on admittedly small numbers).
+We can also see this comparison of within-cuda results versus outside 
+by comparing tm1a and tm1b. This is closer to 9%.
+</p>
+
+</doc>

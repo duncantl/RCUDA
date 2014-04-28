@@ -66,7 +66,7 @@
  or \code{\link{cuCtxSynchronize}} to
  wait  until all of the operations have been completed.
   }
-  \item{.numericAsDouble}{a logical value that controls whether numeric
+  \item{.numericAsDouble}{a logical value or vector that controls whether numeric
   vectors should be mapped to the GPU as arrays of  \code{double} 
   or \code{float} elements. By default, they are currently mapped as
   \code{float} arrays.
@@ -120,7 +120,7 @@ if(getNumDevices() > 0) {
   m = loadModule(ptx)
   kernel = m$dnorm_kernel
 
-  N = 1e6L
+  N = 1e8L
   x = rnorm(N)
   mu = .5
   sigma = 1.1
@@ -136,6 +136,13 @@ if(getNumDevices() > 0) {
 
   summary(abs(ans - dnorm(x, mu, sigma)))
 
+# Compare the above to allocating the output vector in R and just allocating the space on the GPU.
+# This avoids allocating a vector in R and also copying each element to the corresponding element in
+# the GPU.
+
+  ans = .cuda(kernel, x, N, mu, sigma, cudaAlloc(N, elType = "numeric"),
+               gridDim = c(64L, 32L), blockDim = 512L, outputs = 5)
+
 # Using gridBy
 
   ans = .cuda(kernel, x, N, mu, sigma, numeric(N),
@@ -146,7 +153,8 @@ if(getNumDevices() > 0) {
   # explicitly allocating data on the GPU and passing these as inputs.
   cx = copyToDevice(x)
   vals = cudaAlloc(N, elType = "numeric")
-  .cuda(kernel, cx, N, mu, sigma, vals, gridDim = c(64L, 32L), blockDim = 512L)
+  .cuda(kernel, cx, N, mu, sigma, vals, gridDim = c(64L, 32L), blockDim = 512L, out = FALSE)
+  vals[]
 
   max(vals[])
 }

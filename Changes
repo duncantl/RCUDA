@@ -1,3 +1,8 @@
+Version 0.5-0
+
+   *  .numericAsDouble in .cuda()/.gpu() now vectorized and works for scalars. 
+      Issue identified by Chris Paciorek.
+
 Version 0.4-0
 
    *  loadModule() can also load the PTX code directly. See isCode argument.

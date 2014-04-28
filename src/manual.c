@@ -85,7 +85,7 @@ isRCReference(SEXP obj)
 }
 
 void *
-convertRObjToGPU(SEXP arg, float *floatLoc, void **argLoc)
+convertRObjToGPU(SEXP arg, float *floatLoc, void **argLoc, int numericAsDouble)
 {
 
     if(isRCReference(arg)) {
@@ -107,8 +107,12 @@ convertRObjToGPU(SEXP arg, float *floatLoc, void **argLoc)
     int len = Rf_length(arg), i;
     if(ty == REALSXP) {
 	if(len == 1) {
+	  if(numericAsDouble) {
+	    return(REAL(arg));
+	  } else {
 	    *floatLoc =  REAL(arg)[0];
 	    return(floatLoc);
+	  }
 	}
 
 	float *fl = (float *) malloc(len * sizeof(float));
@@ -156,7 +160,7 @@ convertRObjToGPU(SEXP arg, float *floatLoc, void **argLoc)
 
 
 SEXP
-R_cuLaunchKernel(SEXP r_fun, SEXP r_gridDims, SEXP r_blockDims, SEXP r_args, SEXP r_sharedMemBytes, SEXP r_stream)
+R_cuLaunchKernel(SEXP r_fun, SEXP r_gridDims, SEXP r_blockDims, SEXP r_args, SEXP r_sharedMemBytes, SEXP r_stream, SEXP r_numericAsDouble)
 {
 
     SEXP ans = R_NilValue;
@@ -167,6 +171,8 @@ R_cuLaunchKernel(SEXP r_fun, SEXP r_gridDims, SEXP r_blockDims, SEXP r_args, SEX
     CUstream stream = NULL;
 
     int nargs = Rf_length(r_args), i;
+    int *numericAsDouble = LOGICAL(r_numericAsDouble);
+
       //XXX if we do an asynchronous launch, then this memory will disappear when we exit this call and the code is still running.
 #if 1
     void **args, **args2; //set from r_args
@@ -178,7 +184,7 @@ R_cuLaunchKernel(SEXP r_fun, SEXP r_gridDims, SEXP r_blockDims, SEXP r_args, SEX
 	args[i] = args2[i] = NULL;
 	/* If we have a scalar, we pass the address of that scalar. 
            For a REAL, we have to put it into a float and use the address of that float */
-	args[i] = convertRObjToGPU(arg, floats + i, args2 + i);
+	args[i] = convertRObjToGPU(arg, floats + i, args2 + i, numericAsDouble[i]);
 	//	fprintf(stderr, "arg %d = %p     (%p)\n", i, args[i], args2[i]);
     }
 #else
