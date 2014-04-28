@@ -144,7 +144,7 @@ an efficient manner.
 In presenting the \pkg{RCUDA} package we assume the reader has a basic
 familiarity with GPUs and the NVIDIA-specific Compute Unified Device
 Architecture (CUDA) programming model. For an introduction to GPU
-programming and CUDA see~\cite{bib:pmpp}. As we will see in later sections
+programming and CUDA see~\citep{bib:pmpp}. As we will see in later sections
 \pkg{RCUDA} provides a high-level interface to the CUDA SDK and lessens
 the burden for \R{} programmers seeking to utilize the power of GPUs.
 Nonetheless, GPUs are tailored for massively parallel computation and
@@ -868,7 +868,7 @@ converted to the approriate \R{} type.
 
 
 
-We used \Rpkg{RCIndex}~\cite{bib:RCIndex} to both read the
+We used \Rpkg{RCIndex}~\citep{bib:RCIndex} to both read the
 declarations in the CUDA header files and to generate the bindings.
 Programmatically generating the bindings reduces the number of simple
 programming errors and also allows us to update the bindings when new
@@ -906,7 +906,7 @@ session and invoke those newly created routines, passing them
 inputs from \R{} and obtaining the results in \R.
 This simple approach is very powerful and allows us to ``compile around the \R{}
 interpreter'' and gain significant speedups for some common \R{}
-idioms~\cite{bib:StatSciLLVM}.
+idioms~\citep{bib:StatSciLLVM}.
 
 \llvm{} can generate machine code for the machine's CPU, but can also
 create PTX code to run on an NVIDIA GPU.  We can use our \R{} compiler
@@ -914,8 +914,10 @@ code (\Rpkg{RLLVMCompile}), or a specialized version of it for
 targetting GPUs, and have it generate PTX code for kernel routines.
 We can then load these routines onto the GPU and invoke them as a
 regular kernels.  This was done using \R{} as an example by
-researchers in NVIDIA~\cite{bib:libNVVM} investigating dynamic, interpreted
+researchers in NVIDIA~\citep{bib:libNVVM} investigating dynamic, interpreted
 languages and GPUs.
+
+% ~/GitWorkingArea/Rllvm/explorations/nvptrx.Rdb
 
 \section{Future Work}
 
@@ -933,7 +935,7 @@ two or more GPUs.
 As the need arises, we may generate bindings to other GPU-related
 libraries and APIs. It is useful to note though that there is no need to have \R{}
 bindings to interface with kernel-level libraries such as
-Thrust~\cite{bib:Thrust} and parts of curand~\cite{bib:curand} as 
+Thrust~\citep{bib:Thrust} and parts of curand~\citep{bib:curand} as 
 these can be accessed in the usual manner when implementing the kernel.
 While this handles many such uses, however, we may need to determine
 the sizes of the different data structures they use that should be allocated
