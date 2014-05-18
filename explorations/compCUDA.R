@@ -58,6 +58,7 @@ tm2a = replicate(R,  system.time({
                              vals[]
                            }))
 
+
 # get the output vector via .cuda()
 tm2b = replicate(R,  system.time({ 
                              cx = copyToDevice(x)
@@ -67,6 +68,14 @@ tm2b = replicate(R,  system.time({
 
 
 tm.r = replicate(R, system.time(dnorm(x)))
+
+
+if(FALSE) {
+load("times.rda")
+ ids = ls(pattern = "^tm[^ps]")
+ tms = structure(lapply(ids, get), names = ids)
+ length(tms)
+}
 
 if(FALSE) {
 Rprof("/tmp/cuda.prof")

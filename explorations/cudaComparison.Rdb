@@ -1,4 +1,5 @@
 <doc
+	 xmlns:r="http://www.r-project.org"
 	 xmlns:r="http://www.r-project.org">
 
 <r:code>
@@ -127,5 +128,17 @@ compare .139 with .121, i.e. 15% overhead (on admittedly small numbers).
 We can also see this comparison of within-cuda results versus outside 
 by comparing tm1a and tm1b. This is closer to 9%.
 </p>
+
+
+
+<para>
+tm2a versus tm2b shows the effect of using .cuda() to retrieve the outputs.
+This is about 2%, but in favor of doing the work in <r:func>.cuda</r:func>.
+<r:var>tm2a</r:var> doesn't retrieve the output but we do it outside of <r:func>.cuda</r:func>.
+<r:var>tm2b</r:var> does this within <r:func>.cuda</r:func> but by index, not name.
+<r:code>
+mean(tm2a[3,]/tm2b[3,])
+</r:code>
+</para>
 
 </doc>

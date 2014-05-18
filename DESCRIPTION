@@ -1,6 +1,6 @@
 Package: RCUDA
 Version: 0.4-0
-Title: R bindings for CUDA library for GPU computing
+Title: R bindings for the CUDA library for GPU computing
 Description: This package provides initial bindings to
    the CUDA library for working with GPUs. It is similar
    to Simon Urbanek's OpenCL package. The idea is to be able
