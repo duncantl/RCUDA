@@ -82,7 +82,7 @@ AC_SUBST(NVCC_BIN)
 AC_OUTPUT(src/Makevars R/nvcc.R)
 #chmod -w R/nvcc.R
 
-echo "Gomputing size of CUDA structures"
+echo "Computing size of CUDA structures"
 echo "Compiling sizeofs"
 ${NVCC_BIN} -o sizeofs sizeofs.cu
 if  test $? = 0; then
