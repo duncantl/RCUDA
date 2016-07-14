@@ -188,7 +188,7 @@ function(fun, name = sprintf("R_auto_%s", funName),
             "return(r_ans);",
             "}"
            )
-    CRoutineDefinition(name, code, length(fun@params) - length(returnArg), as.character(NA))
+    CRoutineDefinition(name, code, length(fun@params) - length(returnArg), "") # as.character(NA))
 }
 
 
@@ -279,8 +279,14 @@ writeCode =
 function(code, file, includes = if(lang != "R") '"RCUDA.h"', mode = "w", comment = if(lang == "R") "#" else "//",
          lang = guessLanguage(code))
 {
-  con = file(file, mode)
-  on.exit(close(con))
+  if(inherits(file, "connection"))
+     con = file
+  else
+      con = file(file, mode)
+
+  if(!isOpen(con))
+      on.exit(close(con))
+  
   cat(comment, "Generated programmatically at", as.character(Sys.time()), "\n", file = con)
   if(length(includes))
     cat(sprintf('#include %s', includes), sep = "\n", file = con)
@@ -291,16 +297,24 @@ function(code, file, includes = if(lang != "R") '"RCUDA.h"', mode = "w", comment
 
 
 generateCode =
-function(funs, fileName)
+function(funs, fileName, dir = getOption("CodeGenDir", ".."))
 {  
  mod.Ccode = lapply(funs, cuda.createNativeProxy)
  mod.Rcode = lapply(funs, cuda.createRProxy)
 
- files = sprintf("../%s/auto%s.%s", c("src", "R"), fileName, c("c", "R")) 
+ if(length(fileName) > 1)
+    files = fileName
+ else {
+# if(dirname(fileName) == "." && !grepl("^\\.", fileName))
+       subDirs = c("src", "R")     
+       files = sprintf("%s/%s/auto%s.%s", dir, subDirs, fileName, c("c", "R"))
+ }
+
  writeCode(mod.Ccode, files[1], lang = "C")
  writeCode(mod.Rcode, files[2], lang = "R")
 
  cat("export(", paste(sapply(mod.Rcode, slot, "name"), collapse = ",\n"), ")", sep = "\n")
+ files
 }
 
 guessLanguage =
