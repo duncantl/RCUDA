@@ -15,6 +15,9 @@
 #define xGET_REF(val, type) \
     (type) (getRReference(val))
 
+
+#define LOCAL_CREATE_REF 1
+
 #include "RConverters.h"
 #include "RError.h"
 
