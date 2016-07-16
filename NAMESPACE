@@ -3,13 +3,15 @@ useDynLib(RCUDA)
 import(methods)
 import(RAutoGenRunTime)
 
+importFrom("utils", "read.csv")
+
 #exportMethods("$", "[[")
 
 # exportPattern(".*")
 
 exportClass(CUresult)
 
-export(nvcc)
+export(nvcc, nvccCmd)
 export(.gpu, .cuda)
 
 export(copyFromDevice, copyToDevice)

@@ -35,7 +35,7 @@ function(file, out = swapExtension(file, target), target = "ptx", ..., .opts = l
   }
 
   cmd = sprintf("%s -%s %s -o %s %s ",
-                 RCUDA:::nvccCmd, target, paste(unlist(.opts), collapse = " "), out, file)
+                 nvccCmd, target, paste(unlist(.opts), collapse = " "), out, file)
 
   if(!.run)
      return(cmd)

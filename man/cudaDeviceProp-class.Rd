@@ -86,7 +86,7 @@ Class \code{"\linkS4class{CStruct}"}, directly.
   For the pointer version, there are methods for accessing and setting fields.
 }
 \references{
-\url{http://developer.download.nvidia.com/compute/cuda/4_1/rel/toolkit/docs/online/structcudaDeviceProp.html}
+\url{http://docs.nvidia.com/cuda/cuda-runtime-api/structcudaDeviceProp.html#structcudaDeviceProp}
 }
 \author{
 Duncan Temple Lang

@@ -17,3 +17,7 @@ Examples.tex
 Paper/distance_gputools.cu
 \.Rd-deprecated
 src/Makevars$
+deprecated
+^Books$
+^dist_gputools.R$
+^GenerationNotes$

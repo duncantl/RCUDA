@@ -16,7 +16,7 @@ cuFuncGetAttributes(func)
  A numeric vector.
 }
 \references{
-  \url{http://docs.nvidia.com/cuda/cuda-driver-api/index.htmll}
+  \url{http://docs.nvidia.com/cuda/cuda-driver-api/index.html}
 }
 \author{
 Duncan Temple Lang

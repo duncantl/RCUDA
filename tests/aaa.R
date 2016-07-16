@@ -69,7 +69,7 @@ ans = sapply(c(1:43, 45:85), function(i) cudaDeviceGetAttribute(i, 0L))
 cudaDeviceEnablePeerAccess(1L, 0) # or 0L, 0
 
 cudaDeviceSetLimit(2L, 1024L)
-cudaDeviceSetLimit(cudaLimitMallocHeapSize, 1024L)
+# cudaDeviceSetLimit(cudaLimitMallocHeapSize, 1024L)
 cudaDeviceSetLimit("cudaLimitMallocHeapSize", 1024L)
 
 cudaDeviceDisablePeerAccess(1L)

@@ -1,9 +1,10 @@
 Package: RCUDA
-Version: 0.4-0
-Title: R bindings for the CUDA library for GPU computing
-Description: This package provides initial bindings to
-   the CUDA library for working with GPUs. It is similar
-   to Simon Urbanek's OpenCL package. The idea is to be able
+Version: 0.5-0
+Title: R Bindings for the CUDA Library for GPU Computing
+Description: This is an R interface to the CUDA software development kit (SDK )
+   and allows us to query and manipulate GPUs with R code. 
+   We can invoke code on the GPU and transfer data to and from the GPU and CPU.
+   It is similar to Simon Urbanek's OpenCL package. The idea is to be able
    execute code on the GPU from within R.
    This offers a high-level programming interface to use GPUs
    within R.  It will also offer a full set of bindings to the CUDA SDK
@@ -15,9 +16,7 @@ Description: This package provides initial bindings to
    CUDA routines that work on the host.  This is similar to libNVVM.
 SystemRequirements: CUDA SDK(>= 5.0)
 Maintainer: Duncan Temple Lang <duncan@r-project.org>
-xDepends: methods
 Author: Duncan Temple Lang, Paul Baines
-Imports: RAutoGenRunTime, methods
-License: BSD
-
+Imports: RAutoGenRunTime, methods, utils
+License: BSD_3_clause+file LICENSE
 

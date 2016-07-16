@@ -95,7 +95,7 @@
   to retrieve the results after synchronizing with the GPU.
 }
 \references{
- \url{http://developer.download.nvidia.com/compute/cuda/4_1/rel/toolkit/docs/online/group__CUDA__EXEC_gb8f3dc3031b40da29d5f9a7139e52e15.html}
+ \url{http://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__EXEC.html#group__CUDA__EXEC_1gb8f3dc3031b40da29d5f9a7139e52e15}
 }
 \author{
 Duncan Temple Lang
