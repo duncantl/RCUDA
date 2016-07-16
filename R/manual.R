@@ -31,9 +31,15 @@ setClass("cudaFloatArray", contains= "cudaPtrWithLength")
 setClass("cudaIntArray", contains= "cudaPtrWithLength")
 
 
+setClass("CUresult", contains = "cudaError")
+CUresultValues = cudaErrorValues
+
+# Should be the other way around, but not a big deal.
+#setClass("cudaError", contains = "cudaError_t")
 
   # This is 0 based.  When converting from integer to CUDeviceNum, we do the subtraction for the user.
 setClass("CUDeviceNum", contains = "integer")
+
 
 tmp = function(from)   new("CUDeviceNum", as.integer(from - 1L))
 setAs("numeric", "CUDeviceNum", tmp)
@@ -254,7 +260,7 @@ copyToDevice =
 function(obj, to = cudaMalloc(length(obj), elType = elType, strict = strict), 
           elType = typeof(obj), strict = !missing(elType))
 {
-  ans = .Call("R_cudaMemcpy", obj, to, to@elSize)
+  ans = .Call("R_manual_cudaMemcpy", obj, to, to@elSize)
   if(is(ans, "CUresult"))
     raiseError(ans, "copying data to GPU")
 
@@ -481,3 +487,6 @@ function(device = 1L)
 
    .Call("R_cudaSetDevice", device)
 }
+
+
+
