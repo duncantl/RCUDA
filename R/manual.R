@@ -393,7 +393,7 @@ setMethod("[<-", c("cudaIntArray", "missing", "missing"),
 cuInit =
 function(flags = 0L)
 {  
-  ans = .Call("R_cuInit", as.integer(flags))
+  ans = .Call("R_cuInit", as.integer(flags), FALSE)
   if(ans != 0)
      raiseError(ans, "failed to initialize CUDA")
   ans
