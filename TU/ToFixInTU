@@ -1,5 +1,7 @@
 RCUDA
 
+* cudaGetDeviceProperties() - implement?
+
 * Check the R and C code agree for routines that have a version suffix, i.e., _v2
 
 *  Generate the R classes for structures that are used in routines.
@@ -11,13 +13,12 @@ RCUDA
     getTypedefs() now in RCIndex
     Generate relationships between R classes that are simply aliases for the same.
 
-* Map CUresult to cudaError (or whatever).
+*[Check finished] Map CUresult to cudaError (or whatever).
   See cuStreamCreate(0) which cannot find CUresultValues.
   Add: setClass("CUresult", contains = "cudaError")
           CUresultValues = cudaErrorValues
     ?Do we need setAs() methods - yes.
   
-
 * When converting to a cudaError (or typedefs of this), raise an error or a warning
    Use the name of the enum as a class.
 
@@ -31,7 +32,11 @@ RCUDA
 * When we pass a pointer to a struct, is the const in the correct place in GET_REF - const struct Ptr or should it b struct * const Ptr and so we can't use GET_REF.
 
 * Remove the existing code that we are duplicating. Resolve these.
+    See TU/check.R
 
+
+* [Done] R_cuCtxPopCurrent not in C code.  See tests/context.R
+   Was old code in context.R overriding autoContext.R
 
 * [Done] Every 2nd time, source("clang.R")  doesn't create the full autoOther.R file. missing e.g. cuArrayDestroy and many more.
 * [Done] cudaError conversion code doesn't have the names/values of the enum.
@@ -39,6 +44,8 @@ RCUDA
 * [Done] cudaError_enum is not a class   (getDeviceProps(1L).  cudaError is also not a defined class.  
 * [Done] Generate R classes for enums.
 * [Done] Generate the enumConverters.h/enumDecls.h
+* Calling cuInit() segfaults.
+    Was missing second argument for CUresult.
 
 * In RClangSimple
 ** clang_getExpansionLocation raises an error
