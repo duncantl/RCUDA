@@ -10,8 +10,3 @@ SEXP Renum_convert_CUarray_format_enum(enum CUarray_format_enum);
 SEXP R_copyStruct_CUDA_ARRAY3D_DESCRIPTOR_st(struct CUDA_ARRAY3D_DESCRIPTOR_st *obj);
 SEXP R_copyStruct_CUDA_ARRAY_DESCRIPTOR_st(struct CUDA_ARRAY_DESCRIPTOR_st *obj);
 
-
-//SEXP Renum_convert_cudaError_enum ( enum cudaError_enum  val);
-//#define Renum_convert_cudaError Renum_convert_cudaError_t
-//#define Renum_convert_cudaError_enum Renum_convert_cudaError_t
-
