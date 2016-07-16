@@ -36,7 +36,7 @@ R_cudaError_t_Info(cudaError_t val)
  to copy it back.
 */
 SEXP
-R_cudaMemcpy(SEXP r_src,  SEXP r_ptr, SEXP r_elSize)
+R_manual_cudaMemcpy(SEXP r_src,  SEXP r_ptr, SEXP r_elSize)
 {
     SEXP ans = R_NilValue;
     void *ptr = getRReference(r_ptr);
@@ -542,7 +542,7 @@ R_cuModuleLoadDataEx(SEXP r_image, SEXP r_Options, SEXP retOpts)
     unsigned int numOptions = Rf_length(r_Options);
     CUresult ans;
 
-    ans = cuModuleLoadDataEx( &module, image, numOptions, INTEGER(r_Options), NULL);
+    ans = cuModuleLoadDataEx( &module, image, numOptions, (enum CUjit_option_enum *) INTEGER(r_Options), NULL);
 
     if(ans)
        return(R_cudaErrorInfo(ans));
