@@ -70,9 +70,9 @@ function(fun)
      length(fun@params) && isStringType(getType(fun@params[[1]])) && isIntegerType(getType(fun@params[[2]]))
 
 cuda.createNativeProxy =
-function(fun, name = sprintf("R_auto_%s", funName),
+function(fun, name = sprintf("R_%s", funName), # R_auto_%s
          typeMap = TypeMap,
-         funName = gsub("_v[0-9]$", "", getName(fun)),
+         funName = routineName(fun),
          stringSize = 10000L,
          returnArg = returnsValueViaArg(fun, getName(fun)),
          returnsString = returnString(fun),
@@ -92,7 +92,6 @@ function(fun, name = sprintf("R_auto_%s", funName),
      return(createNativeProxy(fun, name, typeMap))
    else
      cuResult = TRUE
-
 
    argNames = names(fun@params)
 
@@ -192,9 +191,18 @@ function(fun, name = sprintf("R_auto_%s", funName),
 }
 
 
+routineName =
+function(fun, name = getName(fun), removeVersion = getOption("RemoveRoutineVersion", FALSE))
+{
+    if(removeVersion)
+      gsub("_v[0-9]$", "", name)
+    else
+      name
+}
+
 cuda.createRProxy =
-function(fun, name = gsub("_v[0-9]$", "", getName(fun)), argNames = names(fun@params),
-          nativeProxyName = sprintf("R_auto_%s", gsub("_v[0-9]$", "", getName(fun))),
+function(fun, name = routineName(fun, removeVersion = TRUE), argNames = names(fun@params),
+          nativeProxyName = sprintf("R_%s", routineName(fun)),
           PACKAGE = NA, defaultValues = character(), guessDefaults = FALSE,
           typeMap = TypeMap,
           returnArg = returnsValueViaArg(fun),
@@ -281,11 +289,10 @@ function(code, file, includes = if(lang != "R") '"RCUDA.h"', mode = "w", comment
 {
   if(inherits(file, "connection"))
      con = file
-  else
+  else {
       con = file(file, mode)
-
-  if(!isOpen(con))
       on.exit(close(con))
+  }
   
   cat(comment, "Generated programmatically at", as.character(Sys.time()), "\n", file = con)
   if(length(includes))
@@ -301,7 +308,7 @@ function(funs, fileName, dir = getOption("CodeGenDir", ".."))
 {  
  mod.Ccode = lapply(funs, cuda.createNativeProxy)
  mod.Rcode = lapply(funs, cuda.createRProxy)
-
+ 
  if(length(fileName) > 1)
     files = fileName
  else {
@@ -313,8 +320,9 @@ function(funs, fileName, dir = getOption("CodeGenDir", ".."))
  writeCode(mod.Ccode, files[1], lang = "C")
  writeCode(mod.Rcode, files[2], lang = "R")
 
- cat("export(", paste(sapply(mod.Rcode, slot, "name"), collapse = ",\n"), ")", sep = "\n")
- files
+ # cat("export(", paste(sapply(mod.Rcode, slot, "name"), collapse = ",\n"), ")", sep = "\n")
+ # Return the files also ?
+ invisible( paste(c("export(", paste(sapply(mod.Rcode, slot, "name"), collapse = ",\n"), ")"), collapse = '\n') )
 }
 
 guessLanguage =

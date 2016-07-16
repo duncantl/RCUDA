@@ -1,3 +1,45 @@
+RCUDA
+
+* Check the R and C code agree for routines that have a version suffix, i.e., _v2
+
+*  Generate the R classes for structures that are used in routines.
+**  name of R class for struct should remove the struct. See cudaChooseDevice() and cudaDevicePropPtr
+
+* For device, understand the CUDevice and simple integers and 0 based counting.
+
+* Identify typedefs and don't duplicate code but add aliases, e.g., #define  fun  otherFun
+    getTypedefs() now in RCIndex
+    Generate relationships between R classes that are simply aliases for the same.
+
+* Map CUresult to cudaError (or whatever).
+  See cuStreamCreate(0) which cannot find CUresultValues.
+  Add: setClass("CUresult", contains = "cudaError")
+          CUresultValues = cudaErrorValues
+    ?Do we need setAs() methods - yes.
+  
+
+* When converting to a cudaError (or typedefs of this), raise an error or a warning
+   Use the name of the enum as a class.
+
+*  [small]  When cudaError is 0 (success), don't print as error. e.g. cudaDeviceReset()
+
+* When matching a string for an enum, use grep to avoid  having to specify the whole word.
+
+* Export the individual enum values?
+   A lot of symbols and hard to see the functions in ls()
+
+* When we pass a pointer to a struct, is the const in the correct place in GET_REF - const struct Ptr or should it b struct * const Ptr and so we can't use GET_REF.
+
+* Remove the existing code that we are duplicating. Resolve these.
+
+
+* [Done] Every 2nd time, source("clang.R")  doesn't create the full autoOther.R file. missing e.g. cuArrayDestroy and many more.
+* [Done] cudaError conversion code doesn't have the names/values of the enum.
+* [Done] R code for enums.
+* [Done] cudaError_enum is not a class   (getDeviceProps(1L).  cudaError is also not a defined class.  
+* [Done] Generate R classes for enums.
+* [Done] Generate the enumConverters.h/enumDecls.h
+
 * In RClangSimple
 ** clang_getExpansionLocation raises an error
     e = createRoutineBinding(rr[["clang_getExpansionLocation"]], typeMap = map)
@@ -7,8 +49,8 @@
        used
        Run all of them.
 
-** When accessing an R string, try to declare const.char *
-     clang_getFile it actually is so this would work nicely.
+** When accessing an R string, try to declare const char *
+     In clang_getFile it actually is so this would work nicely.
      RGCCTU doesn't get to see this. RCIndex will.
      Added in getNativeDeclaration method for PointerType.
 
