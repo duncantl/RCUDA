@@ -191,7 +191,7 @@ sizeofCode = CRoutineDefinition("R_getSizeofStructs",
                  "UNPROTECT(2);",
                  "return(r_ans);", "}"))#, declaration = "SEXP R_getSizeofStructs()")
 
-writeCode(as(sizeofCode, "character"),  "../src/sizeofStructs.cpp",  
+writeCode(as(sizeofCode, "character"),  "../src/autoSizeofStructs.cpp",  
             c('"RCUDA.h"', sprintf("<%s>", basename(unique(sapply(ds.cuTypes, function(x) getFileName(x$def)))))))
 
 
