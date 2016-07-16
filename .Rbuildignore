@@ -16,3 +16,4 @@ PaperOutline
 Examples.tex
 Paper/distance_gputools.cu
 \.Rd-deprecated
+src/Makevars$
