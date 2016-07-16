@@ -1,9 +1,9 @@
-// Generated programmatically at 2013-07-02 13:48:45 
+// Generated programmatically at 2016-07-15 18:47:23 
 #include "RCUDA.h"
 
 
 SEXP
-R_auto_cuDeviceGet(SEXP r_ordinal)
+R_cuDeviceGet(SEXP r_ordinal)
 {
     SEXP r_ans = R_NilValue;
     CUdevice device;
@@ -18,7 +18,7 @@ R_auto_cuDeviceGet(SEXP r_ordinal)
 
 
 SEXP
-R_auto_cuDeviceGetCount()
+R_cuDeviceGetCount()
 {
     SEXP r_ans = R_NilValue;
     int count;
@@ -32,7 +32,7 @@ R_auto_cuDeviceGetCount()
 
 
 SEXP
-R_auto_cuDeviceGetName(SEXP r_dev)
+R_cuDeviceGetName(SEXP r_dev)
 {
     SEXP r_ans = R_NilValue;
     CUdevice dev = INTEGER(r_dev)[0];
@@ -48,13 +48,13 @@ R_auto_cuDeviceGetName(SEXP r_dev)
 
 
 SEXP
-R_auto_cuDeviceTotalMem(SEXP r_dev)
+R_cuDeviceTotalMem_v2(SEXP r_dev)
 {
     SEXP r_ans = R_NilValue;
     size_t bytes;
     CUdevice dev = INTEGER(r_dev)[0];
     CUresult ans;
-    ans = cuDeviceTotalMem(& bytes,  dev);
+    ans = cuDeviceTotalMem_v2(& bytes,  dev);
     if(ans)
        return(R_cudaErrorInfo(ans));
     r_ans = ScalarReal(bytes) ;
@@ -63,7 +63,7 @@ R_auto_cuDeviceTotalMem(SEXP r_dev)
 
 
 SEXP
-R_auto_cuDeviceGetAttribute(SEXP r_attrib, SEXP r_dev)
+R_cuDeviceGetAttribute(SEXP r_attrib, SEXP r_dev)
 {
     SEXP r_ans = R_NilValue;
     int pi;
@@ -79,11 +79,93 @@ R_auto_cuDeviceGetAttribute(SEXP r_attrib, SEXP r_dev)
 
 
 SEXP
-R_auto_cuDeviceGetByPCIBusId(SEXP r_pciBusId)
+R_cuDevicePrimaryCtxRetain(SEXP r_dev)
+{
+    SEXP r_ans = R_NilValue;
+    CUcontext pctx;
+    CUdevice dev = INTEGER(r_dev)[0];
+    CUresult ans;
+    ans = cuDevicePrimaryCtxRetain(& pctx,  dev);
+    if(ans)
+       return(R_cudaErrorInfo(ans));
+    r_ans = R_createRef(pctx, "CUcontext") ;
+    return(r_ans);
+}
+
+
+SEXP R_cuDevicePrimaryCtxRelease(SEXP r_dev)
+{
+    SEXP r_ans = R_NilValue;
+    CUdevice dev = INTEGER(r_dev)[0];
+    
+    CUresult ans;
+    ans = cuDevicePrimaryCtxRelease(dev);
+    
+    r_ans = Renum_convert_cudaError_enum(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_cuDevicePrimaryCtxSetFlags(SEXP r_dev, SEXP r_flags)
+{
+    SEXP r_ans = R_NilValue;
+    CUdevice dev = INTEGER(r_dev)[0];
+    unsigned int flags = REAL(r_flags)[0];
+    
+    CUresult ans;
+    ans = cuDevicePrimaryCtxSetFlags(dev, flags);
+    
+    r_ans = Renum_convert_cudaError_enum(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP
+R_cuDevicePrimaryCtxGetState(SEXP r_dev)
+{
+    SEXP r_ans = R_NilValue;
+    unsigned int flags;
+    int active;
+    CUdevice dev = INTEGER(r_dev)[0];
+    CUresult ans;
+    ans = cuDevicePrimaryCtxGetState( dev, & flags, & active);
+    if(ans)
+       return(R_cudaErrorInfo(ans));
+    PROTECT(r_ans = NEW_LIST(2));
+    SEXP r_names;
+    PROTECT(r_names = NEW_CHARACTER(2));
+    SET_VECTOR_ELT(r_ans, 0, ScalarReal(flags));
+    SET_VECTOR_ELT(r_ans, 1, ScalarInteger(active));
+    SET_STRING_ELT(r_names, 0, mkChar("flags"));
+    SET_STRING_ELT(r_names, 1, mkChar("active"));
+    SET_NAMES(r_ans, r_names);
+    UNPROTECT(2);
+    return(r_ans);
+}
+
+
+SEXP R_cuDevicePrimaryCtxReset(SEXP r_dev)
+{
+    SEXP r_ans = R_NilValue;
+    CUdevice dev = INTEGER(r_dev)[0];
+    
+    CUresult ans;
+    ans = cuDevicePrimaryCtxReset(dev);
+    
+    r_ans = Renum_convert_cudaError_enum(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP
+R_cuDeviceGetByPCIBusId(SEXP r_pciBusId)
 {
     SEXP r_ans = R_NilValue;
     CUdevice dev;
-    char * pciBusId = CHAR(STRING_ELT(r_pciBusId, 0));
+    const char * pciBusId = CHAR(STRING_ELT(r_pciBusId, 0));
     CUresult ans;
     ans = cuDeviceGetByPCIBusId(& dev,  pciBusId);
     if(ans)
@@ -94,7 +176,7 @@ R_auto_cuDeviceGetByPCIBusId(SEXP r_pciBusId)
 
 
 SEXP
-R_auto_cuDeviceGetPCIBusId(SEXP r_dev)
+R_cuDeviceGetPCIBusId(SEXP r_dev)
 {
     SEXP r_ans = R_NilValue;
     CUdevice dev = INTEGER(r_dev)[0];
@@ -110,7 +192,7 @@ R_auto_cuDeviceGetPCIBusId(SEXP r_dev)
 
 
 SEXP
-R_auto_cuDeviceCanAccessPeer(SEXP r_dev, SEXP r_peerDev)
+R_cuDeviceCanAccessPeer(SEXP r_dev, SEXP r_peerDev)
 {
     SEXP r_ans = R_NilValue;
     int canAccessPeer;
@@ -125,33 +207,33 @@ R_auto_cuDeviceCanAccessPeer(SEXP r_dev, SEXP r_peerDev)
 }
 
 
-SEXP R_auto_cudaDeviceReset()
+SEXP R_cudaDeviceReset()
 {
     SEXP r_ans = R_NilValue;
     
     cudaError_t ans;
     ans = cudaDeviceReset();
     
-    r_ans = Renum_convert_cudaError_t(ans) ;
+    r_ans = Renum_convert_cudaError(ans) ;
     
     return(r_ans);
 }
 
 
-SEXP R_auto_cudaDeviceSynchronize()
+SEXP R_cudaDeviceSynchronize()
 {
     SEXP r_ans = R_NilValue;
     
     cudaError_t ans;
     ans = cudaDeviceSynchronize();
     
-    r_ans = Renum_convert_cudaError_t(ans) ;
+    r_ans = Renum_convert_cudaError(ans) ;
     
     return(r_ans);
 }
 
 
-SEXP R_auto_cudaDeviceSetLimit(SEXP r_limit, SEXP r_value)
+SEXP R_cudaDeviceSetLimit(SEXP r_limit, SEXP r_value)
 {
     SEXP r_ans = R_NilValue;
     enum cudaLimit limit = (enum cudaLimit) INTEGER(r_limit)[0];
@@ -160,14 +242,14 @@ SEXP R_auto_cudaDeviceSetLimit(SEXP r_limit, SEXP r_value)
     cudaError_t ans;
     ans = cudaDeviceSetLimit(limit, value);
     
-    r_ans = Renum_convert_cudaError_t(ans) ;
+    r_ans = Renum_convert_cudaError(ans) ;
     
     return(r_ans);
 }
 
 
 SEXP
-R_auto_cudaDeviceGetLimit(SEXP r_limit)
+R_cudaDeviceGetLimit(SEXP r_limit)
 {
     SEXP r_ans = R_NilValue;
     size_t pValue;
@@ -182,7 +264,7 @@ R_auto_cudaDeviceGetLimit(SEXP r_limit)
 
 
 SEXP
-R_auto_cudaDeviceGetCacheConfig()
+R_cudaDeviceGetCacheConfig()
 {
     SEXP r_ans = R_NilValue;
     enum cudaFuncCache pCacheConfig;
@@ -196,7 +278,7 @@ R_auto_cudaDeviceGetCacheConfig()
 
 
 SEXP
-R_auto_cudaDeviceGetStreamPriorityRange()
+R_cudaDeviceGetStreamPriorityRange()
 {
     SEXP r_ans = R_NilValue;
     int leastPriority;
@@ -218,7 +300,7 @@ R_auto_cudaDeviceGetStreamPriorityRange()
 }
 
 
-SEXP R_auto_cudaDeviceSetCacheConfig(SEXP r_cacheConfig)
+SEXP R_cudaDeviceSetCacheConfig(SEXP r_cacheConfig)
 {
     SEXP r_ans = R_NilValue;
     enum cudaFuncCache cacheConfig = (enum cudaFuncCache) INTEGER(r_cacheConfig)[0];
@@ -226,14 +308,14 @@ SEXP R_auto_cudaDeviceSetCacheConfig(SEXP r_cacheConfig)
     cudaError_t ans;
     ans = cudaDeviceSetCacheConfig(cacheConfig);
     
-    r_ans = Renum_convert_cudaError_t(ans) ;
+    r_ans = Renum_convert_cudaError(ans) ;
     
     return(r_ans);
 }
 
 
 SEXP
-R_auto_cudaDeviceGetSharedMemConfig()
+R_cudaDeviceGetSharedMemConfig()
 {
     SEXP r_ans = R_NilValue;
     enum cudaSharedMemConfig pConfig;
@@ -246,7 +328,7 @@ R_auto_cudaDeviceGetSharedMemConfig()
 }
 
 
-SEXP R_auto_cudaDeviceSetSharedMemConfig(SEXP r_config)
+SEXP R_cudaDeviceSetSharedMemConfig(SEXP r_config)
 {
     SEXP r_ans = R_NilValue;
     enum cudaSharedMemConfig config = (enum cudaSharedMemConfig) INTEGER(r_config)[0];
@@ -254,18 +336,18 @@ SEXP R_auto_cudaDeviceSetSharedMemConfig(SEXP r_config)
     cudaError_t ans;
     ans = cudaDeviceSetSharedMemConfig(config);
     
-    r_ans = Renum_convert_cudaError_t(ans) ;
+    r_ans = Renum_convert_cudaError(ans) ;
     
     return(r_ans);
 }
 
 
 SEXP
-R_auto_cudaDeviceGetByPCIBusId(SEXP r_pciBusId)
+R_cudaDeviceGetByPCIBusId(SEXP r_pciBusId)
 {
     SEXP r_ans = R_NilValue;
     int device;
-    char * pciBusId = CHAR(STRING_ELT(r_pciBusId, 0));
+    const char * pciBusId = CHAR(STRING_ELT(r_pciBusId, 0));
     cudaError_t ans;
     ans = cudaDeviceGetByPCIBusId(& device,  pciBusId);
     if(ans)
@@ -276,7 +358,7 @@ R_auto_cudaDeviceGetByPCIBusId(SEXP r_pciBusId)
 
 
 SEXP
-R_auto_cudaDeviceGetPCIBusId(SEXP r_device)
+R_cudaDeviceGetPCIBusId(SEXP r_device)
 {
     SEXP r_ans = R_NilValue;
     int device = INTEGER(r_device)[0];
@@ -292,7 +374,7 @@ R_auto_cudaDeviceGetPCIBusId(SEXP r_device)
 
 
 SEXP
-R_auto_cudaDeviceGetAttribute(SEXP r_attr, SEXP r_device)
+R_cudaDeviceGetAttribute(SEXP r_attr, SEXP r_device)
 {
     SEXP r_ans = R_NilValue;
     int value;
@@ -308,7 +390,7 @@ R_auto_cudaDeviceGetAttribute(SEXP r_attr, SEXP r_device)
 
 
 SEXP
-R_auto_cudaDeviceCanAccessPeer(SEXP r_device, SEXP r_peerDevice)
+R_cudaDeviceCanAccessPeer(SEXP r_device, SEXP r_peerDevice)
 {
     SEXP r_ans = R_NilValue;
     int canAccessPeer;
@@ -323,7 +405,7 @@ R_auto_cudaDeviceCanAccessPeer(SEXP r_device, SEXP r_peerDevice)
 }
 
 
-SEXP R_auto_cudaDeviceEnablePeerAccess(SEXP r_peerDevice, SEXP r_flags)
+SEXP R_cudaDeviceEnablePeerAccess(SEXP r_peerDevice, SEXP r_flags)
 {
     SEXP r_ans = R_NilValue;
     int peerDevice = INTEGER(r_peerDevice)[0];
@@ -332,13 +414,13 @@ SEXP R_auto_cudaDeviceEnablePeerAccess(SEXP r_peerDevice, SEXP r_flags)
     cudaError_t ans;
     ans = cudaDeviceEnablePeerAccess(peerDevice, flags);
     
-    r_ans = Renum_convert_cudaError_t(ans) ;
+    r_ans = Renum_convert_cudaError(ans) ;
     
     return(r_ans);
 }
 
 
-SEXP R_auto_cudaDeviceDisablePeerAccess(SEXP r_peerDevice)
+SEXP R_cudaDeviceDisablePeerAccess(SEXP r_peerDevice)
 {
     SEXP r_ans = R_NilValue;
     int peerDevice = INTEGER(r_peerDevice)[0];
@@ -346,7 +428,7 @@ SEXP R_auto_cudaDeviceDisablePeerAccess(SEXP r_peerDevice)
     cudaError_t ans;
     ans = cudaDeviceDisablePeerAccess(peerDevice);
     
-    r_ans = Renum_convert_cudaError_t(ans) ;
+    r_ans = Renum_convert_cudaError(ans) ;
     
     return(r_ans);
 }

@@ -1,12 +1,12 @@
-# Generated programmatically at 2013-07-02 13:28:04 
+# Generated programmatically at 2016-07-15 18:47:23 
 
 
 cuStreamCreate <-
 function( Flags )
 {
-    ans = .Call('R_auto_cuStreamCreate', as(Flags, 'numeric'))
+    ans = .Call('R_cuStreamCreate', as(Flags, 'numeric'))
     if(is(ans, 'CUresult') && ans != 0)
-        raiseError(ans, 'R_auto_cuStreamCreate')
+        raiseError(ans, 'R_cuStreamCreate')
     ans
 }
 
@@ -14,9 +14,9 @@ function( Flags )
 cuStreamCreateWithPriority <-
 function( flags, priority )
 {
-    ans = .Call('R_auto_cuStreamCreateWithPriority', as(flags, 'numeric'), as(priority, 'integer'))
+    ans = .Call('R_cuStreamCreateWithPriority', as(flags, 'numeric'), as(priority, 'integer'))
     if(is(ans, 'CUresult') && ans != 0)
-        raiseError(ans, 'R_auto_cuStreamCreateWithPriority')
+        raiseError(ans, 'R_cuStreamCreateWithPriority')
     ans
 }
 
@@ -24,9 +24,9 @@ function( flags, priority )
 cuStreamGetPriority <-
 function( hStream )
 {
-    ans = .Call('R_auto_cuStreamGetPriority', as(hStream, 'CUstream'))
+    ans = .Call('R_cuStreamGetPriority', as(hStream, 'CUstream'))
     if(is(ans, 'CUresult') && ans != 0)
-        raiseError(ans, 'R_auto_cuStreamGetPriority')
+        raiseError(ans, 'R_cuStreamGetPriority')
     ans
 }
 
@@ -34,9 +34,9 @@ function( hStream )
 cuStreamGetFlags <-
 function( hStream )
 {
-    ans = .Call('R_auto_cuStreamGetFlags', as(hStream, 'CUstream'))
+    ans = .Call('R_cuStreamGetFlags', as(hStream, 'CUstream'))
     if(is(ans, 'CUresult') && ans != 0)
-        raiseError(ans, 'R_auto_cuStreamGetFlags')
+        raiseError(ans, 'R_cuStreamGetFlags')
     ans
 }
 
@@ -44,9 +44,9 @@ function( hStream )
 cuStreamWaitEvent <-
 function( hStream, hEvent, Flags )
 {
-    ans = .Call('R_auto_cuStreamWaitEvent', as(hStream, 'CUstream'), as(hEvent, 'CUevent'), as(Flags, 'numeric'))
+    ans = .Call('R_cuStreamWaitEvent', as(hStream, 'CUstream'), as(hEvent, 'CUevent'), as(Flags, 'numeric'))
     if(is(ans, 'CUresult') && ans != 0)
-        raiseError(ans, 'R_auto_cuStreamWaitEvent')
+        raiseError(ans, 'R_cuStreamWaitEvent')
     ans
 }
 
@@ -54,9 +54,19 @@ function( hStream, hEvent, Flags )
 cuStreamAddCallback <-
 function( hStream, callback, userData, flags )
 {
-    ans = .Call('R_auto_cuStreamAddCallback', as(hStream, 'CUstream'), as(callback, 'CUstreamCallback'), as(userData, 'voidPtr'), as(flags, 'numeric'))
+    ans = .Call('R_cuStreamAddCallback', as(hStream, 'CUstream'), as(callback, 'CUstreamCallback'), as(userData, 'voidPtr'), as(flags, 'numeric'))
     if(is(ans, 'CUresult') && ans != 0)
-        raiseError(ans, 'R_auto_cuStreamAddCallback')
+        raiseError(ans, 'R_cuStreamAddCallback')
+    ans
+}
+
+
+cuStreamAttachMemAsync <-
+function( hStream, dptr, length, flags )
+{
+    ans = .Call('R_cuStreamAttachMemAsync', as(hStream, 'CUstream'), as(dptr, 'CUdeviceptr'), as(length, 'size_t'), as(flags, 'numeric'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_cuStreamAttachMemAsync')
     ans
 }
 
@@ -64,9 +74,9 @@ function( hStream, callback, userData, flags )
 cuStreamQuery <-
 function( hStream )
 {
-    ans = .Call('R_auto_cuStreamQuery', as(hStream, 'CUstream'))
-    if(is(ans, 'CUresult') && ans != 0 && ans != CUDA_ERROR_NOT_READY)#XXX last check for NOT_READY manually added for now.
-        raiseError(ans, 'R_auto_cuStreamQuery')
+    ans = .Call('R_cuStreamQuery', as(hStream, 'CUstream'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_cuStreamQuery')
     ans
 }
 
@@ -74,9 +84,9 @@ function( hStream )
 cuStreamSynchronize <-
 function( hStream )
 {
-    ans = .Call('R_auto_cuStreamSynchronize', as(hStream, 'CUstream'))
+    ans = .Call('R_cuStreamSynchronize', as(hStream, 'CUstream'))
     if(is(ans, 'CUresult') && ans != 0)
-        raiseError(ans, 'R_auto_cuStreamSynchronize')
+        raiseError(ans, 'R_cuStreamSynchronize')
     ans
 }
 
@@ -84,8 +94,118 @@ function( hStream )
 cuStreamDestroy <-
 function( hStream )
 {
-    ans = .Call('R_auto_cuStreamDestroy', as(hStream, 'CUstream'))
+    ans = .Call('R_cuStreamDestroy_v2', as(hStream, 'CUstream'))
     if(is(ans, 'CUresult') && ans != 0)
-        raiseError(ans, 'R_auto_cuStreamDestroy')
+        raiseError(ans, 'R_cuStreamDestroy_v2')
+    ans
+}
+
+
+cudaStreamCreate <-
+function(  )
+{
+    ans = .Call('R_cudaStreamCreate')
+    if(is(ans, 'cudaError_t') && ans != 0)
+        raiseError(ans, 'R_cudaStreamCreate')
+    ans
+}
+
+
+cudaStreamCreateWithFlags <-
+function( flags )
+{
+    ans = .Call('R_cudaStreamCreateWithFlags', as(flags, 'numeric'))
+    if(is(ans, 'cudaError_t') && ans != 0)
+        raiseError(ans, 'R_cudaStreamCreateWithFlags')
+    ans
+}
+
+
+cudaStreamCreateWithPriority <-
+function( flags, priority )
+{
+    ans = .Call('R_cudaStreamCreateWithPriority', as(flags, 'numeric'), as(priority, 'integer'))
+    if(is(ans, 'cudaError_t') && ans != 0)
+        raiseError(ans, 'R_cudaStreamCreateWithPriority')
+    ans
+}
+
+
+cudaStreamGetPriority <-
+function( hStream )
+{
+    ans = .Call('R_cudaStreamGetPriority', as(hStream, 'cudaStream_t'))
+    if(is(ans, 'cudaError_t') && ans != 0)
+        raiseError(ans, 'R_cudaStreamGetPriority')
+    ans
+}
+
+
+cudaStreamGetFlags <-
+function( hStream )
+{
+    ans = .Call('R_cudaStreamGetFlags', as(hStream, 'cudaStream_t'))
+    if(is(ans, 'cudaError_t') && ans != 0)
+        raiseError(ans, 'R_cudaStreamGetFlags')
+    ans
+}
+
+
+cudaStreamDestroy <-
+function( stream )
+{
+    ans = .Call('R_cudaStreamDestroy', as(stream, 'cudaStream_t'))
+    if(is(ans, 'cudaError_t') && ans != 0)
+        raiseError(ans, 'R_cudaStreamDestroy')
+    ans
+}
+
+
+cudaStreamWaitEvent <-
+function( stream, event, flags )
+{
+    ans = .Call('R_cudaStreamWaitEvent', as(stream, 'cudaStream_t'), as(event, 'cudaEvent_t'), as(flags, 'numeric'))
+    if(is(ans, 'cudaError_t') && ans != 0)
+        raiseError(ans, 'R_cudaStreamWaitEvent')
+    ans
+}
+
+
+cudaStreamAddCallback <-
+function( stream, callback, userData, flags )
+{
+    ans = .Call('R_cudaStreamAddCallback', as(stream, 'cudaStream_t'), as(callback, 'cudaStreamCallback_t'), as(userData, 'voidPtr'), as(flags, 'numeric'))
+    if(is(ans, 'cudaError_t') && ans != 0)
+        raiseError(ans, 'R_cudaStreamAddCallback')
+    ans
+}
+
+
+cudaStreamSynchronize <-
+function( stream )
+{
+    ans = .Call('R_cudaStreamSynchronize', as(stream, 'cudaStream_t'))
+    if(is(ans, 'cudaError_t') && ans != 0)
+        raiseError(ans, 'R_cudaStreamSynchronize')
+    ans
+}
+
+
+cudaStreamQuery <-
+function( stream )
+{
+    ans = .Call('R_cudaStreamQuery', as(stream, 'cudaStream_t'))
+    if(is(ans, 'cudaError_t') && ans != 0)
+        raiseError(ans, 'R_cudaStreamQuery')
+    ans
+}
+
+
+cudaStreamAttachMemAsync <-
+function( stream, devPtr, length, flags )
+{
+    ans = .Call('R_cudaStreamAttachMemAsync', as(stream, 'cudaStream_t'), as(devPtr, 'voidPtr'), as(length, 'size_t'), as(flags, 'numeric'))
+    if(is(ans, 'cudaError_t') && ans != 0)
+        raiseError(ans, 'R_cudaStreamAttachMemAsync')
     ans
 }

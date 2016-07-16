@@ -1,15 +1,182 @@
-// Generated programmatically at 2013-07-02 14:07:42 
+// Generated programmatically at 2016-07-15 18:47:25 
 #include "RCUDA.h"
 
 
 SEXP
-R_auto_cuArrayCreate(SEXP r_pAllocateArray)
+R_cuGetErrorString(SEXP r_error)
+{
+    SEXP r_ans = R_NilValue;
+    const char * pStr;
+    CUresult error = (CUresult) INTEGER(r_error)[0];
+    CUresult ans;
+    ans = cuGetErrorString( error, & pStr);
+    if(ans)
+       return(R_cudaErrorInfo(ans));
+    r_ans = mkString(pStr) ;
+    return(r_ans);
+}
+
+
+SEXP
+R_cuGetErrorName(SEXP r_error)
+{
+    SEXP r_ans = R_NilValue;
+    const char * pStr;
+    CUresult error = (CUresult) INTEGER(r_error)[0];
+    CUresult ans;
+    ans = cuGetErrorName( error, & pStr);
+    if(ans)
+       return(R_cudaErrorInfo(ans));
+    r_ans = mkString(pStr) ;
+    return(r_ans);
+}
+
+
+SEXP
+R_cuLinkCreate_v2(SEXP r_numOptions)
+{
+    SEXP r_ans = R_NilValue;
+    CUjit_option options;
+    void * optionValues;
+    CUlinkState stateOut;
+    unsigned int numOptions = REAL(r_numOptions)[0];
+    CUresult ans;
+    ans = cuLinkCreate_v2( numOptions, & options, & optionValues, & stateOut);
+    if(ans)
+       return(R_cudaErrorInfo(ans));
+    PROTECT(r_ans = NEW_LIST(3));
+    SEXP r_names;
+    PROTECT(r_names = NEW_CHARACTER(3));
+    SET_VECTOR_ELT(r_ans, 0, Renum_convert_CUjit_option_enum(options));
+    SET_VECTOR_ELT(r_ans, 1, R_createRef(optionValues, "voidPtr"));
+    SET_VECTOR_ELT(r_ans, 2, R_createRef(stateOut, "CUlinkState"));
+    SET_STRING_ELT(r_names, 0, mkChar("options"));
+    SET_STRING_ELT(r_names, 1, mkChar("optionValues"));
+    SET_STRING_ELT(r_names, 2, mkChar("stateOut"));
+    SET_NAMES(r_ans, r_names);
+    UNPROTECT(2);
+    return(r_ans);
+}
+
+
+SEXP
+R_cuLinkAddData_v2(SEXP r_state, SEXP r_type, SEXP r_data, SEXP r_size, SEXP r_name, SEXP r_numOptions)
+{
+    SEXP r_ans = R_NilValue;
+    CUjit_option options;
+    void * optionValues;
+    CUlinkState state = (CUlinkState) getRReference(r_state);
+    CUjitInputType type = (CUjitInputType) INTEGER(r_type)[0];
+    void * data = GET_REF(r_data, void );
+    size_t size = REAL(r_size)[0];
+    const char * name = CHAR(STRING_ELT(r_name, 0));
+    unsigned int numOptions = REAL(r_numOptions)[0];
+    CUresult ans;
+    ans = cuLinkAddData_v2( state,  type,  data,  size,  name,  numOptions, & options, & optionValues);
+    if(ans)
+       return(R_cudaErrorInfo(ans));
+    PROTECT(r_ans = NEW_LIST(2));
+    SEXP r_names;
+    PROTECT(r_names = NEW_CHARACTER(2));
+    SET_VECTOR_ELT(r_ans, 0, Renum_convert_CUjit_option_enum(options));
+    SET_VECTOR_ELT(r_ans, 1, R_createRef(optionValues, "voidPtr"));
+    SET_STRING_ELT(r_names, 0, mkChar("options"));
+    SET_STRING_ELT(r_names, 1, mkChar("optionValues"));
+    SET_NAMES(r_ans, r_names);
+    UNPROTECT(2);
+    return(r_ans);
+}
+
+
+SEXP
+R_cuLinkAddFile_v2(SEXP r_state, SEXP r_type, SEXP r_path, SEXP r_numOptions)
+{
+    SEXP r_ans = R_NilValue;
+    CUjit_option options;
+    void * optionValues;
+    CUlinkState state = (CUlinkState) getRReference(r_state);
+    CUjitInputType type = (CUjitInputType) INTEGER(r_type)[0];
+    const char * path = CHAR(STRING_ELT(r_path, 0));
+    unsigned int numOptions = REAL(r_numOptions)[0];
+    CUresult ans;
+    ans = cuLinkAddFile_v2( state,  type,  path,  numOptions, & options, & optionValues);
+    if(ans)
+       return(R_cudaErrorInfo(ans));
+    PROTECT(r_ans = NEW_LIST(2));
+    SEXP r_names;
+    PROTECT(r_names = NEW_CHARACTER(2));
+    SET_VECTOR_ELT(r_ans, 0, Renum_convert_CUjit_option_enum(options));
+    SET_VECTOR_ELT(r_ans, 1, R_createRef(optionValues, "voidPtr"));
+    SET_STRING_ELT(r_names, 0, mkChar("options"));
+    SET_STRING_ELT(r_names, 1, mkChar("optionValues"));
+    SET_NAMES(r_ans, r_names);
+    UNPROTECT(2);
+    return(r_ans);
+}
+
+
+SEXP
+R_cuLinkComplete(SEXP r_state)
+{
+    SEXP r_ans = R_NilValue;
+    void * cubinOut;
+    size_t sizeOut;
+    CUlinkState state = (CUlinkState) getRReference(r_state);
+    CUresult ans;
+    ans = cuLinkComplete( state, & cubinOut, & sizeOut);
+    if(ans)
+       return(R_cudaErrorInfo(ans));
+    PROTECT(r_ans = NEW_LIST(2));
+    SEXP r_names;
+    PROTECT(r_names = NEW_CHARACTER(2));
+    SET_VECTOR_ELT(r_ans, 0, R_createRef(cubinOut, "voidPtr"));
+    SET_VECTOR_ELT(r_ans, 1, ScalarReal(sizeOut));
+    SET_STRING_ELT(r_names, 0, mkChar("cubinOut"));
+    SET_STRING_ELT(r_names, 1, mkChar("sizeOut"));
+    SET_NAMES(r_ans, r_names);
+    UNPROTECT(2);
+    return(r_ans);
+}
+
+
+SEXP R_cuLinkDestroy(SEXP r_state)
+{
+    SEXP r_ans = R_NilValue;
+    CUlinkState state = (CUlinkState) getRReference(r_state);
+    
+    CUresult ans;
+    ans = cuLinkDestroy(state);
+    
+    r_ans = Renum_convert_cudaError_enum(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_cuMemcpy(SEXP r_dst, SEXP r_src, SEXP r_ByteCount)
+{
+    SEXP r_ans = R_NilValue;
+    CUdeviceptr dst = REAL(r_dst)[0];
+    CUdeviceptr src = REAL(r_src)[0];
+    size_t ByteCount = REAL(r_ByteCount)[0];
+    
+    CUresult ans;
+    ans = cuMemcpy(dst, src, ByteCount);
+    
+    r_ans = Renum_convert_cudaError_enum(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP
+R_cuArrayCreate_v2(SEXP r_pAllocateArray)
 {
     SEXP r_ans = R_NilValue;
     CUarray pHandle;
     const CUDA_ARRAY_DESCRIPTOR * pAllocateArray = GET_REF(r_pAllocateArray, const CUDA_ARRAY_DESCRIPTOR );
     CUresult ans;
-    ans = cuArrayCreate(& pHandle,  pAllocateArray);
+    ans = cuArrayCreate_v2(& pHandle,  pAllocateArray);
     if(ans)
        return(R_cudaErrorInfo(ans));
     r_ans = R_createRef(pHandle, "CUarray") ;
@@ -18,13 +185,13 @@ R_auto_cuArrayCreate(SEXP r_pAllocateArray)
 
 
 SEXP
-R_auto_cuArrayGetDescriptor(SEXP r_hArray)
+R_cuArrayGetDescriptor_v2(SEXP r_hArray)
 {
     SEXP r_ans = R_NilValue;
     CUDA_ARRAY_DESCRIPTOR pArrayDescriptor;
     CUarray hArray = (CUarray) getRReference(r_hArray);
     CUresult ans;
-    ans = cuArrayGetDescriptor(& pArrayDescriptor,  hArray);
+    ans = cuArrayGetDescriptor_v2(& pArrayDescriptor,  hArray);
     if(ans)
        return(R_cudaErrorInfo(ans));
     r_ans = R_copyStruct_CUDA_ARRAY_DESCRIPTOR_st(&pArrayDescriptor) ;
@@ -32,7 +199,7 @@ R_auto_cuArrayGetDescriptor(SEXP r_hArray)
 }
 
 
-SEXP R_auto_cuArrayDestroy(SEXP r_hArray)
+SEXP R_cuArrayDestroy(SEXP r_hArray)
 {
     SEXP r_ans = R_NilValue;
     CUarray hArray = (CUarray) getRReference(r_hArray);
@@ -40,20 +207,20 @@ SEXP R_auto_cuArrayDestroy(SEXP r_hArray)
     CUresult ans;
     ans = cuArrayDestroy(hArray);
     
-    r_ans = Renum_convert_CUresult(ans) ;
+    r_ans = Renum_convert_cudaError_enum(ans) ;
     
     return(r_ans);
 }
 
 
 SEXP
-R_auto_cuArray3DCreate(SEXP r_pAllocateArray)
+R_cuArray3DCreate_v2(SEXP r_pAllocateArray)
 {
     SEXP r_ans = R_NilValue;
     CUarray pHandle;
     const CUDA_ARRAY3D_DESCRIPTOR * pAllocateArray = GET_REF(r_pAllocateArray, const CUDA_ARRAY3D_DESCRIPTOR );
     CUresult ans;
-    ans = cuArray3DCreate(& pHandle,  pAllocateArray);
+    ans = cuArray3DCreate_v2(& pHandle,  pAllocateArray);
     if(ans)
        return(R_cudaErrorInfo(ans));
     r_ans = R_createRef(pHandle, "CUarray") ;
@@ -62,13 +229,13 @@ R_auto_cuArray3DCreate(SEXP r_pAllocateArray)
 
 
 SEXP
-R_auto_cuArray3DGetDescriptor(SEXP r_hArray)
+R_cuArray3DGetDescriptor_v2(SEXP r_hArray)
 {
     SEXP r_ans = R_NilValue;
     CUDA_ARRAY3D_DESCRIPTOR pArrayDescriptor;
     CUarray hArray = (CUarray) getRReference(r_hArray);
     CUresult ans;
-    ans = cuArray3DGetDescriptor(& pArrayDescriptor,  hArray);
+    ans = cuArray3DGetDescriptor_v2(& pArrayDescriptor,  hArray);
     if(ans)
        return(R_cudaErrorInfo(ans));
     r_ans = R_copyStruct_CUDA_ARRAY3D_DESCRIPTOR_st(&pArrayDescriptor) ;
@@ -76,7 +243,7 @@ R_auto_cuArray3DGetDescriptor(SEXP r_hArray)
 }
 
 
-SEXP R_auto_cuPointerGetAttribute(SEXP r_data, SEXP r_attribute, SEXP r_ptr)
+SEXP R_cuPointerGetAttribute(SEXP r_data, SEXP r_attribute, SEXP r_ptr)
 {
     SEXP r_ans = R_NilValue;
     void * data = GET_REF(r_data, void );
@@ -86,13 +253,144 @@ SEXP R_auto_cuPointerGetAttribute(SEXP r_data, SEXP r_attribute, SEXP r_ptr)
     CUresult ans;
     ans = cuPointerGetAttribute(data, attribute, ptr);
     
-    r_ans = Renum_convert_CUresult(ans) ;
+    r_ans = Renum_convert_cudaError_enum(ans) ;
     
     return(r_ans);
 }
 
 
-SEXP R_auto_cuGraphicsUnregisterResource(SEXP r_resource)
+SEXP R_cuPointerSetAttribute(SEXP r_value, SEXP r_attribute, SEXP r_ptr)
+{
+    SEXP r_ans = R_NilValue;
+    const void * value = GET_REF(r_value, const void );
+    CUpointer_attribute attribute = (CUpointer_attribute) INTEGER(r_attribute)[0];
+    CUdeviceptr ptr = REAL(r_ptr)[0];
+    
+    CUresult ans;
+    ans = cuPointerSetAttribute(value, attribute, ptr);
+    
+    r_ans = Renum_convert_cudaError_enum(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP
+R_cuPointerGetAttributes(SEXP r_numAttributes, SEXP r_ptr)
+{
+    SEXP r_ans = R_NilValue;
+    CUpointer_attribute attributes;
+    void * data;
+    unsigned int numAttributes = REAL(r_numAttributes)[0];
+    CUdeviceptr ptr = REAL(r_ptr)[0];
+    CUresult ans;
+    ans = cuPointerGetAttributes( numAttributes, & attributes, & data,  ptr);
+    if(ans)
+       return(R_cudaErrorInfo(ans));
+    PROTECT(r_ans = NEW_LIST(2));
+    SEXP r_names;
+    PROTECT(r_names = NEW_CHARACTER(2));
+    SET_VECTOR_ELT(r_ans, 0, Renum_convert_CUpointer_attribute_enum(attributes));
+    SET_VECTOR_ELT(r_ans, 1, R_createRef(data, "voidPtr"));
+    SET_STRING_ELT(r_names, 0, mkChar("attributes"));
+    SET_STRING_ELT(r_names, 1, mkChar("data"));
+    SET_NAMES(r_ans, r_names);
+    UNPROTECT(2);
+    return(r_ans);
+}
+
+
+SEXP
+R_cuOccupancyMaxActiveBlocksPerMultiprocessor(SEXP r_func, SEXP r_blockSize, SEXP r_dynamicSMemSize)
+{
+    SEXP r_ans = R_NilValue;
+    int numBlocks;
+    CUfunction func = (CUfunction) getRReference(r_func);
+    int blockSize = INTEGER(r_blockSize)[0];
+    size_t dynamicSMemSize = REAL(r_dynamicSMemSize)[0];
+    CUresult ans;
+    ans = cuOccupancyMaxActiveBlocksPerMultiprocessor(& numBlocks,  func,  blockSize,  dynamicSMemSize);
+    if(ans)
+       return(R_cudaErrorInfo(ans));
+    r_ans = ScalarInteger(numBlocks) ;
+    return(r_ans);
+}
+
+
+SEXP
+R_cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(SEXP r_func, SEXP r_blockSize, SEXP r_dynamicSMemSize, SEXP r_flags)
+{
+    SEXP r_ans = R_NilValue;
+    int numBlocks;
+    CUfunction func = (CUfunction) getRReference(r_func);
+    int blockSize = INTEGER(r_blockSize)[0];
+    size_t dynamicSMemSize = REAL(r_dynamicSMemSize)[0];
+    unsigned int flags = REAL(r_flags)[0];
+    CUresult ans;
+    ans = cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(& numBlocks,  func,  blockSize,  dynamicSMemSize,  flags);
+    if(ans)
+       return(R_cudaErrorInfo(ans));
+    r_ans = ScalarInteger(numBlocks) ;
+    return(r_ans);
+}
+
+
+SEXP
+R_cuOccupancyMaxPotentialBlockSize(SEXP r_func, SEXP r_blockSizeToDynamicSMemSize, SEXP r_dynamicSMemSize, SEXP r_blockSizeLimit)
+{
+    SEXP r_ans = R_NilValue;
+    int minGridSize;
+    int blockSize;
+    CUfunction func = (CUfunction) getRReference(r_func);
+    CUoccupancyB2DSize blockSizeToDynamicSMemSize = (CUoccupancyB2DSize) getRReference(r_blockSizeToDynamicSMemSize);
+    size_t dynamicSMemSize = REAL(r_dynamicSMemSize)[0];
+    int blockSizeLimit = INTEGER(r_blockSizeLimit)[0];
+    CUresult ans;
+    ans = cuOccupancyMaxPotentialBlockSize(& minGridSize, & blockSize,  func,  blockSizeToDynamicSMemSize,  dynamicSMemSize,  blockSizeLimit);
+    if(ans)
+       return(R_cudaErrorInfo(ans));
+    PROTECT(r_ans = NEW_LIST(2));
+    SEXP r_names;
+    PROTECT(r_names = NEW_CHARACTER(2));
+    SET_VECTOR_ELT(r_ans, 0, ScalarInteger(minGridSize));
+    SET_VECTOR_ELT(r_ans, 1, ScalarInteger(blockSize));
+    SET_STRING_ELT(r_names, 0, mkChar("minGridSize"));
+    SET_STRING_ELT(r_names, 1, mkChar("blockSize"));
+    SET_NAMES(r_ans, r_names);
+    UNPROTECT(2);
+    return(r_ans);
+}
+
+
+SEXP
+R_cuOccupancyMaxPotentialBlockSizeWithFlags(SEXP r_func, SEXP r_blockSizeToDynamicSMemSize, SEXP r_dynamicSMemSize, SEXP r_blockSizeLimit, SEXP r_flags)
+{
+    SEXP r_ans = R_NilValue;
+    int minGridSize;
+    int blockSize;
+    CUfunction func = (CUfunction) getRReference(r_func);
+    CUoccupancyB2DSize blockSizeToDynamicSMemSize = (CUoccupancyB2DSize) getRReference(r_blockSizeToDynamicSMemSize);
+    size_t dynamicSMemSize = REAL(r_dynamicSMemSize)[0];
+    int blockSizeLimit = INTEGER(r_blockSizeLimit)[0];
+    unsigned int flags = REAL(r_flags)[0];
+    CUresult ans;
+    ans = cuOccupancyMaxPotentialBlockSizeWithFlags(& minGridSize, & blockSize,  func,  blockSizeToDynamicSMemSize,  dynamicSMemSize,  blockSizeLimit,  flags);
+    if(ans)
+       return(R_cudaErrorInfo(ans));
+    PROTECT(r_ans = NEW_LIST(2));
+    SEXP r_names;
+    PROTECT(r_names = NEW_CHARACTER(2));
+    SET_VECTOR_ELT(r_ans, 0, ScalarInteger(minGridSize));
+    SET_VECTOR_ELT(r_ans, 1, ScalarInteger(blockSize));
+    SET_STRING_ELT(r_names, 0, mkChar("minGridSize"));
+    SET_STRING_ELT(r_names, 1, mkChar("blockSize"));
+    SET_NAMES(r_ans, r_names);
+    UNPROTECT(2);
+    return(r_ans);
+}
+
+
+SEXP R_cuGraphicsUnregisterResource(SEXP r_resource)
 {
     SEXP r_ans = R_NilValue;
     CUgraphicsResource resource = (CUgraphicsResource) getRReference(r_resource);
@@ -100,14 +398,14 @@ SEXP R_auto_cuGraphicsUnregisterResource(SEXP r_resource)
     CUresult ans;
     ans = cuGraphicsUnregisterResource(resource);
     
-    r_ans = Renum_convert_CUresult(ans) ;
+    r_ans = Renum_convert_cudaError_enum(ans) ;
     
     return(r_ans);
 }
 
 
 SEXP
-R_auto_cuGraphicsSubResourceGetMappedArray(SEXP r_resource, SEXP r_arrayIndex, SEXP r_mipLevel)
+R_cuGraphicsSubResourceGetMappedArray(SEXP r_resource, SEXP r_arrayIndex, SEXP r_mipLevel)
 {
     SEXP r_ans = R_NilValue;
     CUarray pArray;
@@ -124,14 +422,14 @@ R_auto_cuGraphicsSubResourceGetMappedArray(SEXP r_resource, SEXP r_arrayIndex, S
 
 
 SEXP
-R_auto_cuGraphicsResourceGetMappedPointer(SEXP r_resource)
+R_cuGraphicsResourceGetMappedPointer_v2(SEXP r_resource)
 {
     SEXP r_ans = R_NilValue;
     CUdeviceptr pDevPtr;
     size_t pSize;
     CUgraphicsResource resource = (CUgraphicsResource) getRReference(r_resource);
     CUresult ans;
-    ans = cuGraphicsResourceGetMappedPointer(& pDevPtr, & pSize,  resource);
+    ans = cuGraphicsResourceGetMappedPointer_v2(& pDevPtr, & pSize,  resource);
     if(ans)
        return(R_cudaErrorInfo(ans));
     PROTECT(r_ans = NEW_LIST(2));
@@ -147,23 +445,23 @@ R_auto_cuGraphicsResourceGetMappedPointer(SEXP r_resource)
 }
 
 
-SEXP R_auto_cuGraphicsResourceSetMapFlags(SEXP r_resource, SEXP r_flags)
+SEXP R_cuGraphicsResourceSetMapFlags_v2(SEXP r_resource, SEXP r_flags)
 {
     SEXP r_ans = R_NilValue;
     CUgraphicsResource resource = (CUgraphicsResource) getRReference(r_resource);
     unsigned int flags = REAL(r_flags)[0];
     
     CUresult ans;
-    ans = cuGraphicsResourceSetMapFlags(resource, flags);
+    ans = cuGraphicsResourceSetMapFlags_v2(resource, flags);
     
-    r_ans = Renum_convert_CUresult(ans) ;
+    r_ans = Renum_convert_cudaError_enum(ans) ;
     
     return(r_ans);
 }
 
 
 SEXP
-R_auto_cuGraphicsMapResources(SEXP r_count, SEXP r_hStream)
+R_cuGraphicsMapResources(SEXP r_count, SEXP r_hStream)
 {
     SEXP r_ans = R_NilValue;
     CUgraphicsResource resources;
@@ -179,7 +477,7 @@ R_auto_cuGraphicsMapResources(SEXP r_count, SEXP r_hStream)
 
 
 SEXP
-R_auto_cuGraphicsUnmapResources(SEXP r_count, SEXP r_hStream)
+R_cuGraphicsUnmapResources(SEXP r_count, SEXP r_hStream)
 {
     SEXP r_ans = R_NilValue;
     CUgraphicsResource resources;
@@ -194,21 +492,35 @@ R_auto_cuGraphicsUnmapResources(SEXP r_count, SEXP r_hStream)
 }
 
 
-SEXP R_auto_cudaPeekAtLastError()
+SEXP R_cudaPeekAtLastError()
 {
     SEXP r_ans = R_NilValue;
     
     cudaError_t ans;
     ans = cudaPeekAtLastError();
     
-    r_ans = Renum_convert_cudaError_t(ans) ;
+    r_ans = Renum_convert_cudaError(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_cudaGetErrorName(SEXP r_error)
+{
+    SEXP r_ans = R_NilValue;
+    cudaError_t error = (cudaError_t) INTEGER(r_error)[0];
+    
+    const char * ans;
+    ans = cudaGetErrorName(error);
+    
+    r_ans = mkString(ans) ;
     
     return(r_ans);
 }
 
 
 SEXP
-R_auto_cudaChooseDevice(SEXP r_prop)
+R_cudaChooseDevice(SEXP r_prop)
 {
     SEXP r_ans = R_NilValue;
     int device;
@@ -223,7 +535,7 @@ R_auto_cudaChooseDevice(SEXP r_prop)
 
 
 SEXP
-R_auto_cudaGetDevice()
+R_cudaGetDevice()
 {
     SEXP r_ans = R_NilValue;
     int device;
@@ -236,7 +548,7 @@ R_auto_cudaGetDevice()
 }
 
 
-SEXP R_auto_cudaSetValidDevices(SEXP r_device_arr, SEXP r_len)
+SEXP R_cudaSetValidDevices(SEXP r_device_arr, SEXP r_len)
 {
     SEXP r_ans = R_NilValue;
     int * device_arr = INTEGER(r_device_arr);
@@ -245,13 +557,13 @@ SEXP R_auto_cudaSetValidDevices(SEXP r_device_arr, SEXP r_len)
     cudaError_t ans;
     ans = cudaSetValidDevices(device_arr, len);
     
-    r_ans = Renum_convert_cudaError_t(ans) ;
+    r_ans = Renum_convert_cudaError(ans) ;
     
     return(r_ans);
 }
 
 
-SEXP R_auto_cudaSetDeviceFlags(SEXP r_flags)
+SEXP R_cudaSetDeviceFlags(SEXP r_flags)
 {
     SEXP r_ans = R_NilValue;
     unsigned int flags = REAL(r_flags)[0];
@@ -259,281 +571,47 @@ SEXP R_auto_cudaSetDeviceFlags(SEXP r_flags)
     cudaError_t ans;
     ans = cudaSetDeviceFlags(flags);
     
-    r_ans = Renum_convert_cudaError_t(ans) ;
+    r_ans = Renum_convert_cudaError(ans) ;
     
     return(r_ans);
 }
 
 
 SEXP
-R_auto_cudaStreamCreate()
+R_cudaGetDeviceFlags()
 {
     SEXP r_ans = R_NilValue;
-    cudaStream_t pStream;
+    unsigned int flags;
     cudaError_t ans;
-    ans = cudaStreamCreate(& pStream);
+    ans = cudaGetDeviceFlags(& flags);
     if(ans)
        return(R_cudaError_t_Info(ans));
-    r_ans = R_createRef(pStream, "cudaStream_t") ;
+    r_ans = ScalarReal(flags) ;
     return(r_ans);
 }
 
 
 SEXP
-R_auto_cudaStreamCreateWithFlags(SEXP r_flags)
+R_cudaLaunchKernel(SEXP r_func, SEXP r_gridDim, SEXP r_blockDim, SEXP r_sharedMem, SEXP r_stream)
 {
     SEXP r_ans = R_NilValue;
-    cudaStream_t pStream;
-    unsigned int flags = REAL(r_flags)[0];
-    cudaError_t ans;
-    ans = cudaStreamCreateWithFlags(& pStream,  flags);
-    if(ans)
-       return(R_cudaError_t_Info(ans));
-    r_ans = R_createRef(pStream, "cudaStream_t") ;
-    return(r_ans);
-}
-
-
-SEXP R_auto_cudaStreamDestroy(SEXP r_stream)
-{
-    SEXP r_ans = R_NilValue;
-    cudaStream_t stream = (cudaStream_t) getRReference(r_stream);
-    
-    cudaError_t ans;
-    ans = cudaStreamDestroy(stream);
-    
-    r_ans = Renum_convert_cudaError_t(ans) ;
-    
-    return(r_ans);
-}
-
-
-SEXP R_auto_cudaStreamWaitEvent(SEXP r_stream, SEXP r_event, SEXP r_flags)
-{
-    SEXP r_ans = R_NilValue;
-    cudaStream_t stream = (cudaStream_t) getRReference(r_stream);
-    cudaEvent_t event = (cudaEvent_t) getRReference(r_event);
-    unsigned int flags = REAL(r_flags)[0];
-    
-    cudaError_t ans;
-    ans = cudaStreamWaitEvent(stream, event, flags);
-    
-    r_ans = Renum_convert_cudaError_t(ans) ;
-    
-    return(r_ans);
-}
-
-
-SEXP R_auto_cudaStreamAddCallback(SEXP r_stream, SEXP r_callback, SEXP r_userData, SEXP r_flags)
-{
-    SEXP r_ans = R_NilValue;
-    cudaStream_t stream = (cudaStream_t) getRReference(r_stream);
-    cudaStreamCallback_t callback = (cudaStreamCallback_t) getRReference(r_callback);
-    void * userData = GET_REF(r_userData, void );
-    unsigned int flags = REAL(r_flags)[0];
-    
-    cudaError_t ans;
-    ans = cudaStreamAddCallback(stream, callback, userData, flags);
-    
-    r_ans = Renum_convert_cudaError_t(ans) ;
-    
-    return(r_ans);
-}
-
-
-SEXP R_auto_cudaStreamSynchronize(SEXP r_stream)
-{
-    SEXP r_ans = R_NilValue;
-    cudaStream_t stream = (cudaStream_t) getRReference(r_stream);
-    
-    cudaError_t ans;
-    ans = cudaStreamSynchronize(stream);
-    
-    r_ans = Renum_convert_cudaError_t(ans) ;
-    
-    return(r_ans);
-}
-
-
-SEXP R_auto_cudaStreamQuery(SEXP r_stream)
-{
-    SEXP r_ans = R_NilValue;
-    cudaStream_t stream = (cudaStream_t) getRReference(r_stream);
-    
-    cudaError_t ans;
-    ans = cudaStreamQuery(stream);
-    
-    r_ans = Renum_convert_cudaError_t(ans) ;
-    
-    return(r_ans);
-}
-
-
-SEXP
-R_auto_cudaEventCreate()
-{
-    SEXP r_ans = R_NilValue;
-    cudaEvent_t event;
-    cudaError_t ans;
-    ans = cudaEventCreate(& event);
-    if(ans)
-       return(R_cudaError_t_Info(ans));
-    r_ans = R_createRef(event, "cudaEvent_t") ;
-    return(r_ans);
-}
-
-
-SEXP
-R_auto_cudaEventCreateWithFlags(SEXP r_flags)
-{
-    SEXP r_ans = R_NilValue;
-    cudaEvent_t event;
-    unsigned int flags = REAL(r_flags)[0];
-    cudaError_t ans;
-    ans = cudaEventCreateWithFlags(& event,  flags);
-    if(ans)
-       return(R_cudaError_t_Info(ans));
-    r_ans = R_createRef(event, "cudaEvent_t") ;
-    return(r_ans);
-}
-
-
-SEXP R_auto_cudaEventRecord(SEXP r_event, SEXP r_stream)
-{
-    SEXP r_ans = R_NilValue;
-    cudaEvent_t event = (cudaEvent_t) getRReference(r_event);
-    cudaStream_t stream = (cudaStream_t) getRReference(r_stream);
-    
-    cudaError_t ans;
-    ans = cudaEventRecord(event, stream);
-    
-    r_ans = Renum_convert_cudaError_t(ans) ;
-    
-    return(r_ans);
-}
-
-
-SEXP R_auto_cudaEventQuery(SEXP r_event)
-{
-    SEXP r_ans = R_NilValue;
-    cudaEvent_t event = (cudaEvent_t) getRReference(r_event);
-    
-    cudaError_t ans;
-    ans = cudaEventQuery(event);
-    
-    r_ans = Renum_convert_cudaError_t(ans) ;
-    
-    return(r_ans);
-}
-
-
-SEXP R_auto_cudaEventSynchronize(SEXP r_event)
-{
-    SEXP r_ans = R_NilValue;
-    cudaEvent_t event = (cudaEvent_t) getRReference(r_event);
-    
-    cudaError_t ans;
-    ans = cudaEventSynchronize(event);
-    
-    r_ans = Renum_convert_cudaError_t(ans) ;
-    
-    return(r_ans);
-}
-
-
-SEXP R_auto_cudaEventDestroy(SEXP r_event)
-{
-    SEXP r_ans = R_NilValue;
-    cudaEvent_t event = (cudaEvent_t) getRReference(r_event);
-    
-    cudaError_t ans;
-    ans = cudaEventDestroy(event);
-    
-    r_ans = Renum_convert_cudaError_t(ans) ;
-    
-    return(r_ans);
-}
-
-
-SEXP
-R_auto_cudaEventElapsedTime(SEXP r_start, SEXP r_end)
-{
-    SEXP r_ans = R_NilValue;
-    float ms;
-    cudaEvent_t start = (cudaEvent_t) getRReference(r_start);
-    cudaEvent_t end = (cudaEvent_t) getRReference(r_end);
-    cudaError_t ans;
-    ans = cudaEventElapsedTime(& ms,  start,  end);
-    if(ans)
-       return(R_cudaError_t_Info(ans));
-    r_ans = ScalarReal(ms) ;
-    return(r_ans);
-}
-
-
-SEXP R_auto_cudaFuncSetCacheConfig(SEXP r_func, SEXP r_cacheConfig)
-{
-    SEXP r_ans = R_NilValue;
+    void * args;
     const void * func = GET_REF(r_func, const void );
-    enum cudaFuncCache cacheConfig = (enum cudaFuncCache) INTEGER(r_cacheConfig)[0];
-    
+    dim3 gridDim = * GET_REF(r_gridDim, dim3);
+    dim3 blockDim = * GET_REF(r_blockDim, dim3);
+    size_t sharedMem = REAL(r_sharedMem)[0];
+    cudaStream_t stream = (cudaStream_t) getRReference(r_stream);
     cudaError_t ans;
-    ans = cudaFuncSetCacheConfig(func, cacheConfig);
-    
-    r_ans = Renum_convert_cudaError_t(ans) ;
-    
-    return(r_ans);
-}
-
-
-SEXP R_auto_cudaFuncSetSharedMemConfig(SEXP r_func, SEXP r_config)
-{
-    SEXP r_ans = R_NilValue;
-    const void * func = GET_REF(r_func, const void );
-    enum cudaSharedMemConfig config = (enum cudaSharedMemConfig) INTEGER(r_config)[0];
-    
-    cudaError_t ans;
-    ans = cudaFuncSetSharedMemConfig(func, config);
-    
-    r_ans = Renum_convert_cudaError_t(ans) ;
-    
-    return(r_ans);
-}
-
-
-SEXP R_auto_cudaLaunch(SEXP r_func)
-{
-    SEXP r_ans = R_NilValue;
-    const void * func = GET_REF(r_func, const void );
-    
-    cudaError_t ans;
-    ans = cudaLaunch(func);
-    
-    r_ans = Renum_convert_cudaError_t(ans) ;
-    
-    return(r_ans);
-}
-
-
-SEXP
-R_auto_cudaFuncGetAttributes(SEXP r_func)
-{
-    SEXP r_ans = R_NilValue;
-    struct cudaFuncAttributes attr;
-    const void * func = GET_REF(r_func, const void );
-    cudaError_t ans;
-    ans = cudaFuncGetAttributes(& attr,  func);
+    ans = cudaLaunchKernel( func,  gridDim,  blockDim, & args,  sharedMem,  stream);
     if(ans)
        return(R_cudaError_t_Info(ans));
-    struct cudaFuncAttributes * _tmp = (struct cudaFuncAttributes *) malloc( sizeof( struct cudaFuncAttributes ));
-    *_tmp = attr;
-    r_ans = R_createRef(_tmp, "cudaFuncAttributes");
+    r_ans = R_createRef(args, "voidPtr") ;
     return(r_ans);
 }
 
 
 SEXP
-R_auto_cudaSetDoubleForDevice()
+R_cudaSetDoubleForDevice()
 {
     SEXP r_ans = R_NilValue;
     double d;
@@ -547,7 +625,7 @@ R_auto_cudaSetDoubleForDevice()
 
 
 SEXP
-R_auto_cudaSetDoubleForHost()
+R_cudaSetDoubleForHost()
 {
     SEXP r_ans = R_NilValue;
     double d;
@@ -561,7 +639,72 @@ R_auto_cudaSetDoubleForHost()
 
 
 SEXP
-R_auto_cudaMallocHost(SEXP r_size)
+R_cudaOccupancyMaxActiveBlocksPerMultiprocessor(SEXP r_func, SEXP r_blockSize, SEXP r_dynamicSMemSize)
+{
+    SEXP r_ans = R_NilValue;
+    int numBlocks;
+    const void * func = GET_REF(r_func, const void );
+    int blockSize = INTEGER(r_blockSize)[0];
+    size_t dynamicSMemSize = REAL(r_dynamicSMemSize)[0];
+    cudaError_t ans;
+    ans = cudaOccupancyMaxActiveBlocksPerMultiprocessor(& numBlocks,  func,  blockSize,  dynamicSMemSize);
+    if(ans)
+       return(R_cudaError_t_Info(ans));
+    r_ans = ScalarInteger(numBlocks) ;
+    return(r_ans);
+}
+
+
+SEXP
+R_cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(SEXP r_func, SEXP r_blockSize, SEXP r_dynamicSMemSize, SEXP r_flags)
+{
+    SEXP r_ans = R_NilValue;
+    int numBlocks;
+    const void * func = GET_REF(r_func, const void );
+    int blockSize = INTEGER(r_blockSize)[0];
+    size_t dynamicSMemSize = REAL(r_dynamicSMemSize)[0];
+    unsigned int flags = REAL(r_flags)[0];
+    cudaError_t ans;
+    ans = cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(& numBlocks,  func,  blockSize,  dynamicSMemSize,  flags);
+    if(ans)
+       return(R_cudaError_t_Info(ans));
+    r_ans = ScalarInteger(numBlocks) ;
+    return(r_ans);
+}
+
+
+SEXP R_cudaLaunch(SEXP r_func)
+{
+    SEXP r_ans = R_NilValue;
+    const void * func = GET_REF(r_func, const void );
+    
+    cudaError_t ans;
+    ans = cudaLaunch(func);
+    
+    r_ans = Renum_convert_cudaError(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP
+R_cudaMallocManaged(SEXP r_size, SEXP r_flags)
+{
+    SEXP r_ans = R_NilValue;
+    void * devPtr;
+    size_t size = REAL(r_size)[0];
+    unsigned int flags = REAL(r_flags)[0];
+    cudaError_t ans;
+    ans = cudaMallocManaged(& devPtr,  size,  flags);
+    if(ans)
+       return(R_cudaError_t_Info(ans));
+    r_ans = R_createRef(devPtr, "voidPtr") ;
+    return(r_ans);
+}
+
+
+SEXP
+R_cudaMallocHost(SEXP r_size)
 {
     SEXP r_ans = R_NilValue;
     void * ptr;
@@ -576,7 +719,7 @@ R_auto_cudaMallocHost(SEXP r_size)
 
 
 SEXP
-R_auto_cudaMallocPitch(SEXP r_width, SEXP r_height)
+R_cudaMallocPitch(SEXP r_width, SEXP r_height)
 {
     SEXP r_ans = R_NilValue;
     void * devPtr;
@@ -601,7 +744,7 @@ R_auto_cudaMallocPitch(SEXP r_width, SEXP r_height)
 
 
 SEXP
-R_auto_cudaMallocArray(SEXP r_desc, SEXP r_width, SEXP r_height, SEXP r_flags)
+R_cudaMallocArray(SEXP r_desc, SEXP r_width, SEXP r_height, SEXP r_flags)
 {
     SEXP r_ans = R_NilValue;
     cudaArray_t array;
@@ -618,7 +761,7 @@ R_auto_cudaMallocArray(SEXP r_desc, SEXP r_width, SEXP r_height, SEXP r_flags)
 }
 
 
-SEXP R_auto_cudaFreeHost(SEXP r_ptr)
+SEXP R_cudaFreeHost(SEXP r_ptr)
 {
     SEXP r_ans = R_NilValue;
     void * ptr = GET_REF(r_ptr, void );
@@ -626,13 +769,13 @@ SEXP R_auto_cudaFreeHost(SEXP r_ptr)
     cudaError_t ans;
     ans = cudaFreeHost(ptr);
     
-    r_ans = Renum_convert_cudaError_t(ans) ;
+    r_ans = Renum_convert_cudaError(ans) ;
     
     return(r_ans);
 }
 
 
-SEXP R_auto_cudaFreeArray(SEXP r_array)
+SEXP R_cudaFreeArray(SEXP r_array)
 {
     SEXP r_ans = R_NilValue;
     cudaArray_t array = (cudaArray_t) getRReference(r_array);
@@ -640,14 +783,14 @@ SEXP R_auto_cudaFreeArray(SEXP r_array)
     cudaError_t ans;
     ans = cudaFreeArray(array);
     
-    r_ans = Renum_convert_cudaError_t(ans) ;
+    r_ans = Renum_convert_cudaError(ans) ;
     
     return(r_ans);
 }
 
 
 SEXP
-R_auto_cudaHostAlloc(SEXP r_size, SEXP r_flags)
+R_cudaHostAlloc(SEXP r_size, SEXP r_flags)
 {
     SEXP r_ans = R_NilValue;
     void * pHost;
@@ -662,7 +805,7 @@ R_auto_cudaHostAlloc(SEXP r_size, SEXP r_flags)
 }
 
 
-SEXP R_auto_cudaHostRegister(SEXP r_ptr, SEXP r_size, SEXP r_flags)
+SEXP R_cudaHostRegister(SEXP r_ptr, SEXP r_size, SEXP r_flags)
 {
     SEXP r_ans = R_NilValue;
     void * ptr = GET_REF(r_ptr, void );
@@ -672,13 +815,13 @@ SEXP R_auto_cudaHostRegister(SEXP r_ptr, SEXP r_size, SEXP r_flags)
     cudaError_t ans;
     ans = cudaHostRegister(ptr, size, flags);
     
-    r_ans = Renum_convert_cudaError_t(ans) ;
+    r_ans = Renum_convert_cudaError(ans) ;
     
     return(r_ans);
 }
 
 
-SEXP R_auto_cudaHostUnregister(SEXP r_ptr)
+SEXP R_cudaHostUnregister(SEXP r_ptr)
 {
     SEXP r_ans = R_NilValue;
     void * ptr = GET_REF(r_ptr, void );
@@ -686,14 +829,14 @@ SEXP R_auto_cudaHostUnregister(SEXP r_ptr)
     cudaError_t ans;
     ans = cudaHostUnregister(ptr);
     
-    r_ans = Renum_convert_cudaError_t(ans) ;
+    r_ans = Renum_convert_cudaError(ans) ;
     
     return(r_ans);
 }
 
 
 SEXP
-R_auto_cudaHostGetDevicePointer(SEXP r_pHost, SEXP r_flags)
+R_cudaHostGetDevicePointer(SEXP r_pHost, SEXP r_flags)
 {
     SEXP r_ans = R_NilValue;
     void * pDevice;
@@ -709,7 +852,7 @@ R_auto_cudaHostGetDevicePointer(SEXP r_pHost, SEXP r_flags)
 
 
 SEXP
-R_auto_cudaHostGetFlags(SEXP r_pHost)
+R_cudaHostGetFlags(SEXP r_pHost)
 {
     SEXP r_ans = R_NilValue;
     unsigned int pFlags;
@@ -724,7 +867,64 @@ R_auto_cudaHostGetFlags(SEXP r_pHost)
 
 
 SEXP
-R_auto_cudaArrayGetInfo(SEXP r_array)
+R_cudaMalloc3D(SEXP r_extent)
+{
+    SEXP r_ans = R_NilValue;
+    struct cudaPitchedPtr pitchedDevPtr;
+    struct cudaExtent extent = * (struct cudaExtent *) getRReference(r_extent);
+    cudaError_t ans;
+    ans = cudaMalloc3D(& pitchedDevPtr,  extent);
+    if(ans)
+       return(R_cudaError_t_Info(ans));
+    struct cudaPitchedPtr * _tmp = (struct cudaPitchedPtr *) malloc( sizeof( struct cudaPitchedPtr ));
+    *_tmp = pitchedDevPtr;
+    r_ans = R_createRef(_tmp, "cudaPitchedPtr");
+    return(r_ans);
+}
+
+
+SEXP
+R_cudaMalloc3DArray(SEXP r_desc, SEXP r_extent, SEXP r_flags)
+{
+    SEXP r_ans = R_NilValue;
+    cudaArray_t array;
+    const struct cudaChannelFormatDesc * desc = GET_REF(r_desc, const struct cudaChannelFormatDesc );
+    struct cudaExtent extent = * (struct cudaExtent *) getRReference(r_extent);
+    unsigned int flags = REAL(r_flags)[0];
+    cudaError_t ans;
+    ans = cudaMalloc3DArray(& array,  desc,  extent,  flags);
+    if(ans)
+       return(R_cudaError_t_Info(ans));
+    r_ans = R_createRef(array, "cudaArray_t") ;
+    return(r_ans);
+}
+
+
+SEXP
+R_cudaMemGetInfo()
+{
+    SEXP r_ans = R_NilValue;
+    size_t free;
+    size_t total;
+    cudaError_t ans;
+    ans = cudaMemGetInfo(& free, & total);
+    if(ans)
+       return(R_cudaError_t_Info(ans));
+    PROTECT(r_ans = NEW_LIST(2));
+    SEXP r_names;
+    PROTECT(r_names = NEW_CHARACTER(2));
+    SET_VECTOR_ELT(r_ans, 0, ScalarReal(free));
+    SET_VECTOR_ELT(r_ans, 1, ScalarReal(total));
+    SET_STRING_ELT(r_names, 0, mkChar("free"));
+    SET_STRING_ELT(r_names, 1, mkChar("total"));
+    SET_NAMES(r_ans, r_names);
+    UNPROTECT(2);
+    return(r_ans);
+}
+
+
+SEXP
+R_cudaArrayGetInfo(SEXP r_array)
 {
     SEXP r_ans = R_NilValue;
     struct cudaChannelFormatDesc desc;
@@ -759,7 +959,7 @@ R_auto_cudaArrayGetInfo(SEXP r_array)
 
 
 SEXP
-R_auto_cudaGetSymbolAddress(SEXP r_symbol)
+R_cudaGetSymbolAddress(SEXP r_symbol)
 {
     SEXP r_ans = R_NilValue;
     void * devPtr;
@@ -774,7 +974,7 @@ R_auto_cudaGetSymbolAddress(SEXP r_symbol)
 
 
 SEXP
-R_auto_cudaGetSymbolSize(SEXP r_symbol)
+R_cudaGetSymbolSize(SEXP r_symbol)
 {
     SEXP r_ans = R_NilValue;
     size_t size;
@@ -789,7 +989,7 @@ R_auto_cudaGetSymbolSize(SEXP r_symbol)
 
 
 SEXP
-R_auto_cudaPointerGetAttributes(SEXP r_ptr)
+R_cudaPointerGetAttributes(SEXP r_ptr)
 {
     SEXP r_ans = R_NilValue;
     struct cudaPointerAttributes attributes;
@@ -805,7 +1005,7 @@ R_auto_cudaPointerGetAttributes(SEXP r_ptr)
 }
 
 
-SEXP R_auto_cudaGraphicsUnregisterResource(SEXP r_resource)
+SEXP R_cudaGraphicsUnregisterResource(SEXP r_resource)
 {
     SEXP r_ans = R_NilValue;
     cudaGraphicsResource_t resource = (cudaGraphicsResource_t) getRReference(r_resource);
@@ -813,13 +1013,13 @@ SEXP R_auto_cudaGraphicsUnregisterResource(SEXP r_resource)
     cudaError_t ans;
     ans = cudaGraphicsUnregisterResource(resource);
     
-    r_ans = Renum_convert_cudaError_t(ans) ;
+    r_ans = Renum_convert_cudaError(ans) ;
     
     return(r_ans);
 }
 
 
-SEXP R_auto_cudaGraphicsResourceSetMapFlags(SEXP r_resource, SEXP r_flags)
+SEXP R_cudaGraphicsResourceSetMapFlags(SEXP r_resource, SEXP r_flags)
 {
     SEXP r_ans = R_NilValue;
     cudaGraphicsResource_t resource = (cudaGraphicsResource_t) getRReference(r_resource);
@@ -828,14 +1028,14 @@ SEXP R_auto_cudaGraphicsResourceSetMapFlags(SEXP r_resource, SEXP r_flags)
     cudaError_t ans;
     ans = cudaGraphicsResourceSetMapFlags(resource, flags);
     
-    r_ans = Renum_convert_cudaError_t(ans) ;
+    r_ans = Renum_convert_cudaError(ans) ;
     
     return(r_ans);
 }
 
 
 SEXP
-R_auto_cudaGraphicsMapResources(SEXP r_count, SEXP r_stream)
+R_cudaGraphicsMapResources(SEXP r_count, SEXP r_stream)
 {
     SEXP r_ans = R_NilValue;
     cudaGraphicsResource_t resources;
@@ -851,7 +1051,7 @@ R_auto_cudaGraphicsMapResources(SEXP r_count, SEXP r_stream)
 
 
 SEXP
-R_auto_cudaGraphicsUnmapResources(SEXP r_count, SEXP r_stream)
+R_cudaGraphicsUnmapResources(SEXP r_count, SEXP r_stream)
 {
     SEXP r_ans = R_NilValue;
     cudaGraphicsResource_t resources;
@@ -867,7 +1067,7 @@ R_auto_cudaGraphicsUnmapResources(SEXP r_count, SEXP r_stream)
 
 
 SEXP
-R_auto_cudaGraphicsResourceGetMappedPointer(SEXP r_resource)
+R_cudaGraphicsResourceGetMappedPointer(SEXP r_resource)
 {
     SEXP r_ans = R_NilValue;
     void * devPtr;
@@ -891,7 +1091,7 @@ R_auto_cudaGraphicsResourceGetMappedPointer(SEXP r_resource)
 
 
 SEXP
-R_auto_cudaGraphicsSubResourceGetMappedArray(SEXP r_resource, SEXP r_arrayIndex, SEXP r_mipLevel)
+R_cudaGraphicsSubResourceGetMappedArray(SEXP r_resource, SEXP r_arrayIndex, SEXP r_mipLevel)
 {
     SEXP r_ans = R_NilValue;
     cudaArray_t array;
@@ -908,7 +1108,7 @@ R_auto_cudaGraphicsSubResourceGetMappedArray(SEXP r_resource, SEXP r_arrayIndex,
 
 
 SEXP
-R_auto_cudaGetChannelDesc(SEXP r_array)
+R_cudaGetChannelDesc(SEXP r_array)
 {
     SEXP r_ans = R_NilValue;
     struct cudaChannelFormatDesc desc;
@@ -924,7 +1124,7 @@ R_auto_cudaGetChannelDesc(SEXP r_array)
 }
 
 
-SEXP R_auto_cudaCreateChannelDesc(SEXP r_x, SEXP r_y, SEXP r_z, SEXP r_w, SEXP r_f)
+SEXP R_cudaCreateChannelDesc(SEXP r_x, SEXP r_y, SEXP r_z, SEXP r_w, SEXP r_f)
 {
     SEXP r_ans = R_NilValue;
     int x = INTEGER(r_x)[0];

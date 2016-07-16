@@ -1,22 +1,22 @@
-# Generated programmatically at 2013-07-02 13:48:45 
+# Generated programmatically at 2016-07-15 18:47:23 
 
 
 cuDeviceGet <-
 function( ordinal )
 {
-    ans = .Call('R_auto_cuDeviceGet', as(ordinal, 'integer'))
+    ans = .Call('R_cuDeviceGet', as(ordinal, 'integer'))
     if(is(ans, 'CUresult') && ans != 0)
-        raiseError(ans, 'R_auto_cuDeviceGet')
-    new('CUdevice', ans)
+        raiseError(ans, 'R_cuDeviceGet')
+    as(ans, 'CUdevice')
 }
 
 
 cuDeviceGetCount <-
 function(  )
 {
-    ans = .Call('R_auto_cuDeviceGetCount')
+    ans = .Call('R_cuDeviceGetCount')
     if(is(ans, 'CUresult') && ans != 0)
-        raiseError(ans, 'R_auto_cuDeviceGetCount')
+        raiseError(ans, 'R_cuDeviceGetCount')
     ans
 }
 
@@ -24,9 +24,9 @@ function(  )
 cuDeviceGetName <-
 function( dev )
 {
-    ans = .Call('R_auto_cuDeviceGetName', as(dev, 'CUdevice'))
+    ans = .Call('R_cuDeviceGetName', as(dev, 'CUdevice'))
     if(is(ans, 'CUresult') && ans != 0)
-        raiseError(ans, 'R_auto_cuDeviceGetName')
+        raiseError(ans, 'R_cuDeviceGetName')
     ans
 }
 
@@ -34,9 +34,9 @@ function( dev )
 cuDeviceTotalMem <-
 function( dev )
 {
-    ans = .Call('R_auto_cuDeviceTotalMem', as(dev, 'CUdevice'))
+    ans = .Call('R_cuDeviceTotalMem_v2', as(dev, 'CUdevice'))
     if(is(ans, 'CUresult') && ans != 0)
-        raiseError(ans, 'R_auto_cuDeviceTotalMem')
+        raiseError(ans, 'R_cuDeviceTotalMem_v2')
     ans
 }
 
@@ -44,9 +44,59 @@ function( dev )
 cuDeviceGetAttribute <-
 function( attrib, dev )
 {
-    ans = .Call('R_auto_cuDeviceGetAttribute', as(attrib, 'CUdevice_attribute'), as(dev, 'CUdevice'))
+    ans = .Call('R_cuDeviceGetAttribute', as(attrib, 'CUdevice_attribute'), as(dev, 'CUdevice'))
     if(is(ans, 'CUresult') && ans != 0)
-        raiseError(ans, 'R_auto_cuDeviceGetAttribute')
+        raiseError(ans, 'R_cuDeviceGetAttribute')
+    ans
+}
+
+
+cuDevicePrimaryCtxRetain <-
+function( dev )
+{
+    ans = .Call('R_cuDevicePrimaryCtxRetain', as(dev, 'CUdevice'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_cuDevicePrimaryCtxRetain')
+    ans
+}
+
+
+cuDevicePrimaryCtxRelease <-
+function( dev )
+{
+    ans = .Call('R_cuDevicePrimaryCtxRelease', as(dev, 'CUdevice'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_cuDevicePrimaryCtxRelease')
+    ans
+}
+
+
+cuDevicePrimaryCtxSetFlags <-
+function( dev, flags )
+{
+    ans = .Call('R_cuDevicePrimaryCtxSetFlags', as(dev, 'CUdevice'), as(flags, 'numeric'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_cuDevicePrimaryCtxSetFlags')
+    ans
+}
+
+
+cuDevicePrimaryCtxGetState <-
+function( dev )
+{
+    ans = .Call('R_cuDevicePrimaryCtxGetState', as(dev, 'CUdevice'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_cuDevicePrimaryCtxGetState')
+    ans
+}
+
+
+cuDevicePrimaryCtxReset <-
+function( dev )
+{
+    ans = .Call('R_cuDevicePrimaryCtxReset', as(dev, 'CUdevice'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_cuDevicePrimaryCtxReset')
     ans
 }
 
@@ -54,19 +104,19 @@ function( attrib, dev )
 cuDeviceGetByPCIBusId <-
 function( pciBusId )
 {
-    ans = .Call('R_auto_cuDeviceGetByPCIBusId', as(pciBusId, 'character'))
+    ans = .Call('R_cuDeviceGetByPCIBusId', as(pciBusId, 'character'))
     if(is(ans, 'CUresult') && ans != 0)
-        raiseError(ans, 'R_auto_cuDeviceGetByPCIBusId')
-    new('CUdevice', ans)
+        raiseError(ans, 'R_cuDeviceGetByPCIBusId')
+    as(ans, 'CUdevice')
 }
 
 
 cuDeviceGetPCIBusId <-
 function( dev )
 {
-    ans = .Call('R_auto_cuDeviceGetPCIBusId', as(dev, 'CUdevice'))
+    ans = .Call('R_cuDeviceGetPCIBusId', as(dev, 'CUdevice'))
     if(is(ans, 'CUresult') && ans != 0)
-        raiseError(ans, 'R_auto_cuDeviceGetPCIBusId')
+        raiseError(ans, 'R_cuDeviceGetPCIBusId')
     ans
 }
 
@@ -74,9 +124,9 @@ function( dev )
 cuDeviceCanAccessPeer <-
 function( dev, peerDev )
 {
-    ans = .Call('R_auto_cuDeviceCanAccessPeer', as(dev, 'CUdevice'), as(peerDev, 'CUdevice'))
+    ans = .Call('R_cuDeviceCanAccessPeer', as(dev, 'CUdevice'), as(peerDev, 'CUdevice'))
     if(is(ans, 'CUresult') && ans != 0)
-        raiseError(ans, 'R_auto_cuDeviceCanAccessPeer')
+        raiseError(ans, 'R_cuDeviceCanAccessPeer')
     ans
 }
 
@@ -84,9 +134,9 @@ function( dev, peerDev )
 cudaDeviceReset <-
 function(  )
 {
-    ans = .Call('R_auto_cudaDeviceReset')
+    ans = .Call('R_cudaDeviceReset')
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaDeviceReset')
+        raiseError(ans, 'R_cudaDeviceReset')
     ans
 }
 
@@ -94,9 +144,9 @@ function(  )
 cudaDeviceSynchronize <-
 function(  )
 {
-    ans = .Call('R_auto_cudaDeviceSynchronize')
+    ans = .Call('R_cudaDeviceSynchronize')
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaDeviceSynchronize')
+        raiseError(ans, 'R_cudaDeviceSynchronize')
     ans
 }
 
@@ -104,9 +154,9 @@ function(  )
 cudaDeviceSetLimit <-
 function( limit, value )
 {
-    ans = .Call('R_auto_cudaDeviceSetLimit', as(limit, 'cudaLimit'), as(value, 'size_t'))
+    ans = .Call('R_cudaDeviceSetLimit', as(limit, 'cudaLimit'), as(value, 'size_t'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaDeviceSetLimit')
+        raiseError(ans, 'R_cudaDeviceSetLimit')
     ans
 }
 
@@ -114,9 +164,9 @@ function( limit, value )
 cudaDeviceGetLimit <-
 function( limit )
 {
-    ans = .Call('R_auto_cudaDeviceGetLimit', as(limit, 'cudaLimit'))
+    ans = .Call('R_cudaDeviceGetLimit', as(limit, 'cudaLimit'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaDeviceGetLimit')
+        raiseError(ans, 'R_cudaDeviceGetLimit')
     ans
 }
 
@@ -124,9 +174,9 @@ function( limit )
 cudaDeviceGetCacheConfig <-
 function(  )
 {
-    ans = .Call('R_auto_cudaDeviceGetCacheConfig')
+    ans = .Call('R_cudaDeviceGetCacheConfig')
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaDeviceGetCacheConfig')
+        raiseError(ans, 'R_cudaDeviceGetCacheConfig')
     ans
 }
 
@@ -134,9 +184,9 @@ function(  )
 cudaDeviceGetStreamPriorityRange <-
 function(  )
 {
-    ans = .Call('R_auto_cudaDeviceGetStreamPriorityRange')
+    ans = .Call('R_cudaDeviceGetStreamPriorityRange')
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaDeviceGetStreamPriorityRange')
+        raiseError(ans, 'R_cudaDeviceGetStreamPriorityRange')
     ans
 }
 
@@ -144,9 +194,9 @@ function(  )
 cudaDeviceSetCacheConfig <-
 function( cacheConfig )
 {
-    ans = .Call('R_auto_cudaDeviceSetCacheConfig', as(cacheConfig, 'cudaFuncCache'))
+    ans = .Call('R_cudaDeviceSetCacheConfig', as(cacheConfig, 'cudaFuncCache'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaDeviceSetCacheConfig')
+        raiseError(ans, 'R_cudaDeviceSetCacheConfig')
     ans
 }
 
@@ -154,9 +204,9 @@ function( cacheConfig )
 cudaDeviceGetSharedMemConfig <-
 function(  )
 {
-    ans = .Call('R_auto_cudaDeviceGetSharedMemConfig')
+    ans = .Call('R_cudaDeviceGetSharedMemConfig')
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaDeviceGetSharedMemConfig')
+        raiseError(ans, 'R_cudaDeviceGetSharedMemConfig')
     ans
 }
 
@@ -164,9 +214,9 @@ function(  )
 cudaDeviceSetSharedMemConfig <-
 function( config )
 {
-    ans = .Call('R_auto_cudaDeviceSetSharedMemConfig', as(config, 'cudaSharedMemConfig'))
+    ans = .Call('R_cudaDeviceSetSharedMemConfig', as(config, 'cudaSharedMemConfig'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaDeviceSetSharedMemConfig')
+        raiseError(ans, 'R_cudaDeviceSetSharedMemConfig')
     ans
 }
 
@@ -174,9 +224,9 @@ function( config )
 cudaDeviceGetByPCIBusId <-
 function( pciBusId )
 {
-    ans = .Call('R_auto_cudaDeviceGetByPCIBusId', as(pciBusId, 'character'))
+    ans = .Call('R_cudaDeviceGetByPCIBusId', as(pciBusId, 'character'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaDeviceGetByPCIBusId')
+        raiseError(ans, 'R_cudaDeviceGetByPCIBusId')
     ans
 }
 
@@ -184,9 +234,9 @@ function( pciBusId )
 cudaDeviceGetPCIBusId <-
 function( device )
 {
-    ans = .Call('R_auto_cudaDeviceGetPCIBusId', as(device, 'integer'))
+    ans = .Call('R_cudaDeviceGetPCIBusId', as(device, 'integer'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaDeviceGetPCIBusId')
+        raiseError(ans, 'R_cudaDeviceGetPCIBusId')
     ans
 }
 
@@ -194,9 +244,9 @@ function( device )
 cudaDeviceGetAttribute <-
 function( attr, device )
 {
-    ans = .Call('R_auto_cudaDeviceGetAttribute', as(attr, 'cudaDeviceAttr'), as(device, 'integer'))
+    ans = .Call('R_cudaDeviceGetAttribute', as(attr, 'cudaDeviceAttr'), as(device, 'integer'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaDeviceGetAttribute')
+        raiseError(ans, 'R_cudaDeviceGetAttribute')
     ans
 }
 
@@ -204,9 +254,9 @@ function( attr, device )
 cudaDeviceCanAccessPeer <-
 function( device, peerDevice )
 {
-    ans = .Call('R_auto_cudaDeviceCanAccessPeer', as(device, 'integer'), as(peerDevice, 'integer'))
+    ans = .Call('R_cudaDeviceCanAccessPeer', as(device, 'integer'), as(peerDevice, 'integer'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaDeviceCanAccessPeer')
+        raiseError(ans, 'R_cudaDeviceCanAccessPeer')
     ans
 }
 
@@ -214,9 +264,9 @@ function( device, peerDevice )
 cudaDeviceEnablePeerAccess <-
 function( peerDevice, flags )
 {
-    ans = .Call('R_auto_cudaDeviceEnablePeerAccess', as(peerDevice, 'integer'), as(flags, 'numeric'))
+    ans = .Call('R_cudaDeviceEnablePeerAccess', as(peerDevice, 'integer'), as(flags, 'numeric'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaDeviceEnablePeerAccess')
+        raiseError(ans, 'R_cudaDeviceEnablePeerAccess')
     ans
 }
 
@@ -224,8 +274,8 @@ function( peerDevice, flags )
 cudaDeviceDisablePeerAccess <-
 function( peerDevice )
 {
-    ans = .Call('R_auto_cudaDeviceDisablePeerAccess', as(peerDevice, 'integer'))
+    ans = .Call('R_cudaDeviceDisablePeerAccess', as(peerDevice, 'integer'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaDeviceDisablePeerAccess')
+        raiseError(ans, 'R_cudaDeviceDisablePeerAccess')
     ans
 }

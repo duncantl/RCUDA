@@ -1,9 +1,9 @@
-// Generated programmatically at 2013-07-02 13:50:48 
+// Generated programmatically at 2016-07-15 18:47:23 
 #include "RCUDA.h"
 
 
 SEXP
-R_auto_cuFuncGetAttribute(SEXP r_attrib, SEXP r_hfunc)
+R_cuFuncGetAttribute(SEXP r_attrib, SEXP r_hfunc)
 {
     SEXP r_ans = R_NilValue;
     int pi;
@@ -18,7 +18,7 @@ R_auto_cuFuncGetAttribute(SEXP r_attrib, SEXP r_hfunc)
 }
 
 
-SEXP R_auto_cuFuncSetCacheConfig(SEXP r_hfunc, SEXP r_config)
+SEXP R_cuFuncSetCacheConfig(SEXP r_hfunc, SEXP r_config)
 {
     SEXP r_ans = R_NilValue;
     CUfunction hfunc = (CUfunction) getRReference(r_hfunc);
@@ -27,13 +27,13 @@ SEXP R_auto_cuFuncSetCacheConfig(SEXP r_hfunc, SEXP r_config)
     CUresult ans;
     ans = cuFuncSetCacheConfig(hfunc, config);
     
-    r_ans = Renum_convert_CUresult(ans) ;
+    r_ans = Renum_convert_cudaError_enum(ans) ;
     
     return(r_ans);
 }
 
 
-SEXP R_auto_cuFuncSetSharedMemConfig(SEXP r_hfunc, SEXP r_config)
+SEXP R_cuFuncSetSharedMemConfig(SEXP r_hfunc, SEXP r_config)
 {
     SEXP r_ans = R_NilValue;
     CUfunction hfunc = (CUfunction) getRReference(r_hfunc);
@@ -42,13 +42,13 @@ SEXP R_auto_cuFuncSetSharedMemConfig(SEXP r_hfunc, SEXP r_config)
     CUresult ans;
     ans = cuFuncSetSharedMemConfig(hfunc, config);
     
-    r_ans = Renum_convert_CUresult(ans) ;
+    r_ans = Renum_convert_cudaError_enum(ans) ;
     
     return(r_ans);
 }
 
 
-SEXP R_auto_cuFuncSetBlockShape(SEXP r_hfunc, SEXP r_x, SEXP r_y, SEXP r_z)
+SEXP R_cuFuncSetBlockShape(SEXP r_hfunc, SEXP r_x, SEXP r_y, SEXP r_z)
 {
     SEXP r_ans = R_NilValue;
     CUfunction hfunc = (CUfunction) getRReference(r_hfunc);
@@ -59,13 +59,13 @@ SEXP R_auto_cuFuncSetBlockShape(SEXP r_hfunc, SEXP r_x, SEXP r_y, SEXP r_z)
     CUresult ans;
     ans = cuFuncSetBlockShape(hfunc, x, y, z);
     
-    r_ans = Renum_convert_CUresult(ans) ;
+    r_ans = Renum_convert_cudaError_enum(ans) ;
     
     return(r_ans);
 }
 
 
-SEXP R_auto_cuFuncSetSharedSize(SEXP r_hfunc, SEXP r_bytes)
+SEXP R_cuFuncSetSharedSize(SEXP r_hfunc, SEXP r_bytes)
 {
     SEXP r_ans = R_NilValue;
     CUfunction hfunc = (CUfunction) getRReference(r_hfunc);
@@ -74,7 +74,54 @@ SEXP R_auto_cuFuncSetSharedSize(SEXP r_hfunc, SEXP r_bytes)
     CUresult ans;
     ans = cuFuncSetSharedSize(hfunc, bytes);
     
-    r_ans = Renum_convert_CUresult(ans) ;
+    r_ans = Renum_convert_cudaError_enum(ans) ;
     
+    return(r_ans);
+}
+
+
+SEXP R_cudaFuncSetCacheConfig(SEXP r_func, SEXP r_cacheConfig)
+{
+    SEXP r_ans = R_NilValue;
+    const void * func = GET_REF(r_func, const void );
+    enum cudaFuncCache cacheConfig = (enum cudaFuncCache) INTEGER(r_cacheConfig)[0];
+    
+    cudaError_t ans;
+    ans = cudaFuncSetCacheConfig(func, cacheConfig);
+    
+    r_ans = Renum_convert_cudaError(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP R_cudaFuncSetSharedMemConfig(SEXP r_func, SEXP r_config)
+{
+    SEXP r_ans = R_NilValue;
+    const void * func = GET_REF(r_func, const void );
+    enum cudaSharedMemConfig config = (enum cudaSharedMemConfig) INTEGER(r_config)[0];
+    
+    cudaError_t ans;
+    ans = cudaFuncSetSharedMemConfig(func, config);
+    
+    r_ans = Renum_convert_cudaError(ans) ;
+    
+    return(r_ans);
+}
+
+
+SEXP
+R_cudaFuncGetAttributes(SEXP r_func)
+{
+    SEXP r_ans = R_NilValue;
+    struct cudaFuncAttributes attr;
+    const void * func = GET_REF(r_func, const void );
+    cudaError_t ans;
+    ans = cudaFuncGetAttributes(& attr,  func);
+    if(ans)
+       return(R_cudaError_t_Info(ans));
+    struct cudaFuncAttributes * _tmp = (struct cudaFuncAttributes *) malloc( sizeof( struct cudaFuncAttributes ));
+    *_tmp = attr;
+    r_ans = R_createRef(_tmp, "cudaFuncAttributes");
     return(r_ans);
 }

@@ -1,9 +1,9 @@
-// Generated programmatically at 2013-07-02 13:51:14 
+// Generated programmatically at 2016-07-15 18:47:23 
 #include "RCUDA.h"
 
 
 SEXP
-R_auto_cuModuleLoad(SEXP r_fname)
+R_cuModuleLoad(SEXP r_fname)
 {
     SEXP r_ans = R_NilValue;
     CUmodule module;
@@ -18,7 +18,7 @@ R_auto_cuModuleLoad(SEXP r_fname)
 
 
 SEXP
-R_auto_cuModuleLoadData(SEXP r_image)
+R_cuModuleLoadData(SEXP r_image)
 {
     SEXP r_ans = R_NilValue;
     CUmodule module;
@@ -33,7 +33,7 @@ R_auto_cuModuleLoadData(SEXP r_image)
 
 
 SEXP
-R_auto_cuModuleLoadFatBinary(SEXP r_fatCubin)
+R_cuModuleLoadFatBinary(SEXP r_fatCubin)
 {
     SEXP r_ans = R_NilValue;
     CUmodule module;
@@ -47,7 +47,7 @@ R_auto_cuModuleLoadFatBinary(SEXP r_fatCubin)
 }
 
 
-SEXP R_auto_cuModuleUnload(SEXP r_hmod)
+SEXP R_cuModuleUnload(SEXP r_hmod)
 {
     SEXP r_ans = R_NilValue;
     CUmodule hmod = (CUmodule) getRReference(r_hmod);
@@ -55,13 +55,13 @@ SEXP R_auto_cuModuleUnload(SEXP r_hmod)
     CUresult ans;
     ans = cuModuleUnload(hmod);
     
-    r_ans = Renum_convert_CUresult(ans) ;
+    r_ans = Renum_convert_cudaError_enum(ans) ;
     
     return(r_ans);
 }
 
 
-SEXP R_auto_cuModuleGetFunction(SEXP r_hfunc, SEXP r_hmod, SEXP r_name)
+SEXP R_cuModuleGetFunction(SEXP r_hfunc, SEXP r_hmod, SEXP r_name)
 {
     SEXP r_ans = R_NilValue;
     CUfunction * hfunc = GET_REF(r_hfunc, CUfunction );
@@ -71,14 +71,14 @@ SEXP R_auto_cuModuleGetFunction(SEXP r_hfunc, SEXP r_hmod, SEXP r_name)
     CUresult ans;
     ans = cuModuleGetFunction(hfunc, hmod, name);
     
-    r_ans = Renum_convert_CUresult(ans) ;
+    r_ans = Renum_convert_cudaError_enum(ans) ;
     
     return(r_ans);
 }
 
 
 SEXP
-R_auto_cuModuleGetGlobal(SEXP r_hmod, SEXP r_name)
+R_cuModuleGetGlobal_v2(SEXP r_hmod, SEXP r_name)
 {
     SEXP r_ans = R_NilValue;
     CUdeviceptr dptr;
@@ -86,7 +86,7 @@ R_auto_cuModuleGetGlobal(SEXP r_hmod, SEXP r_name)
     CUmodule hmod = (CUmodule) getRReference(r_hmod);
     const char * name = CHAR(STRING_ELT(r_name, 0));
     CUresult ans;
-    ans = cuModuleGetGlobal(& dptr, & bytes,  hmod,  name);
+    ans = cuModuleGetGlobal_v2(& dptr, & bytes,  hmod,  name);
     if(ans)
        return(R_cudaErrorInfo(ans));
     PROTECT(r_ans = NEW_LIST(2));
@@ -103,7 +103,7 @@ R_auto_cuModuleGetGlobal(SEXP r_hmod, SEXP r_name)
 
 
 SEXP
-R_auto_cuModuleGetTexRef(SEXP r_hmod, SEXP r_name)
+R_cuModuleGetTexRef(SEXP r_hmod, SEXP r_name)
 {
     SEXP r_ans = R_NilValue;
     CUtexref pTexRef;
@@ -119,7 +119,7 @@ R_auto_cuModuleGetTexRef(SEXP r_hmod, SEXP r_name)
 
 
 SEXP
-R_auto_cuModuleGetSurfRef(SEXP r_hmod, SEXP r_name)
+R_cuModuleGetSurfRef(SEXP r_hmod, SEXP r_name)
 {
     SEXP r_ans = R_NilValue;
     CUsurfref pSurfRef;

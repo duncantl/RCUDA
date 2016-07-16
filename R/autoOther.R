@@ -1,12 +1,92 @@
-# Generated programmatically at 2013-07-02 14:07:42 
+# Generated programmatically at 2016-07-15 18:47:25 
+
+
+cuGetErrorString <-
+function( error )
+{
+    ans = .Call('R_cuGetErrorString', as(error, 'CUresult'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_cuGetErrorString')
+    ans
+}
+
+
+cuGetErrorName <-
+function( error )
+{
+    ans = .Call('R_cuGetErrorName', as(error, 'CUresult'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_cuGetErrorName')
+    ans
+}
+
+
+cuLinkCreate <-
+function( numOptions )
+{
+    ans = .Call('R_cuLinkCreate_v2', as(numOptions, 'numeric'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_cuLinkCreate_v2')
+    ans
+}
+
+
+cuLinkAddData <-
+function( state, type, data, size, name, numOptions )
+{
+    ans = .Call('R_cuLinkAddData_v2', as(state, 'CUlinkState'), as(type, 'CUjitInputType'), as(data, 'voidPtr'), as(size, 'size_t'), as(name, 'character'), as(numOptions, 'numeric'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_cuLinkAddData_v2')
+    ans
+}
+
+
+cuLinkAddFile <-
+function( state, type, path, numOptions )
+{
+    ans = .Call('R_cuLinkAddFile_v2', as(state, 'CUlinkState'), as(type, 'CUjitInputType'), as(path, 'character'), as(numOptions, 'numeric'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_cuLinkAddFile_v2')
+    ans
+}
+
+
+cuLinkComplete <-
+function( state )
+{
+    ans = .Call('R_cuLinkComplete', as(state, 'CUlinkState'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_cuLinkComplete')
+    ans
+}
+
+
+cuLinkDestroy <-
+function( state )
+{
+    ans = .Call('R_cuLinkDestroy', as(state, 'CUlinkState'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_cuLinkDestroy')
+    ans
+}
+
+
+cuMemcpy <-
+function( dst, src, ByteCount )
+{
+    ans = .Call('R_cuMemcpy', as(dst, 'CUdeviceptr'), as(src, 'CUdeviceptr'), as(ByteCount, 'size_t'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_cuMemcpy')
+    ans
+}
 
 
 cuArrayCreate <-
 function( pAllocateArray )
 {
-    ans = .Call('R_auto_cuArrayCreate', as(pAllocateArray, 'CUDA_ARRAY_DESCRIPTORPtr'))
+    ans = .Call('R_cuArrayCreate_v2', as(pAllocateArray, 'CUDA_ARRAY_DESCRIPTORPtr'))
     if(is(ans, 'CUresult') && ans != 0)
-        raiseError(ans, 'R_auto_cuArrayCreate')
+        raiseError(ans, 'R_cuArrayCreate_v2')
     ans
 }
 
@@ -14,9 +94,9 @@ function( pAllocateArray )
 cuArrayGetDescriptor <-
 function( hArray )
 {
-    ans = .Call('R_auto_cuArrayGetDescriptor', as(hArray, 'CUarray'))
+    ans = .Call('R_cuArrayGetDescriptor_v2', as(hArray, 'CUarray'))
     if(is(ans, 'CUresult') && ans != 0)
-        raiseError(ans, 'R_auto_cuArrayGetDescriptor')
+        raiseError(ans, 'R_cuArrayGetDescriptor_v2')
     ans
 }
 
@@ -24,9 +104,9 @@ function( hArray )
 cuArrayDestroy <-
 function( hArray )
 {
-    ans = .Call('R_auto_cuArrayDestroy', as(hArray, 'CUarray'))
+    ans = .Call('R_cuArrayDestroy', as(hArray, 'CUarray'))
     if(is(ans, 'CUresult') && ans != 0)
-        raiseError(ans, 'R_auto_cuArrayDestroy')
+        raiseError(ans, 'R_cuArrayDestroy')
     ans
 }
 
@@ -34,9 +114,9 @@ function( hArray )
 cuArray3DCreate <-
 function( pAllocateArray )
 {
-    ans = .Call('R_auto_cuArray3DCreate', as(pAllocateArray, 'CUDA_ARRAY3D_DESCRIPTORPtr'))
+    ans = .Call('R_cuArray3DCreate_v2', as(pAllocateArray, 'CUDA_ARRAY3D_DESCRIPTORPtr'))
     if(is(ans, 'CUresult') && ans != 0)
-        raiseError(ans, 'R_auto_cuArray3DCreate')
+        raiseError(ans, 'R_cuArray3DCreate_v2')
     ans
 }
 
@@ -44,9 +124,9 @@ function( pAllocateArray )
 cuArray3DGetDescriptor <-
 function( hArray )
 {
-    ans = .Call('R_auto_cuArray3DGetDescriptor', as(hArray, 'CUarray'))
+    ans = .Call('R_cuArray3DGetDescriptor_v2', as(hArray, 'CUarray'))
     if(is(ans, 'CUresult') && ans != 0)
-        raiseError(ans, 'R_auto_cuArray3DGetDescriptor')
+        raiseError(ans, 'R_cuArray3DGetDescriptor_v2')
     ans
 }
 
@@ -54,9 +134,69 @@ function( hArray )
 cuPointerGetAttribute <-
 function( data, attribute, ptr )
 {
-    ans = .Call('R_auto_cuPointerGetAttribute', as(data, 'voidPtr'), as(attribute, 'CUpointer_attribute'), as(ptr, 'CUdeviceptr'))
+    ans = .Call('R_cuPointerGetAttribute', as(data, 'voidPtr'), as(attribute, 'CUpointer_attribute'), as(ptr, 'CUdeviceptr'))
     if(is(ans, 'CUresult') && ans != 0)
-        raiseError(ans, 'R_auto_cuPointerGetAttribute')
+        raiseError(ans, 'R_cuPointerGetAttribute')
+    ans
+}
+
+
+cuPointerSetAttribute <-
+function( value, attribute, ptr )
+{
+    ans = .Call('R_cuPointerSetAttribute', as(value, 'voidPtr'), as(attribute, 'CUpointer_attribute'), as(ptr, 'CUdeviceptr'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_cuPointerSetAttribute')
+    ans
+}
+
+
+cuPointerGetAttributes <-
+function( numAttributes, ptr )
+{
+    ans = .Call('R_cuPointerGetAttributes', as(numAttributes, 'numeric'), as(ptr, 'CUdeviceptr'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_cuPointerGetAttributes')
+    ans
+}
+
+
+cuOccupancyMaxActiveBlocksPerMultiprocessor <-
+function( func, blockSize, dynamicSMemSize )
+{
+    ans = .Call('R_cuOccupancyMaxActiveBlocksPerMultiprocessor', as(func, 'CUfunction'), as(blockSize, 'integer'), as(dynamicSMemSize, 'size_t'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_cuOccupancyMaxActiveBlocksPerMultiprocessor')
+    ans
+}
+
+
+cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags <-
+function( func, blockSize, dynamicSMemSize, flags )
+{
+    ans = .Call('R_cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags', as(func, 'CUfunction'), as(blockSize, 'integer'), as(dynamicSMemSize, 'size_t'), as(flags, 'numeric'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags')
+    ans
+}
+
+
+cuOccupancyMaxPotentialBlockSize <-
+function( func, blockSizeToDynamicSMemSize, dynamicSMemSize, blockSizeLimit )
+{
+    ans = .Call('R_cuOccupancyMaxPotentialBlockSize', as(func, 'CUfunction'), as(blockSizeToDynamicSMemSize, 'CUoccupancyB2DSize'), as(dynamicSMemSize, 'size_t'), as(blockSizeLimit, 'integer'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_cuOccupancyMaxPotentialBlockSize')
+    ans
+}
+
+
+cuOccupancyMaxPotentialBlockSizeWithFlags <-
+function( func, blockSizeToDynamicSMemSize, dynamicSMemSize, blockSizeLimit, flags )
+{
+    ans = .Call('R_cuOccupancyMaxPotentialBlockSizeWithFlags', as(func, 'CUfunction'), as(blockSizeToDynamicSMemSize, 'CUoccupancyB2DSize'), as(dynamicSMemSize, 'size_t'), as(blockSizeLimit, 'integer'), as(flags, 'numeric'))
+    if(is(ans, 'CUresult') && ans != 0)
+        raiseError(ans, 'R_cuOccupancyMaxPotentialBlockSizeWithFlags')
     ans
 }
 
@@ -64,9 +204,9 @@ function( data, attribute, ptr )
 cuGraphicsUnregisterResource <-
 function( resource )
 {
-    ans = .Call('R_auto_cuGraphicsUnregisterResource', as(resource, 'CUgraphicsResource'))
+    ans = .Call('R_cuGraphicsUnregisterResource', as(resource, 'CUgraphicsResource'))
     if(is(ans, 'CUresult') && ans != 0)
-        raiseError(ans, 'R_auto_cuGraphicsUnregisterResource')
+        raiseError(ans, 'R_cuGraphicsUnregisterResource')
     ans
 }
 
@@ -74,9 +214,9 @@ function( resource )
 cuGraphicsSubResourceGetMappedArray <-
 function( resource, arrayIndex, mipLevel )
 {
-    ans = .Call('R_auto_cuGraphicsSubResourceGetMappedArray', as(resource, 'CUgraphicsResource'), as(arrayIndex, 'numeric'), as(mipLevel, 'numeric'))
+    ans = .Call('R_cuGraphicsSubResourceGetMappedArray', as(resource, 'CUgraphicsResource'), as(arrayIndex, 'numeric'), as(mipLevel, 'numeric'))
     if(is(ans, 'CUresult') && ans != 0)
-        raiseError(ans, 'R_auto_cuGraphicsSubResourceGetMappedArray')
+        raiseError(ans, 'R_cuGraphicsSubResourceGetMappedArray')
     ans
 }
 
@@ -84,9 +224,9 @@ function( resource, arrayIndex, mipLevel )
 cuGraphicsResourceGetMappedPointer <-
 function( resource )
 {
-    ans = .Call('R_auto_cuGraphicsResourceGetMappedPointer', as(resource, 'CUgraphicsResource'))
+    ans = .Call('R_cuGraphicsResourceGetMappedPointer_v2', as(resource, 'CUgraphicsResource'))
     if(is(ans, 'CUresult') && ans != 0)
-        raiseError(ans, 'R_auto_cuGraphicsResourceGetMappedPointer')
+        raiseError(ans, 'R_cuGraphicsResourceGetMappedPointer_v2')
     ans
 }
 
@@ -94,9 +234,9 @@ function( resource )
 cuGraphicsResourceSetMapFlags <-
 function( resource, flags )
 {
-    ans = .Call('R_auto_cuGraphicsResourceSetMapFlags', as(resource, 'CUgraphicsResource'), as(flags, 'numeric'))
+    ans = .Call('R_cuGraphicsResourceSetMapFlags_v2', as(resource, 'CUgraphicsResource'), as(flags, 'numeric'))
     if(is(ans, 'CUresult') && ans != 0)
-        raiseError(ans, 'R_auto_cuGraphicsResourceSetMapFlags')
+        raiseError(ans, 'R_cuGraphicsResourceSetMapFlags_v2')
     ans
 }
 
@@ -104,9 +244,9 @@ function( resource, flags )
 cuGraphicsMapResources <-
 function( count, hStream )
 {
-    ans = .Call('R_auto_cuGraphicsMapResources', as(count, 'numeric'), as(hStream, 'CUstream'))
+    ans = .Call('R_cuGraphicsMapResources', as(count, 'numeric'), as(hStream, 'CUstream'))
     if(is(ans, 'CUresult') && ans != 0)
-        raiseError(ans, 'R_auto_cuGraphicsMapResources')
+        raiseError(ans, 'R_cuGraphicsMapResources')
     ans
 }
 
@@ -114,9 +254,9 @@ function( count, hStream )
 cuGraphicsUnmapResources <-
 function( count, hStream )
 {
-    ans = .Call('R_auto_cuGraphicsUnmapResources', as(count, 'numeric'), as(hStream, 'CUstream'))
+    ans = .Call('R_cuGraphicsUnmapResources', as(count, 'numeric'), as(hStream, 'CUstream'))
     if(is(ans, 'CUresult') && ans != 0)
-        raiseError(ans, 'R_auto_cuGraphicsUnmapResources')
+        raiseError(ans, 'R_cuGraphicsUnmapResources')
     ans
 }
 
@@ -124,9 +264,19 @@ function( count, hStream )
 cudaPeekAtLastError <-
 function(  )
 {
-    ans = .Call('R_auto_cudaPeekAtLastError')
+    ans = .Call('R_cudaPeekAtLastError')
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaPeekAtLastError')
+        raiseError(ans, 'R_cudaPeekAtLastError')
+    ans
+}
+
+
+cudaGetErrorName <-
+function( error )
+{
+    ans = .Call('R_cudaGetErrorName', as(error, 'cudaError_t'))
+    if(is(ans, 'const char *') && ans != 0)
+        raiseError(ans, 'R_cudaGetErrorName')
     ans
 }
 
@@ -134,9 +284,9 @@ function(  )
 cudaChooseDevice <-
 function( prop )
 {
-    ans = .Call('R_auto_cudaChooseDevice', as(prop, 'struct cudaDevicePropPtr'))
+    ans = .Call('R_cudaChooseDevice', as(prop, 'struct cudaDevicePropPtr'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaChooseDevice')
+        raiseError(ans, 'R_cudaChooseDevice')
     ans
 }
 
@@ -144,9 +294,9 @@ function( prop )
 cudaGetDevice <-
 function(  )
 {
-    ans = .Call('R_auto_cudaGetDevice')
+    ans = .Call('R_cudaGetDevice')
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaGetDevice')
+        raiseError(ans, 'R_cudaGetDevice')
     ans
 }
 
@@ -154,9 +304,9 @@ function(  )
 cudaSetValidDevices <-
 function( device_arr, len )
 {
-    ans = .Call('R_auto_cudaSetValidDevices', as(device_arr, 'integer'), as(len, 'integer'))
+    ans = .Call('R_cudaSetValidDevices', as(device_arr, 'integer'), as(len, 'integer'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaSetValidDevices')
+        raiseError(ans, 'R_cudaSetValidDevices')
     ans
 }
 
@@ -164,189 +314,29 @@ function( device_arr, len )
 cudaSetDeviceFlags <-
 function( flags )
 {
-    ans = .Call('R_auto_cudaSetDeviceFlags', as(flags, 'numeric'))
+    ans = .Call('R_cudaSetDeviceFlags', as(flags, 'numeric'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaSetDeviceFlags')
+        raiseError(ans, 'R_cudaSetDeviceFlags')
     ans
 }
 
 
-cudaStreamCreate <-
+cudaGetDeviceFlags <-
 function(  )
 {
-    ans = .Call('R_auto_cudaStreamCreate')
+    ans = .Call('R_cudaGetDeviceFlags')
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaStreamCreate')
+        raiseError(ans, 'R_cudaGetDeviceFlags')
     ans
 }
 
 
-cudaStreamCreateWithFlags <-
-function( flags )
+cudaLaunchKernel <-
+function( func, gridDim, blockDim, sharedMem, stream )
 {
-    ans = .Call('R_auto_cudaStreamCreateWithFlags', as(flags, 'numeric'))
+    ans = .Call('R_cudaLaunchKernel', as(func, 'voidPtr'), as(gridDim, 'dim3'), as(blockDim, 'dim3'), as(sharedMem, 'size_t'), as(stream, 'cudaStream_t'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaStreamCreateWithFlags')
-    ans
-}
-
-
-cudaStreamDestroy <-
-function( stream )
-{
-    ans = .Call('R_auto_cudaStreamDestroy', as(stream, 'cudaStream_t'))
-    if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaStreamDestroy')
-    ans
-}
-
-
-cudaStreamWaitEvent <-
-function( stream, event, flags )
-{
-    ans = .Call('R_auto_cudaStreamWaitEvent', as(stream, 'cudaStream_t'), as(event, 'cudaEvent_t'), as(flags, 'numeric'))
-    if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaStreamWaitEvent')
-    ans
-}
-
-
-cudaStreamAddCallback <-
-function( stream, callback, userData, flags )
-{
-    ans = .Call('R_auto_cudaStreamAddCallback', as(stream, 'cudaStream_t'), as(callback, 'cudaStreamCallback_t'), as(userData, 'voidPtr'), as(flags, 'numeric'))
-    if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaStreamAddCallback')
-    ans
-}
-
-
-cudaStreamSynchronize <-
-function( stream )
-{
-    ans = .Call('R_auto_cudaStreamSynchronize', as(stream, 'cudaStream_t'))
-    if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaStreamSynchronize')
-    ans
-}
-
-
-cudaStreamQuery <-
-function( stream )
-{
-    ans = .Call('R_auto_cudaStreamQuery', as(stream, 'cudaStream_t'))
-    if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaStreamQuery')
-    ans
-}
-
-
-cudaEventCreate <-
-function(  )
-{
-    ans = .Call('R_auto_cudaEventCreate')
-    if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaEventCreate')
-    ans
-}
-
-
-cudaEventCreateWithFlags <-
-function( flags )
-{
-    ans = .Call('R_auto_cudaEventCreateWithFlags', as(flags, 'numeric'))
-    if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaEventCreateWithFlags')
-    ans
-}
-
-
-cudaEventRecord <-
-function( event, stream )
-{
-    ans = .Call('R_auto_cudaEventRecord', as(event, 'cudaEvent_t'), as(stream, 'cudaStream_t'))
-    if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaEventRecord')
-    ans
-}
-
-
-cudaEventQuery <-
-function( event )
-{
-    ans = .Call('R_auto_cudaEventQuery', as(event, 'cudaEvent_t'))
-    if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaEventQuery')
-    ans
-}
-
-
-cudaEventSynchronize <-
-function( event )
-{
-    ans = .Call('R_auto_cudaEventSynchronize', as(event, 'cudaEvent_t'))
-    if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaEventSynchronize')
-    ans
-}
-
-
-cudaEventDestroy <-
-function( event )
-{
-    ans = .Call('R_auto_cudaEventDestroy', as(event, 'cudaEvent_t'))
-    if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaEventDestroy')
-    ans
-}
-
-
-cudaEventElapsedTime <-
-function( start, end )
-{
-    ans = .Call('R_auto_cudaEventElapsedTime', as(start, 'cudaEvent_t'), as(end, 'cudaEvent_t'))
-    if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaEventElapsedTime')
-    ans
-}
-
-
-cudaFuncSetCacheConfig <-
-function( func, cacheConfig )
-{
-    ans = .Call('R_auto_cudaFuncSetCacheConfig', as(func, 'voidPtr'), as(cacheConfig, 'cudaFuncCache'))
-    if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaFuncSetCacheConfig')
-    ans
-}
-
-
-cudaFuncSetSharedMemConfig <-
-function( func, config )
-{
-    ans = .Call('R_auto_cudaFuncSetSharedMemConfig', as(func, 'voidPtr'), as(config, 'cudaSharedMemConfig'))
-    if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaFuncSetSharedMemConfig')
-    ans
-}
-
-
-cudaLaunch <-
-function( func )
-{
-    ans = .Call('R_auto_cudaLaunch', as(func, 'voidPtr'))
-    if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaLaunch')
-    ans
-}
-
-
-cudaFuncGetAttributes <-
-function( func )
-{
-    ans = .Call('R_auto_cudaFuncGetAttributes', as(func, 'voidPtr'))
-    if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaFuncGetAttributes')
+        raiseError(ans, 'R_cudaLaunchKernel')
     ans
 }
 
@@ -354,9 +344,9 @@ function( func )
 cudaSetDoubleForDevice <-
 function(  )
 {
-    ans = .Call('R_auto_cudaSetDoubleForDevice')
+    ans = .Call('R_cudaSetDoubleForDevice')
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaSetDoubleForDevice')
+        raiseError(ans, 'R_cudaSetDoubleForDevice')
     ans
 }
 
@@ -364,9 +354,49 @@ function(  )
 cudaSetDoubleForHost <-
 function(  )
 {
-    ans = .Call('R_auto_cudaSetDoubleForHost')
+    ans = .Call('R_cudaSetDoubleForHost')
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaSetDoubleForHost')
+        raiseError(ans, 'R_cudaSetDoubleForHost')
+    ans
+}
+
+
+cudaOccupancyMaxActiveBlocksPerMultiprocessor <-
+function( func, blockSize, dynamicSMemSize )
+{
+    ans = .Call('R_cudaOccupancyMaxActiveBlocksPerMultiprocessor', as(func, 'voidPtr'), as(blockSize, 'integer'), as(dynamicSMemSize, 'size_t'))
+    if(is(ans, 'cudaError_t') && ans != 0)
+        raiseError(ans, 'R_cudaOccupancyMaxActiveBlocksPerMultiprocessor')
+    ans
+}
+
+
+cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags <-
+function( func, blockSize, dynamicSMemSize, flags )
+{
+    ans = .Call('R_cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags', as(func, 'voidPtr'), as(blockSize, 'integer'), as(dynamicSMemSize, 'size_t'), as(flags, 'numeric'))
+    if(is(ans, 'cudaError_t') && ans != 0)
+        raiseError(ans, 'R_cudaOccupancyMaxActiveBlocksPerMultiprocessorWithFlags')
+    ans
+}
+
+
+cudaLaunch <-
+function( func )
+{
+    ans = .Call('R_cudaLaunch', as(func, 'voidPtr'))
+    if(is(ans, 'cudaError_t') && ans != 0)
+        raiseError(ans, 'R_cudaLaunch')
+    ans
+}
+
+
+cudaMallocManaged <-
+function( size, flags )
+{
+    ans = .Call('R_cudaMallocManaged', as(size, 'size_t'), as(flags, 'numeric'))
+    if(is(ans, 'cudaError_t') && ans != 0)
+        raiseError(ans, 'R_cudaMallocManaged')
     ans
 }
 
@@ -374,9 +404,9 @@ function(  )
 cudaMallocHost <-
 function( size )
 {
-    ans = .Call('R_auto_cudaMallocHost', as(size, 'size_t'))
+    ans = .Call('R_cudaMallocHost', as(size, 'size_t'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaMallocHost')
+        raiseError(ans, 'R_cudaMallocHost')
     ans
 }
 
@@ -384,9 +414,9 @@ function( size )
 cudaMallocPitch <-
 function( width, height )
 {
-    ans = .Call('R_auto_cudaMallocPitch', as(width, 'size_t'), as(height, 'size_t'))
+    ans = .Call('R_cudaMallocPitch', as(width, 'size_t'), as(height, 'size_t'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaMallocPitch')
+        raiseError(ans, 'R_cudaMallocPitch')
     ans
 }
 
@@ -394,9 +424,9 @@ function( width, height )
 cudaMallocArray <-
 function( desc, width, height, flags )
 {
-    ans = .Call('R_auto_cudaMallocArray', as(desc, 'struct cudaChannelFormatDescPtr'), as(width, 'size_t'), as(height, 'size_t'), as(flags, 'numeric'))
+    ans = .Call('R_cudaMallocArray', as(desc, 'struct cudaChannelFormatDescPtr'), as(width, 'size_t'), as(height, 'size_t'), as(flags, 'numeric'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaMallocArray')
+        raiseError(ans, 'R_cudaMallocArray')
     ans
 }
 
@@ -404,9 +434,9 @@ function( desc, width, height, flags )
 cudaFreeHost <-
 function( ptr )
 {
-    ans = .Call('R_auto_cudaFreeHost', as(ptr, 'voidPtr'))
+    ans = .Call('R_cudaFreeHost', as(ptr, 'voidPtr'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaFreeHost')
+        raiseError(ans, 'R_cudaFreeHost')
     ans
 }
 
@@ -414,9 +444,9 @@ function( ptr )
 cudaFreeArray <-
 function( array )
 {
-    ans = .Call('R_auto_cudaFreeArray', as(array, 'cudaArray_t'))
+    ans = .Call('R_cudaFreeArray', as(array, 'cudaArray_t'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaFreeArray')
+        raiseError(ans, 'R_cudaFreeArray')
     ans
 }
 
@@ -424,9 +454,9 @@ function( array )
 cudaHostAlloc <-
 function( size, flags )
 {
-    ans = .Call('R_auto_cudaHostAlloc', as(size, 'size_t'), as(flags, 'numeric'))
+    ans = .Call('R_cudaHostAlloc', as(size, 'size_t'), as(flags, 'numeric'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaHostAlloc')
+        raiseError(ans, 'R_cudaHostAlloc')
     ans
 }
 
@@ -434,9 +464,9 @@ function( size, flags )
 cudaHostRegister <-
 function( ptr, size, flags )
 {
-    ans = .Call('R_auto_cudaHostRegister', as(ptr, 'voidPtr'), as(size, 'size_t'), as(flags, 'numeric'))
+    ans = .Call('R_cudaHostRegister', as(ptr, 'voidPtr'), as(size, 'size_t'), as(flags, 'numeric'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaHostRegister')
+        raiseError(ans, 'R_cudaHostRegister')
     ans
 }
 
@@ -444,9 +474,9 @@ function( ptr, size, flags )
 cudaHostUnregister <-
 function( ptr )
 {
-    ans = .Call('R_auto_cudaHostUnregister', as(ptr, 'voidPtr'))
+    ans = .Call('R_cudaHostUnregister', as(ptr, 'voidPtr'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaHostUnregister')
+        raiseError(ans, 'R_cudaHostUnregister')
     ans
 }
 
@@ -454,9 +484,9 @@ function( ptr )
 cudaHostGetDevicePointer <-
 function( pHost, flags )
 {
-    ans = .Call('R_auto_cudaHostGetDevicePointer', as(pHost, 'voidPtr'), as(flags, 'numeric'))
+    ans = .Call('R_cudaHostGetDevicePointer', as(pHost, 'voidPtr'), as(flags, 'numeric'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaHostGetDevicePointer')
+        raiseError(ans, 'R_cudaHostGetDevicePointer')
     ans
 }
 
@@ -464,9 +494,39 @@ function( pHost, flags )
 cudaHostGetFlags <-
 function( pHost )
 {
-    ans = .Call('R_auto_cudaHostGetFlags', as(pHost, 'voidPtr'))
+    ans = .Call('R_cudaHostGetFlags', as(pHost, 'voidPtr'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaHostGetFlags')
+        raiseError(ans, 'R_cudaHostGetFlags')
+    ans
+}
+
+
+cudaMalloc3D <-
+function( extent )
+{
+    ans = .Call('R_cudaMalloc3D', as(extent, 'cudaExtent'))
+    if(is(ans, 'cudaError_t') && ans != 0)
+        raiseError(ans, 'R_cudaMalloc3D')
+    ans
+}
+
+
+cudaMalloc3DArray <-
+function( desc, extent, flags )
+{
+    ans = .Call('R_cudaMalloc3DArray', as(desc, 'struct cudaChannelFormatDescPtr'), as(extent, 'cudaExtent'), as(flags, 'numeric'))
+    if(is(ans, 'cudaError_t') && ans != 0)
+        raiseError(ans, 'R_cudaMalloc3DArray')
+    ans
+}
+
+
+cudaMemGetInfo <-
+function(  )
+{
+    ans = .Call('R_cudaMemGetInfo')
+    if(is(ans, 'cudaError_t') && ans != 0)
+        raiseError(ans, 'R_cudaMemGetInfo')
     ans
 }
 
@@ -474,9 +534,9 @@ function( pHost )
 cudaArrayGetInfo <-
 function( array )
 {
-    ans = .Call('R_auto_cudaArrayGetInfo', as(array, 'cudaArray_t'))
+    ans = .Call('R_cudaArrayGetInfo', as(array, 'cudaArray_t'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaArrayGetInfo')
+        raiseError(ans, 'R_cudaArrayGetInfo')
     ans
 }
 
@@ -484,9 +544,9 @@ function( array )
 cudaGetSymbolAddress <-
 function( symbol )
 {
-    ans = .Call('R_auto_cudaGetSymbolAddress', as(symbol, 'voidPtr'))
+    ans = .Call('R_cudaGetSymbolAddress', as(symbol, 'voidPtr'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaGetSymbolAddress')
+        raiseError(ans, 'R_cudaGetSymbolAddress')
     ans
 }
 
@@ -494,9 +554,9 @@ function( symbol )
 cudaGetSymbolSize <-
 function( symbol )
 {
-    ans = .Call('R_auto_cudaGetSymbolSize', as(symbol, 'voidPtr'))
+    ans = .Call('R_cudaGetSymbolSize', as(symbol, 'voidPtr'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaGetSymbolSize')
+        raiseError(ans, 'R_cudaGetSymbolSize')
     ans
 }
 
@@ -504,9 +564,9 @@ function( symbol )
 cudaPointerGetAttributes <-
 function( ptr )
 {
-    ans = .Call('R_auto_cudaPointerGetAttributes', as(ptr, 'voidPtr'))
+    ans = .Call('R_cudaPointerGetAttributes', as(ptr, 'voidPtr'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaPointerGetAttributes')
+        raiseError(ans, 'R_cudaPointerGetAttributes')
     ans
 }
 
@@ -514,9 +574,9 @@ function( ptr )
 cudaGraphicsUnregisterResource <-
 function( resource )
 {
-    ans = .Call('R_auto_cudaGraphicsUnregisterResource', as(resource, 'cudaGraphicsResource_t'))
+    ans = .Call('R_cudaGraphicsUnregisterResource', as(resource, 'cudaGraphicsResource_t'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaGraphicsUnregisterResource')
+        raiseError(ans, 'R_cudaGraphicsUnregisterResource')
     ans
 }
 
@@ -524,9 +584,9 @@ function( resource )
 cudaGraphicsResourceSetMapFlags <-
 function( resource, flags )
 {
-    ans = .Call('R_auto_cudaGraphicsResourceSetMapFlags', as(resource, 'cudaGraphicsResource_t'), as(flags, 'numeric'))
+    ans = .Call('R_cudaGraphicsResourceSetMapFlags', as(resource, 'cudaGraphicsResource_t'), as(flags, 'numeric'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaGraphicsResourceSetMapFlags')
+        raiseError(ans, 'R_cudaGraphicsResourceSetMapFlags')
     ans
 }
 
@@ -534,9 +594,9 @@ function( resource, flags )
 cudaGraphicsMapResources <-
 function( count, stream )
 {
-    ans = .Call('R_auto_cudaGraphicsMapResources', as(count, 'integer'), as(stream, 'cudaStream_t'))
+    ans = .Call('R_cudaGraphicsMapResources', as(count, 'integer'), as(stream, 'cudaStream_t'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaGraphicsMapResources')
+        raiseError(ans, 'R_cudaGraphicsMapResources')
     ans
 }
 
@@ -544,9 +604,9 @@ function( count, stream )
 cudaGraphicsUnmapResources <-
 function( count, stream )
 {
-    ans = .Call('R_auto_cudaGraphicsUnmapResources', as(count, 'integer'), as(stream, 'cudaStream_t'))
+    ans = .Call('R_cudaGraphicsUnmapResources', as(count, 'integer'), as(stream, 'cudaStream_t'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaGraphicsUnmapResources')
+        raiseError(ans, 'R_cudaGraphicsUnmapResources')
     ans
 }
 
@@ -554,9 +614,9 @@ function( count, stream )
 cudaGraphicsResourceGetMappedPointer <-
 function( resource )
 {
-    ans = .Call('R_auto_cudaGraphicsResourceGetMappedPointer', as(resource, 'cudaGraphicsResource_t'))
+    ans = .Call('R_cudaGraphicsResourceGetMappedPointer', as(resource, 'cudaGraphicsResource_t'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaGraphicsResourceGetMappedPointer')
+        raiseError(ans, 'R_cudaGraphicsResourceGetMappedPointer')
     ans
 }
 
@@ -564,9 +624,9 @@ function( resource )
 cudaGraphicsSubResourceGetMappedArray <-
 function( resource, arrayIndex, mipLevel )
 {
-    ans = .Call('R_auto_cudaGraphicsSubResourceGetMappedArray', as(resource, 'cudaGraphicsResource_t'), as(arrayIndex, 'numeric'), as(mipLevel, 'numeric'))
+    ans = .Call('R_cudaGraphicsSubResourceGetMappedArray', as(resource, 'cudaGraphicsResource_t'), as(arrayIndex, 'numeric'), as(mipLevel, 'numeric'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaGraphicsSubResourceGetMappedArray')
+        raiseError(ans, 'R_cudaGraphicsSubResourceGetMappedArray')
     ans
 }
 
@@ -574,9 +634,9 @@ function( resource, arrayIndex, mipLevel )
 cudaGetChannelDesc <-
 function( array )
 {
-    ans = .Call('R_auto_cudaGetChannelDesc', as(array, 'cudaArray_const_t'))
+    ans = .Call('R_cudaGetChannelDesc', as(array, 'cudaArray_const_t'))
     if(is(ans, 'cudaError_t') && ans != 0)
-        raiseError(ans, 'R_auto_cudaGetChannelDesc')
+        raiseError(ans, 'R_cudaGetChannelDesc')
     ans
 }
 
@@ -584,8 +644,8 @@ function( array )
 cudaCreateChannelDesc <-
 function( x, y, z, w, f )
 {
-    ans = .Call('R_auto_cudaCreateChannelDesc', as(x, 'integer'), as(y, 'integer'), as(z, 'integer'), as(w, 'integer'), as(f, 'cudaChannelFormatKind'))
+    ans = .Call('R_cudaCreateChannelDesc', as(x, 'integer'), as(y, 'integer'), as(z, 'integer'), as(w, 'integer'), as(f, 'cudaChannelFormatKind'))
     if(is(ans, 'struct cudaChannelFormatDesc') && ans != 0)
-        raiseError(ans, 'R_auto_cudaCreateChannelDesc')
+        raiseError(ans, 'R_cudaCreateChannelDesc')
     ans
 }

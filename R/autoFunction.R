@@ -1,12 +1,12 @@
-# Generated programmatically at 2013-07-02 13:50:48 
+# Generated programmatically at 2016-07-15 18:47:23 
 
 
 cuFuncGetAttribute <-
 function( attrib, hfunc )
 {
-    ans = .Call('R_auto_cuFuncGetAttribute', as(attrib, 'CUfunction_attribute'), as(hfunc, 'CUfunction'))
+    ans = .Call('R_cuFuncGetAttribute', as(attrib, 'CUfunction_attribute'), as(hfunc, 'CUfunction'))
     if(is(ans, 'CUresult') && ans != 0)
-        raiseError(ans, 'R_auto_cuFuncGetAttribute')
+        raiseError(ans, 'R_cuFuncGetAttribute')
     ans
 }
 
@@ -14,9 +14,9 @@ function( attrib, hfunc )
 cuFuncSetCacheConfig <-
 function( hfunc, config )
 {
-    ans = .Call('R_auto_cuFuncSetCacheConfig', as(hfunc, 'CUfunction'), as(config, 'CUfunc_cache'))
+    ans = .Call('R_cuFuncSetCacheConfig', as(hfunc, 'CUfunction'), as(config, 'CUfunc_cache'))
     if(is(ans, 'CUresult') && ans != 0)
-        raiseError(ans, 'R_auto_cuFuncSetCacheConfig')
+        raiseError(ans, 'R_cuFuncSetCacheConfig')
     ans
 }
 
@@ -24,9 +24,9 @@ function( hfunc, config )
 cuFuncSetSharedMemConfig <-
 function( hfunc, config )
 {
-    ans = .Call('R_auto_cuFuncSetSharedMemConfig', as(hfunc, 'CUfunction'), as(config, 'CUsharedconfig'))
+    ans = .Call('R_cuFuncSetSharedMemConfig', as(hfunc, 'CUfunction'), as(config, 'CUsharedconfig'))
     if(is(ans, 'CUresult') && ans != 0)
-        raiseError(ans, 'R_auto_cuFuncSetSharedMemConfig')
+        raiseError(ans, 'R_cuFuncSetSharedMemConfig')
     ans
 }
 
@@ -34,9 +34,9 @@ function( hfunc, config )
 cuFuncSetBlockShape <-
 function( hfunc, x, y, z )
 {
-    ans = .Call('R_auto_cuFuncSetBlockShape', as(hfunc, 'CUfunction'), as(x, 'integer'), as(y, 'integer'), as(z, 'integer'))
+    ans = .Call('R_cuFuncSetBlockShape', as(hfunc, 'CUfunction'), as(x, 'integer'), as(y, 'integer'), as(z, 'integer'))
     if(is(ans, 'CUresult') && ans != 0)
-        raiseError(ans, 'R_auto_cuFuncSetBlockShape')
+        raiseError(ans, 'R_cuFuncSetBlockShape')
     ans
 }
 
@@ -44,8 +44,38 @@ function( hfunc, x, y, z )
 cuFuncSetSharedSize <-
 function( hfunc, bytes )
 {
-    ans = .Call('R_auto_cuFuncSetSharedSize', as(hfunc, 'CUfunction'), as(bytes, 'numeric'))
+    ans = .Call('R_cuFuncSetSharedSize', as(hfunc, 'CUfunction'), as(bytes, 'numeric'))
     if(is(ans, 'CUresult') && ans != 0)
-        raiseError(ans, 'R_auto_cuFuncSetSharedSize')
+        raiseError(ans, 'R_cuFuncSetSharedSize')
+    ans
+}
+
+
+cudaFuncSetCacheConfig <-
+function( func, cacheConfig )
+{
+    ans = .Call('R_cudaFuncSetCacheConfig', as(func, 'voidPtr'), as(cacheConfig, 'cudaFuncCache'))
+    if(is(ans, 'cudaError_t') && ans != 0)
+        raiseError(ans, 'R_cudaFuncSetCacheConfig')
+    ans
+}
+
+
+cudaFuncSetSharedMemConfig <-
+function( func, config )
+{
+    ans = .Call('R_cudaFuncSetSharedMemConfig', as(func, 'voidPtr'), as(config, 'cudaSharedMemConfig'))
+    if(is(ans, 'cudaError_t') && ans != 0)
+        raiseError(ans, 'R_cudaFuncSetSharedMemConfig')
+    ans
+}
+
+
+cudaFuncGetAttributes <-
+function( func )
+{
+    ans = .Call('R_cudaFuncGetAttributes', as(func, 'voidPtr'))
+    if(is(ans, 'cudaError_t') && ans != 0)
+        raiseError(ans, 'R_cudaFuncGetAttributes')
     ans
 }
