@@ -22,7 +22,7 @@
 #include "RError.h"
 
 #include "declarations.h"
-#include "enumDecls.h"
+#include "autoEnumDecls.h"
 #include "structCopyDecls.h"
 #include "manualDecls.h"
 
@@ -35,6 +35,10 @@ SEXP R_createReference(const void *ptr, const char * const className, const char
 
 SEXP R_cudaErrorInfo(CUresult val);
 SEXP R_cudaError_t_Info(cudaError_t val);
+
+
+#define Renum_convert_CUresult Renum_convert_cudaError
+#define Renum_convert_cudaError_t Renum_convert_cudaError
 
 #endif
 
