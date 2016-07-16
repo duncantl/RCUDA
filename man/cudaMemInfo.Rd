@@ -15,7 +15,7 @@ cuMemInfo()
   and the percentage free.
 }
 \references{
-  \url{http://docs.nvidia.com/cuda/cuda-driver-api/index.html#group__CUDA__MEM}
+  \url{http://docs.nvidia.com/cuda/cuda-driver-api/index.htmll#group__CUDA__MEM}
 }
 \author{
 Duncan Temple Lang

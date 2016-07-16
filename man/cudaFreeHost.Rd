@@ -17,6 +17,6 @@
 \code{\link{cudaMalloc3D}}
 \code{\link{cudaMalloc3DArray}}
 \code{\link{cudaHostAlloc}}}
-\references{\url{http://docs.nvidia.com/cuda/cuda-driver-api/index.htm}}
+\references{\url{http://docs.nvidia.com/cuda/cuda-driver-api/index.html}}
 \keyword{programming}
 \concept{GPU}

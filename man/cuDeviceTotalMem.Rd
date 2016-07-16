@@ -12,6 +12,6 @@
 \code{\link{cuDeviceGetCount}}
 \code{\link{cuDeviceGetName}}
 \code{\link{cuDeviceGet}}}
-\references{\url{http://docs.nvidia.com/cuda/cuda-driver-api/index.htm}}
+\references{\url{http://docs.nvidia.com/cuda/cuda-driver-api/index.html}}
 \keyword{programming}
 \concept{GPU}

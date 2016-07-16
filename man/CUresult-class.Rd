@@ -52,8 +52,8 @@ Class \code{"\linkS4class{data.frameRowLabels}"}, by class "EnumValue", distance
 No methods defined with class "CUresult" in the signature.
 }
 \references{
-  \url{http://docs.nvidia.com/cuda/cuda-driver-api/index.html}.
-  Specifically \url{http://docs.nvidia.com/cuda/cuda-driver-api/index.html#group__CUDA__TYPES_1gc6c391505e117393cc2558fff6bfc2e9}
+  \url{http://docs.nvidia.com/cuda/cuda-driver-api/index.htmll}.
+  Specifically \url{http://docs.nvidia.com/cuda/cuda-driver-api/index.htmll#group__CUDA__TYPES_1gc6c391505e117393cc2558fff6bfc2e9}
 }
 \author{
 Duncan Temple Lang

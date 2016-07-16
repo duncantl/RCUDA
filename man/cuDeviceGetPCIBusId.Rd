@@ -13,6 +13,6 @@ len}
 \seealso{\code{\link{cuDeviceGet}}
 \code{\link{cuDeviceGetAttribute}}
 \code{\link{cuDeviceGetByPCIBusId}}}
-\references{\url{http://docs.nvidia.com/cuda/cuda-driver-api/index.htm}}
+\references{\url{http://docs.nvidia.com/cuda/cuda-driver-api/index.html}}
 \keyword{programming}
 \concept{GPU}

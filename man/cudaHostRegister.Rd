@@ -21,6 +21,6 @@
 \seealso{\code{\link{cudaHostUnregister}}
 \code{\link{cudaHostGetFlags}}
 \code{\link{cudaHostGetDevicePointer}}}
-\references{\url{http://docs.nvidia.com/cuda/cuda-driver-api/index.htm}}
+\references{\url{http://docs.nvidia.com/cuda/cuda-driver-api/index.html}}
 \keyword{programming}
 \concept{GPU}

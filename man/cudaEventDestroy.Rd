@@ -13,6 +13,6 @@
 \code{\link{cudaEventSynchronize}}
 \code{\link{cudaEventRecord}}
 \code{\link{cudaEventElapsedTime}}}
-\references{\url{http://docs.nvidia.com/cuda/cuda-driver-api/index.htm}}
+\references{\url{http://docs.nvidia.com/cuda/cuda-driver-api/index.html}}
 \keyword{programming}
 \concept{GPU}

@@ -23,6 +23,6 @@
 \code{\link{cuCtxSetCacheConfig}}
 \code{\link{cuCtxSetLimit}}
 \code{\link{cuCtxSynchronize}}}
-\references{\url{http://docs.nvidia.com/cuda/cuda-driver-api/index.htm}}
+\references{\url{http://docs.nvidia.com/cuda/cuda-driver-api/index.html}}
 \keyword{programming}
 \concept{GPU}

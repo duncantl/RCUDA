@@ -12,7 +12,9 @@
 }
 \usage{
 loadModule(filename, ctx = cuGetContext(TRUE),
-           isCode = is(filename, "raw") || is(filename, "AsIs") || grepl(" __cudaparm", filename),  
+           isCode = is(filename, "raw") ||
+                     is(filename, "AsIs") ||
+                       grepl(" __cudaparm", filename),  
            ...)
 getFunction(module, name) 
 \S4method{$}{CUmodule}(x, name)
@@ -52,7 +54,7 @@ getFunction(module, name)
   this routine.
 }
 \references{
-\url{http://docs.nvidia.com/cuda/cuda-driver-api/index.html#group__CUDA__MODULE}
+\url{http://docs.nvidia.com/cuda/cuda-driver-api/index.htmll#group__CUDA__MODULE}
 }
 \author{Duncan Temple Lang}
 

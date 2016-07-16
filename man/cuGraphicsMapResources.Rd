@@ -11,6 +11,6 @@
 \seealso{\code{\link{cuGraphicsResourceGetMappedPointer}}
 \code{\link{cuGraphicsSubResourceGetMappedArray}}
 \code{\link{cuGraphicsUnmapResources}}}
-\references{\url{http://docs.nvidia.com/cuda/cuda-driver-api/index.htm}}
+\references{\url{http://docs.nvidia.com/cuda/cuda-driver-api/index.html}}
 \keyword{programming}
 \concept{GPU}

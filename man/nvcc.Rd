@@ -7,7 +7,8 @@
   As such, it is just a front-end to calling nvcc.
 }
 \usage{
-nvcc(file, out = swapExtension(file, target), target = "ptx", ..., .opts = list(...), .run = TRUE)
+nvcc(file, out = swapExtension(file, target),
+     target = "ptx", ..., .opts = list(...), .run = TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

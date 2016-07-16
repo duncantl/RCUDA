@@ -987,6 +987,6 @@ Initializes or sets device memory to a value
 \code{c("\cudaMemset}", "\\code{cudaMemset}2D", "\\code{cudaMemset}3D", "\\code{cudaMemset}2DAsync", "\\code{cudaMemset3DAsync")}
 \code{c("\cudaMemset}", "\\code{cudaMemset}2D", "\\code{cudaMemset}3D", "\\code{cudaMemsetAsync}", "\\code{cudaMemset3DAsync")}
 \code{c("\cudaMemset}", "\\code{cudaMemset}2D", "\\code{cudaMemset}3D", "\\code{cudaMemsetAsync}", "\\code{cudaMemset}2DAsync", "\\code{cudaMalloc}3D", "\\code{make_cudaPitchedPtr}", "\\code{make_cudaExtent")}}
-\references{\url{http://docs.nvidia.com/cuda/cuda-driver-api/index.htm}}
+\references{\url{http://docs.nvidia.com/cuda/cuda-driver-api/index.html}}
 \keyword{programming}
 \concept{GPU}

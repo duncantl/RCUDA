@@ -27,7 +27,8 @@
 \usage{
 profileCUDA(expr, file = tempfile(), ...)
 cudaProfiler(file = tempfile(),
-              config = getOption("CUDAProfilerConfig", system.file('prof.config', package = 'RCUDA')),
+             config = getOption("CUDAProfilerConfig",
+                                system.file('prof.config', package = 'RCUDA')),
                format = "csv", start = TRUE)
 cudaStartProfiler()
 cudaStopProfiler()

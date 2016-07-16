@@ -14,6 +14,6 @@ The device identifier (as a scalar integer)
 \seealso{\code{\link{cuDeviceGet}}
 \code{\link{cuDeviceGetAttribute}}
 \code{\link{cuDeviceGetPCIBusId}}}
-\references{\url{http://docs.nvidia.com/cuda/cuda-driver-api/index.htm}}
+\references{\url{http://docs.nvidia.com/cuda/cuda-driver-api/index.html}}
 \keyword{programming}
 \concept{GPU}

@@ -14,6 +14,6 @@
 \code{\link{cuModuleLoadData}}
 \code{\link{cuModuleLoadDataEx}}
 \code{\link{cuModuleLoadFatBinary}}}
-\references{\url{http://docs.nvidia.com/cuda/cuda-driver-api/index.htm}}
+\references{\url{http://docs.nvidia.com/cuda/cuda-driver-api/index.html}}
 \keyword{programming}
 \concept{GPU}

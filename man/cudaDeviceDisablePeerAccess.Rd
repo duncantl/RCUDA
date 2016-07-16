@@ -10,6 +10,6 @@
 
 \seealso{\code{\link{cudaDeviceCanAccessPeer}}
 \code{\link{cudaDeviceEnablePeerAccess}}}
-\references{\url{http://docs.nvidia.com/cuda/cuda-driver-api/index.htm}}
+\references{\url{http://docs.nvidia.com/cuda/cuda-driver-api/index.html}}
 \keyword{programming}
 \concept{GPU}

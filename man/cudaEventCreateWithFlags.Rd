@@ -24,6 +24,6 @@
 \code{\link{cudaEventDestroy}}
 \code{\link{cudaEventElapsedTime}}
 \code{\link{cudaStreamWaitEvent}}}
-\references{\url{http://docs.nvidia.com/cuda/cuda-driver-api/index.htm}}
+\references{\url{http://docs.nvidia.com/cuda/cuda-driver-api/index.html}}
 \keyword{programming}
 \concept{GPU}
