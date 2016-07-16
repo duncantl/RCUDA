@@ -7,16 +7,17 @@ Description: This is an R interface to the CUDA software development kit (SDK )
    It is similar to Simon Urbanek's OpenCL package. The idea is to be able
    execute code on the GPU from within R.
    This offers a high-level programming interface to use GPUs
-   within R.  It will also offer a full set of bindings to the CUDA SDK
+   within R.  It provides a full set of bindings to the CUDA SDK
    so that others can experiment with different features of the SDK
    such as pinned memory, streams, events, and explore how to leverage
    these for greater performance.
    We have longer term goals which will allow us to compile (simple) R 
    code into GPU kernels and also compile code that refers to the
    CUDA routines that work on the host.  This is similar to libNVVM.
-SystemRequirements: CUDA SDK(>= 5.0)
+SystemRequirements: CUDA SDK(>= 7.5)
 Maintainer: Duncan Temple Lang <duncan@r-project.org>
 Author: Duncan Temple Lang, Paul Baines
 Imports: RAutoGenRunTime, methods, utils
 License: BSD_3_clause+file LICENSE
+Suggests: lattice
 

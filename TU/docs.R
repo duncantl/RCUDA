@@ -1,7 +1,7 @@
 library(RCIndex)
 library(RCUDA)
 
-source("~/promptFun.R")
+#source("~/promptFun.R")
 
 if(FALSE) {
  allDocs = lapply(r.cu[mem], makeFunctionDoc)
@@ -114,7 +114,7 @@ function(fun, name = gsub("_v2", "", getName(fun@def)))
    if(exists(funName)) {
       rfun = get(funName)
       returnValue = setdiff(names(params), names(formals(rfun)))
-      usage = makeSig(I(funName), rfun)
+      usage = makeSig(I(funName), rfun)   #??? will makeSignature in RCodeGen do for this??
       params = params[names(formals(rfun))]  # watch if there are . that we add for extra parameters
    } else {
      returnValue = NA
@@ -131,7 +131,7 @@ function(fun, name = gsub("_v2", "", getName(fun@def)))
         )
 }
 
-OtherFields = list(references = "\\url{http://docs.nvidia.com/cuda/cuda-driver-api/index.htm}",
+OtherFields = list(references = "\\url{http://docs.nvidia.com/cuda/cuda-driver-api/index.html}",
                    keyword = "programming",
                    concept = "GPU"
                    )
