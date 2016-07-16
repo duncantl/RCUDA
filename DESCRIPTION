@@ -15,7 +15,7 @@ Description: This package provides initial bindings to
    CUDA routines that work on the host.  This is similar to libNVVM.
 SystemRequirements: CUDA SDK(>= 5.0)
 Maintainer: Duncan Temple Lang <duncan@r-project.org>
-Depends: methods
+xDepends: methods
 Author: Duncan Temple Lang, Paul Baines
 Imports: RAutoGenRunTime, methods
 License: BSD
