@@ -6,9 +6,10 @@ library(RCUDA)
 kfile = system.file("sampleKernels", "distance_gputools.ptx", package = "RCUDA")
 if(!file.exists(kfile))
   kfile = nvcc(system.file("sampleKernels", "distance_gputools.cu", package = "RCUDA"), "distance_gputools.ptx")
+
 mod = loadModule(kfile)
 
-N = c(A = 1e4L, B = 4999L)
+N = c(A = 1e2L, B = 499L)
 p = 200L
 A = matrix(rnorm(N["A"]*p), N["A"], p)
 B = matrix(rnorm(N["B"]*p), N["B"], p)
