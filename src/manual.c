@@ -298,7 +298,7 @@ SEXP
 R_cudaSetDevice(SEXP r_dev)
 {
     cudaError_t status = cudaSetDevice(INTEGER(r_dev)[0]);
-    return(R_cudaErrorInfo(status));
+    return(R_cudaErrorInfo((CUresult) status));
 }
 
 
@@ -306,7 +306,7 @@ SEXP
 R_cuInit(SEXP r_flags, SEXP r_asCUresult)
 {
     CUresult status = cuInit(INTEGER(r_flags)[0]);
-    return(LOGICAL(r_asCUresult)[0] ? Renum_convert_CUresult(status) : ScalarInteger(status));
+    return(LOGICAL(r_asCUresult)[0] ? Renum_convert_CUresult((enum cudaError) status) : ScalarInteger(status));
 }
 
 
