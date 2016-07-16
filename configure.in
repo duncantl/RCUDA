@@ -59,7 +59,14 @@ AC_TRY_LINK([
 ], echo "linking okay", [echo "cannot link with libcuda" ; if test -z "$FORCE" ; then exit 1 ; fi])
 
 
-$CC -o checkSDKVersion checkSDKVersion.c $CPPFLAGS $LDFLAGS $LIBS
+# For OSX 10.11. Need to specify this for linking so we can find the library at run/load time.
+OS=`uname`
+if test "$OS" = "Darwin" ; then
+  RPATH="-Wl,-rpath,/usr/local/cuda/lib"
+fi
+
+echo "Creating checkSDKVersion with $CPPFLAGS $LDFLAGS $LIBS"
+$CC -o checkSDKVersion checkSDKVersion.c $CPPFLAGS $LDFLAGS $LIBS $RPATH
 ./checkSDKVersion
 if ! test $? = 0 ; then
   echo "You appear to have an older CUDA SDK. We require CUDA SDK 5.0 or higher"
@@ -78,6 +85,8 @@ AC_SUBST(CUDA_LIB_DIR)
 AC_SUBST(CUDA_DIR)
 AC_SUBST(NVCC_BIN)
 
+AC_SUBST(RPATH)
+
 
 AC_OUTPUT(src/Makevars R/nvcc.R)
 #chmod -w R/nvcc.R
@@ -89,7 +98,7 @@ if  test $? = 0; then
  echo "Running sizeofs"
  ./sizeofs > R/StructSizes.R
 else
-  echo "Problems compiling sizeofs.cu. Continuing with installation, but theremay be problems."
+  echo "Problems compiling sizeofs.cu. Continuing with installation, but there may be problems!"
 fi
 
 

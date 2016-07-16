@@ -621,6 +621,7 @@ ac_includes_default="\
 
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
+RPATH
 CUDA_DIR
 CUDA_LIB_DIR
 CUDA_INC_DIR
@@ -3323,7 +3324,14 @@ rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
 
 
-$CC -o checkSDKVersion checkSDKVersion.c $CPPFLAGS $LDFLAGS $LIBS
+# For OSX 10.11. Need to specify this for linking so we can find the library at run/load time.
+OS=`uname`
+if test "$OS" = "Darwin" ; then
+  RPATH="-Wl,-rpath,/usr/local/cuda/lib"
+fi
+
+echo "Creating checkSDKVersion with $CPPFLAGS $LDFLAGS $LIBS"
+$CC -o checkSDKVersion checkSDKVersion.c $CPPFLAGS $LDFLAGS $LIBS $RPATH
 ./checkSDKVersion
 if ! test $? = 0 ; then
   echo "You appear to have an older CUDA SDK. We require CUDA SDK 5.0 or higher"
@@ -3336,6 +3344,8 @@ fi
 echo "CUDA_INC_DIR = $CUDA_INC_DIR"
 echo "CUDA_LIB_DIR = $CUDA_LIB_DIR"
 echo "nvcc = $NVCC_BIN"
+
+
 
 
 
@@ -4510,7 +4520,7 @@ if  test $? = 0; then
  echo "Running sizeofs"
  ./sizeofs > R/StructSizes.R
 else
-  echo "Problems compiling sizeofs.cu. Continuing with installation, but theremay be problems."
+  echo "Problems compiling sizeofs.cu. Continuing with installation, but there may be problems!"
 fi
 
 
