@@ -1,3 +1,5 @@
+library(RCUDA)
+
 # [1] "copyFromDevice"                   "copyToDevice"                     "cuCtxGetDevice"                   "cudaChooseDevice"                 cudaDeviceDisablePeerAccess"      "cudaDeviceEnablePeerAccess"      
 # [8] "cudaDeviceGetCacheConfig"         "cudaDeviceGetSharedMemConfig"     "cudaDeviceGetStreamPriorityRange"
 # 15] "cudaDeviceSetCacheConfig"         "cudaDeviceSetLimit"               "cudaDeviceSetSharedMemConfig"     "cudaDeviceSynchronize"            "cudaHostGetDevicePointer"        
