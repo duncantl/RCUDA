@@ -54,7 +54,7 @@ getFunction(module, name)
   this routine.
 }
 \references{
-\url{http://docs.nvidia.com/cuda/cuda-driver-api/index.htmll#group__CUDA__MODULE}
+\url{http://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__MODULE.html#group__CUDA__MODULE_1g366093bd269dafd0af21f1c7d18115d3}
 }
 \author{Duncan Temple Lang}
 

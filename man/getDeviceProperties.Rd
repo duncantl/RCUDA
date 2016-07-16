@@ -27,7 +27,7 @@ cuDeviceGetAttributes(dev = 1L)
   describing many aspects of the GPU.
 }
 \references{
-  \url{http://docs.nvidia.com/cuda/cuda-driver-api/index.htmll#group__CUDA__DEVICE}
+  \url{http://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__DEVICE.html#group__CUDART__DEVICE_1g1bf9d625a931d657e08db2b4391170f0}
 }
 \author{
 Duncan Temple  Lang

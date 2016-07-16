@@ -32,7 +32,7 @@ cuGetContext(create = TRUE, ..., asContext = TRUE)
   Both functions return an object of class \code{CUcontext}.
 }
 \references{
-  \url{http://docs.nvidia.com/cuda/cuda-driver-api/index.htmll#group__CUDA__CTX}
+  \url{http://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__CTX.html#axzz4EXlYl4ti}
 }
 \author{Duncan Temple Lang}
 \seealso{

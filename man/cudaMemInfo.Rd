@@ -3,8 +3,7 @@
 \alias{cuMemInfo}
 \title{Determine the memory on the active GPU}
 \description{
-  This function determines the total and free memory
-  available on the current GPU.
+This function determines the total and free memory available on the current GPU.
 }
 \usage{
 cuMemInfo()
@@ -15,7 +14,7 @@ cuMemInfo()
   and the percentage free.
 }
 \references{
-  \url{http://docs.nvidia.com/cuda/cuda-driver-api/index.htmll#group__CUDA__MEM}
+ \url{http://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__MEM.html#group__CUDA__MEM_1g808f555540d0143a331cc42aa98835c0}
 }
 \author{
 Duncan Temple Lang

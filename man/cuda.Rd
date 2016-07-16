@@ -120,7 +120,7 @@ if(getNumDevices() > 0) {
   m = loadModule(ptx)
   kernel = m$dnorm_kernel
 
-  N = 1e8L
+  N = 1e6L
   x = rnorm(N)
   mu = .5
   sigma = 1.1
@@ -154,7 +154,7 @@ if(getNumDevices() > 0) {
   cx = copyToDevice(x)
   vals = cudaAlloc(N, elType = "numeric")
   .cuda(kernel, cx, N, mu, sigma, vals, gridDim = c(64L, 32L), blockDim = 512L, out = FALSE)
-  vals[]
+  head(vals[])
 
   max(vals[])
 }

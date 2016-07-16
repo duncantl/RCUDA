@@ -18,7 +18,7 @@ cuInit(flags = 0L)
   This either returns \code{0L}, indicating success, or raises an error.
 }
 \references{
-  \url{http://docs.nvidia.com/cuda/cuda-driver-api/index.htmll#group__CUDA__INITIALIZE}
+  \url{http://docs.nvidia.com/cuda/cuda-driver-api/group__CUDA__INITIALIZE.html#group__CUDA__INITIALIZE_1g0a2f1517e1bd8502c7194c3a8c134bc3}
 }
 \author{Duncan Temple Lang}
 \seealso{
