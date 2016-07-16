@@ -1,3 +1,4 @@
+#if 0
 #include "RCUDA.h"
 
 
@@ -145,6 +146,7 @@ R_cuCtxGetLimit(SEXP r_limit)
 }
 
 
+
 SEXP
 R_cuCtxGetCacheConfig()
 {
@@ -157,6 +159,7 @@ R_cuCtxGetCacheConfig()
     r_ans = Renum_convert_CUfunc_cache(pconfig) ;
     return(r_ans);
 }
+
 
 
 SEXP R_cuCtxSetCacheConfig(SEXP r_config)
@@ -243,3 +246,6 @@ SEXP R_cuCtxDisablePeerAccess(SEXP r_peerContext)
     
     return(r_ans);
 }
+#else
+enum {A};
+#endif
