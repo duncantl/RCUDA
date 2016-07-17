@@ -56,7 +56,7 @@ if (nthreads < N){
 # sizeof(curandState) = 48
 cat("Allocating memory on device for curandStates...\n")
 cu_rng_alloc_time <- system.time({
-    rng_states <- cudaMalloc(elType = "curandState", numEls=N, sizeof=48L) 
+    rng_states <- cudaMalloc(elType = "curandState", numEls = N, sizeof = 48L) 
 })
 
 # Need to allocate space for results:
@@ -142,11 +142,11 @@ r_rpois_time <- system.time({
     r_rpois_x <- rpois(n=N,lambda=lambda)
 })
 
-tlist <- paste(c("cu_rng_alloc","cu_init",
-                 "cu_all_in_one","cu_all_in_one_copy",
-                 "cu_runif","cu_runif_copy","r_runif",
-                 "cu_rnorm","cu_rnorm_copy","r_rnorm",
-                 "cu_rpois","cu_rpois_copy","r_rpois"), "time", sep = "_")
+tlist <- paste(c("cu_rng_alloc", "cu_init",
+                 "cu_all_in_one", "cu_all_in_one_copy",
+                 "cu_runif", "cu_runif_copy", "r_runif",
+                 "cu_rnorm", "cu_rnorm_copy", "r_rnorm",
+                 "cu_rpois", "cu_rpois_copy", "r_rpois"), "time", sep = "_")
 
 cat("===========================\n")
 cat("Timing information:\n")
