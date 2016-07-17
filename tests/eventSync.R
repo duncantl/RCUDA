@@ -20,7 +20,7 @@ function(ptr, dim, ans, mod, blockSize = 32L, .async = FALSE,  ...)
        matrix(out, dim[1], dim[1])
 }
 
-N = 25000
+N = 2500
 p = 200
 m = matrix(N*p, N, p)
 ptr = copyToDevice(as.numeric(t(m)))
@@ -35,7 +35,8 @@ cuEventRecord(ev2, stream)
 
 o = gdist.same(ptr, dim(m), out, mod, .async = TRUE, stream = stream)
 
-# Is the stream finished?
+# Is the stream finished?  We anticipate not so we get a CUDA_ERROR_NOT_READY.
+cat("Is the stream finished yet?\n")
 print(cuStreamQuery(stream))
 
 #No need to synchronize on this first event
@@ -43,4 +44,4 @@ print(cuStreamQuery(stream))
 
 cuEventSynchronize(ev2)
 
-cuEventElapsedTime(ev1, ev2)
+print(cuEventElapsedTime(ev1, ev2))
