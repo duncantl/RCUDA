@@ -3,7 +3,7 @@ cuGetContext(TRUE)
 
 m = loadModule(system.file("sampleKernels", "random.ptx", package = "RCUDA"))
 kernel = m$rnorm_kernel
-N = 250000 # 1e6L fails on my mac... :/
+N = 250000 # 1e6L fails on my mac... :/   Works for 2500, but not 2500 on a 
 mu <-  -0.3
 sigma <-  1.5
 
@@ -21,10 +21,13 @@ cu_ans = .cuda(kernel, rng_states, ans = ans, N, mu, sigma, inplace = TRUE, grid
 
 
 cu_rnorm_total_time = system.time({
-rng_states <- cudaMalloc(elType = "curandState", numEls=N, sizeof=48L)
-ans = numeric(N)
-cu_ans = .cuda(kernel, rng_states, ans = ans, N, mu, sigma, inplace = TRUE, gridDim = grid_dims, blockDim = block_dims, outputs = "ans")
+   rng_states <- cudaMalloc(elType = "curandState", numEls = N, sizeof = 48L)
+   ans = numeric(N)
+   cu_ans = .cuda(kernel, rng_states, ans = ans, N, mu, sigma, inplace = TRUE, gridDim = grid_dims, blockDim = block_dims, outputs = "ans")
 })
+
+if(is(cu_ans, "cudaError_t"))  # length(cu_ans) == 1)
+    stop("kernel failed")
 
 rnorm_total_time = system.time( r_ans <- rnorm(N, mu, sigma) )
 
