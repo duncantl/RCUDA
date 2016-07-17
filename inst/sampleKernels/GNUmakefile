@@ -1,7 +1,15 @@
 NVCC=/usr/local/cuda/bin/nvcc
 # These work for a MacBookPro with a GeForceGT 330M
-BIN_OPTS= -m64 -gencode arch=compute_10,code=sm_10
+#BIN_OPTS= -m64 -gencode arch=compute_10,code=sm_10
 # -m64 -arch sm_21
+
+# 
+BIN_OPTS= -m64 -gencode=arch=compute_30,code=sm_30
+# The -arch=sm_XX expands to the two lines
+#  -gencode=arch=compute_XX,code=sm_XX
+#   -gencode=arch=compute_XX,code=compute_XX
+BIN_OPTS= -m64 -arch=sm_30 
+
 
 %.ptx: %.cu
 	$(NVCC) --ptx $(PTX_OPTS) -o $@ $<
