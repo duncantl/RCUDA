@@ -140,8 +140,8 @@ function(fun, ..., .args = list(...), gridDim, blockDim,
 
    .numericAsDouble = as.logical(.numericAsDouble)
 
-   if(length(.numericAsDouble) == 1)
-      .numericAsDouble = rep(.numericAsDouble, length(.args))
+   if(length(.numericAsDouble) != length(.args))
+      .numericAsDouble = rep(.numericAsDouble, length = length(.args))
 
    if(!missing(gridBy) && missing(gridDim)) {
 #

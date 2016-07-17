@@ -1,4 +1,4 @@
-* Turn on USE_S4_ENUMS in src/Makevars.in
+* [Done] Turn on USE_S4_ENUMS in src/Makevars.in
 
 * Process only the routines and data structures related to the host/CPU
    ignore the ones for use on the device/GPU
@@ -6,7 +6,7 @@
 
 * Should we remove the cuda/cublas prefix from the names of the R functions.
 
-* Copy the converter code from RAutoGenRuntime into the package.
+* [Done] Copy the converter code from RAutoGenRuntime into the package.
 
 * Change the class of the bitwise enum types that are wrong.
    only CUarray_format_enum
