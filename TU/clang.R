@@ -73,7 +73,7 @@ names(r.cu)[!status]
 
 
 ds = getDataStructures(tu)
-fn = sapply(ds, function(x) getFileName(x$def))
+fn = sapply(ds, function(x) getFileName(x@def))
 ds.cu = ds[grepl(sprintf("(%s)", paste(gsub("\\.", "\\\\./", incs), collapse = "|")), fn)]
 
 # CUDA SDK 7.5:   343 data structures.
@@ -168,11 +168,12 @@ grep("^cu.+Mem", names(r.cu), value = TRUE)
 
 ###############
 ds.cuTypes = ds.cu[ grep("^(cu|CU)", names(ds.cu), value = TRUE) ]
-ds.cuTypes = ds.cuTypes[  !sapply(ds.cuTypes, function(x) x$def$kind == CXCursor_EnumDecl || length(x$fields) == 0) ]
+structs = sapply(ds.cuTypes, function(x) is(x, "StructDefinition") && length(x@fields) > 0 && x@name["name"] != "") 
+ds.cuTypes = ds.cuTypes[  structs  ]
 
 
-structs = sapply(ds.cu, function(x) x$def$kind == CXCursor_StructDecl && length(x$fields) > 0 && getName(x$def) != "")
-ds.cuTypes = ds.cu[structs]
+#structs = sapply(ds.cu, function(x)  getName(x$def) != "")
+#ds.cuTypes = ds.cu[structs]
 #XXX Avoid duplicate names, e.g. for typedef and struct.
 # All structs.
 
@@ -185,14 +186,14 @@ sizeofCode = CRoutineDefinition("R_getSizeofStructs",
                  "PROTECT(names = NEW_CHARACTER(n));",
                  "",
                  sprintf('INTEGER(r_ans)[i] = sizeof(%s);\n    SET_STRING_ELT(names, i++, mkChar("%s"));',
-                          sapply(ds.cuTypes, function(x) getName(getType(x$def))), names(ds.cuTypes)),
+                          sapply(ds.cuTypes, function(x) x@name["name"]), names(ds.cuTypes)),                             # x@name["name"] was  getName(getType(x@def))
                  "",
                  "SET_NAMES(r_ans, names);",
                  "UNPROTECT(2);",
                  "return(r_ans);", "}"))#, declaration = "SEXP R_getSizeofStructs()")
 
 writeCode(as(sizeofCode, "character"),  "../src/autoSizeofStructs.cpp",  
-            c('"RCUDA.h"', sprintf("<%s>", basename(unique(sapply(ds.cuTypes, function(x) getFileName(x$def)))))))
+            c('"RCUDA.h"', sprintf("<%s>", basename(unique(sapply(ds.cuTypes, function(x) getFileName(x@def)))))))
 
 
 typeNames = c("int", "long", "short", "char", "float", "double", names(ds.cuTypes))
@@ -248,6 +249,7 @@ generateCode(r.cu[want], "Other")
 
 ##############
 
+ # The structures or the typedefs?
 structCode = lapply(list(ds.cu$CUDA_ARRAY_DESCRIPTOR, ds.cu$CUDA_ARRAY3D_DESCRIPTOR), makeCCopyStructCode)
 writeCode(structCode, "../src/structCopy.c", lang = "C")
 #writeCode(structCode, "/tmp/structCopy.c", lang = "C")
