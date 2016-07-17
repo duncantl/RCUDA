@@ -1,6 +1,17 @@
 RCUDA
 
+*   randomTest[23].R, 
+     [Works] randomTest.R
+     [Works] funcAttributes.R
+     [Works] stream.R, streamUse.R - but not after running all the others in the same session.
+     [Works] rgamma.R - needed to compile ptx. Wasn't there.
+
+*  Fix .gpu() to get the .numericAsDouble to be the correct length including out arguments.
+    See tests/doubleFloat.R
+    Fixed, but now get the wrong answer.
+
 * cudaGetDeviceProperties() - implement?
+   Is this the same as getDeviceProperties()
 
 * Check the R and C code agree for routines that have a version suffix, i.e., _v2
 
