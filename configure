@@ -625,6 +625,7 @@ RPATH
 CUDA_DIR
 CUDA_LIB_DIR
 CUDA_INC_DIR
+CUDA_VERSION
 EGREP
 GREP
 CPP
@@ -3344,6 +3345,13 @@ fi
 echo "CUDA_INC_DIR = $CUDA_INC_DIR"
 echo "CUDA_LIB_DIR = $CUDA_LIB_DIR"
 echo "nvcc = $NVCC_BIN"
+
+
+echo "Computing CUDA run-time version"
+$CC -o cudaVersion -I$CUDA_INC_DIR cudaVersion.c -L$CUDA_LIB_DIR -lcuda -lcudart $RPATH
+CUDA_VERSION=`cudaVersion`
+
+
 
 
 

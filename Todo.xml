@@ -1,4 +1,4 @@
-<?xml-stylesheet type="text/xsl" href="XSL/Todo.xsl" ?> 
+<?xml-stylesheet type="text/xsl" href="Admin/XSL/Todo.xsl" ?> 
 <topics
 	 xmlns:r="http://www.r-project.org"
 	 xmlns:omg="http://www.omegahat.org">
@@ -6,7 +6,46 @@
 <topic>
 <title>
 </title>
+
+
 <items>
+
+<item>
+Finish off generating the documents for the functions and classes (enums) not documented.
+</item>
+
+  <!-- From TODO -->
+<item status="done"> Turn on USE_S4_ENUMS in src/Makevars.in</item>
+
+<item>Process only the routines and data structures related to the host/CPU
+   ignore the ones for use on the device/GPU
+   Are all of the routines in the library for the host?
+</item>
+
+<item>Should we remove the cuda/cublas prefix from the names of the R functions.</item>
+
+<item status="done"> Copy the converter code from RAutoGenRuntime into the package.</item>
+
+<item>Change the class of the bitwise enum types that are wrong.
+   only CUarray_format_enum
+</item>
+
+<item>Generate routines.
+<br/>
+See TU/clang.R
+</item>
+
+<item>
+Remove the code from inst/generateCode.
+</item>
+
+<item status="finish">
+Put a version check on the enums.
+<br/>
+In configure.in and onLoad.R
+</item>
+
+
 <item status="complete">
 global option to use double rather than float.
 And use it everywhere. Connect to strict for cudaMalloc.
