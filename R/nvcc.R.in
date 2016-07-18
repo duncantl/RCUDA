@@ -1,3 +1,4 @@
 nvccCmd = "@NVCC_BIN@"
+CudaVersionNumber = @CUDA_VERSION@
 
 
