@@ -1,10 +1,13 @@
 \name{nvcc}
 \alias{nvcc}
+\alias{nvccCmd}
 \title{Compile CUDA code}
 \description{
   This is a utility function to help users compile
   CUDA source code using the nvcc compiler.
   As such, it is just a front-end to calling nvcc.
+
+  \code{nvccCmd} is the fully-qualified name of the CUDA compiler command.
 }
 \usage{
 nvcc(file, out = swapExtension(file, target),
