@@ -1,3 +1,5 @@
+# See https://www.stack.nl/~dimitri/doxygen/manual/commands.html for information about the format of the documentation comments
+
 library(RCIndex)
 library(RCUDA)
 
@@ -15,7 +17,7 @@ i = fnNames %in% names(r)
 if(!all(i))
    warning("missing routines  ", paste(fnNames[i], collapse = ", "))
 
-ff = lapply(r[fnNames], function(x) writeRd(makeFunctionDoc(x)))
+ff = sapply(r[fnNames], function(x) writeRd(makeFunctionDoc(x)))
 
 
 if(FALSE) {
