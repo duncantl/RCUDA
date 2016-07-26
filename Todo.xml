@@ -5,13 +5,63 @@
 
 <topic>
 <title>
+ RCUDA Todo List
 </title>
 
 
 <items>
+<item>
+cuDeviceGetAttribute - 
+CU_DEVICE_ATTRIBUTE_COMPUTE_MODE returns an enum. We need to map it to the R name-value pair.
+<item>
+cuDeviceGetAttribute - put the name of the attibute queried on the result.
+Unfortunately, it is auto created so we'd have to intercede there, i.e., using typeMap 
+or hardcoding how to convert these types of requests in cuda.createNativeProxy().
+</item>
+<item>
+Set the default device to 1 for cuDeviceGetName() and others like it.
+</item>
+<item>
+Make the names of the functions consistent
+getDeviceProperties versus cuDeviceGetAttributes.
+getDeviceProperties uses a deprecated function, so just kill off.
+Different choices for approach.
+</item>
+
+<item>
+R_cuModuleGetFunction doesn't seem to return the function.
+Instead it seems to expect a CUfunction pointer when this is probably the return value.
+The function isOutPointerType is the culprit and we explicitly identify pointers to CUfunction as not out arguments in
+that function! (See the return() expression.)
+<br/>
+What routines have a parameter that is a pointer to a CUfunction?
+<r:code>
+rc = r [ grep("/cuda/", sapply(r, getFileName)) ]
+</r:code>
+<r:code><![CDATA[
+isCUfunction = function(ty) isPointerType(ty) && getName(getPointeeType(ty)) == "CUfunction"
+i = sapply(rc, function(f) any(sapply(f@params, function(cur) isCUfunction(getType(cur)))))
+]]></r:code>
+So only one!  The other routines take a CUfunction value, not a pointer to one. So this is an out argument.
+<br/>
+If we remove the CUfunction from the vector of special names,
+<r:expr>cuda.createNativeProxy(rc$cuModuleGetFunction)</r:expr>
+almost behaves. The CUfunction is allocated on the stack. Is this okay?
+<br/>
+But what about the other routines.
+<r:code>
+isCUfunction = function(ty) getName(ty) == "CUfunction"
+i = sapply(rc, function(f) any(sapply(f@params, function(cur) isCUfunction(getType(cur)))))
+lapply(rc[i], cuda.createNativeProxy)
+</r:code>
+<br/>
+A CUfunction is already a pointer to a CUfunc_st. But this is irrelevant.
+</item>
 
 <item>
 Finish off generating the documents for the functions and classes (enums) not documented.
+<br/>
+Enhance the return/value to mirror what we do in the R code, not the  C declarations and their documentation.
 </item>
 
   <!-- From TODO -->
