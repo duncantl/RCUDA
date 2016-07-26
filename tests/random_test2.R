@@ -3,7 +3,7 @@ cuGetContext(TRUE)
 
 m = loadModule(system.file("sampleKernels", "random.ptx", package = "RCUDA"))
 kernel = m$rnorm_kernel
-N = 250000 # 1e6L fails on my mac... :/   Works for 2500, but not 2500 on a 
+N = 2500 # 1e6L fails on my mac... :/   Works for 2500, but not 2500 on a 
 mu <-  -0.3
 sigma <-  1.5
 
@@ -27,7 +27,7 @@ cu_rnorm_total_time = system.time({
 })
 
 if(is(cu_ans, "cudaError_t"))  # length(cu_ans) == 1)
-    stop("kernel failed")
+    stop(paste("kernel failed: ", names(cu_ans)))
 
 rnorm_total_time = system.time( r_ans <- rnorm(N, mu, sigma) )
 

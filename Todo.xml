@@ -8,8 +8,14 @@
  RCUDA Todo List
 </title>
 
-
 <items>
+
+<item>
+tests/doubleFloat.R - failing with the floats. Getting the wrong answer.
+</item>
+
+
+
 <item>
 cuDeviceGetAttribute - 
 CU_DEVICE_ATTRIBUTE_COMPUTE_MODE returns an enum. We need to map it to the R name-value pair.
