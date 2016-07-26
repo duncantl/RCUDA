@@ -1,3 +1,7 @@
+# \notefnerr means "Note that this function may also return error codes from previous, asynchronous launches."
+
+
+
 trim =
 function(x)
   gsub("(^[[:space:]]+|[[:space:]]+$)", "", x)
@@ -12,6 +16,9 @@ function(desc)
       desc = gsub("\\\\endcode", "}", desc)      
    }
 
+   desc = gsub("\\\\p \\*([^ ]+) ", "\\\\code{\\1}", desc, fixed = TRUE)   
+   desc = gsub("\\\\p ([^ ]+) ", "\\\\code{\\1}", desc, fixed = TRUE)
+   
    desc = gsub("<b>", "", desc, fixed = TRUE)
    desc = gsub("</b>", "", desc, fixed = TRUE)   
 
@@ -36,17 +43,93 @@ function(name, fun)
   sprintf("%s(%s)", id, paste(names(args), c("", " = ")[ as.integer(hasDefault) ], sapply(args, as.character), collapse = ", ", sep = ""))
 }
 
-makeFunctionDoc =
-function(fun, name = gsub("_v2", "", getName(fun@def)))
+returnTypeDoc =
+function(fun, name = getName(fun))
 {
-   txt = getRawCommentText(fun@def)
+    if(returnString(fun))
+        return("a character vector of length 1")
 
-   if(txt == "") {
+    if(length( rv <- returnsValueViaArg(fun, name)) > 0) {
+        if(length(rv) > 1) {
+            v = fun@params[names(rv)]
+            tys = sapply(v, getType)
+            els = mapply(describeReturnElement, tys, names(v), MoreArgs = list(inList = TRUE))
+            ans = sprintf("a list with %d elements\n %s", length(v), paste(els, collapse = "\n"))
+        } else {
+            p = fun@params[[1]]   
+            ans = describeReturnElement(getType(p))
+        }
+        return(ans)
+    }
+
+    if(fun@returnType$kind == CXType_Void)
+        "NULL"
+    else
+       "an enumerated value of type cudaError indicating success or some reason for a different outcome"
+}
+
+isEnumType =
+function(ty)
+{
+   k = getTypeKind(ty)
+   if(k == CXType_Typedef)
+       k = getCanonicalType(ty)$kind
+       
+   k == CXType_Enum
+}
+
+describeReturnElement =
+function(type, var = character(), inList = length(var) > 0)
+{
+ pty = getPointeeType(type)
+ tyName = getName(pty)
+ k = getTypeKind(pty)
+
+ # Handle arrays.
+
+ if(isEnumType(pty))
+     ans = sprintf("an enumerated value of type %s", tyName)
+ else {
+   rtype = switch(names(k),
+        LongLong = ,
+        Long=,
+        Double=,
+        Float=,
+        Int128=,
+        ULong =,
+        UInt = "numeric",
+        Short=,
+        Int = "integer",
+        Bool = "logical",
+        Void = "raw"
+        )
+
+
+ 
+    if(is.null(rtype)) {
+       ans = sprintf("an object of class %s", tyName)
+    } else
+       ans = sprintf("a %s scalar", rtype)
+  }
+    
+ if(inList)
+      sprintf("\\item{%s}{%s}", var, ans)
+ else
+     ans
+}
+
+
+makeFunctionDoc =
+function(fun, name = gsub("_v2", "", getName(fun@def)), txt = getRawCommentText(fun@def))
+{
+   if(txt == "") 
      txt = readCommentFromFile(fun@def)
-   }
+
 
    lines = strsplit(txt, "\\n")[[1]]
+   parts = getGroups(lines)
 
+   
    br = grep("\\\\brief", lines, value = TRUE)
    title = gsub(".*\\\\brief ", "", br)
 
@@ -69,9 +152,11 @@ function(fun, name = gsub("_v2", "", getName(fun@def)))
    params = sapply(p, function(x)  changeMarkup(paste(trim(x[-1]), collapse =""))      )
    names(params) = trim(sapply(p, function(x) x[1]))
 
-
   
    lines = lines[-i]
+
+# Get any \note text.
+   
 
    lines = gsub("^ +\\*", "", lines)
    sa = grep("\\\\sa", lines)
@@ -93,7 +178,10 @@ function(fun, name = gsub("_v2", "", getName(fun@def)))
      returnValue = NA
      usage = NA
    }
-   list(name = name,
+
+
+   
+  ans = list(name = name,
         alias = name,
         title = title,
         description = desc,
@@ -102,6 +190,45 @@ function(fun, name = gsub("_v2", "", getName(fun@def)))
         value = returnValue, 
         seealso = seeAlso[seeAlso != ""]
         )
+
+   addExtraParts(parts, ans)
+}
+
+addExtraParts =
+function(parts, ans)
+{
+   if("notefnerr" %in% names(parts)) {
+      parts[["note"]] = c(parts[["note"]], note = "Note that this function may also return error codes from previous, asynchronous launches.")
+      parts = parts[ !(names(parts) %in% "notefnerr") ]
+   }
+   
+   parts = parts[ !(names(parts) %in% c("brief", "param", "return", "sa")) ]
+   extra = setdiff(names(parts), names(ans))
+   if(length(extra)) 
+      ans[extra] = lapply(parts[extra], cleanPart)
+
+   ans
+}
+
+cleanPart =
+function(part)
+{
+   part = unlist(part)
+   gsub("^[[:space:]]?\\\\[a-zA-Z]+ ", "", part)
+}
+
+getGroups =
+function(lines)
+{
+
+   lines = lines[ - grep("(^/\\*|\\*/$)", lines) ]
+   lines = gsub("^[[:space:]]+\\*", "", lines)
+   g = grepl("^ \\\\", lines) & !grepl("^ \\\\p ", lines)
+   parts = split(lines, cumsum(g))
+   ids = gsub("^ \\\\([a-zA-Z]+)( .*|$)", "\\1", lines[g])
+   names(parts) = ids
+   p = split(parts, names(parts))
+   p
 }
 
 OtherFields = list(references = "\\url{http://docs.nvidia.com/cuda/cuda-driver-api/index.html}",
@@ -153,7 +280,7 @@ function(doc, otherFields = OtherFields, out = sprintf("../man/%s.Rd", doc$name)
               sprintf("\\%s{%s}", id, paste(val, collapse = "\n"))
          })
 
-  if(!is.na(out) && (!file.exists(out) || force)) {
+  if(!is.na(out) && (inherits(out, "connection") || (!file.exists(out) || force))) {
     cat(sprintf("%% Autogenerated %s", Sys.Date()), ans, sep = "\n", file = out)
     out
   } else {
