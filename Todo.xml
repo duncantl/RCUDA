@@ -10,8 +10,10 @@
 
 <items>
 
-<item>
+<item status="done">
 tests/doubleFloat.R - failing with the floats. Getting the wrong answer.
+Need .numericAsDouble to cover all parameters, not just the numeric ones.
+So needed one for the length(x) as well as the x and out.
 </item>
 
 

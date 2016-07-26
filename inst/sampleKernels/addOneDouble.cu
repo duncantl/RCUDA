@@ -22,6 +22,6 @@ __global__ void addOneFloat(double* vals, int N, float *out)
     int idx = myblock * blocksize + subthread;
 
     if(idx < N) {
-      out[idx] = vals[idx] + 1.0;
+       out[idx] = (float) vals[idx] + 1.0;
     }
 }
