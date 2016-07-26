@@ -17,6 +17,9 @@ function(num = 1L)
 }
 
 cuDeviceGetAttributes =
+    #
+    # Allow caller to specify subset of the attributes. Gets a  little messier.
+    #
 function(dev = 1L)
 {
   attrs = CUdevice_attributeValues
