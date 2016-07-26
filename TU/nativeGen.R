@@ -88,7 +88,8 @@ function(fun, name = sprintf("R_%s", funName), # R_auto_%s
 #     fun@params = fun@params[ - seq(returnArg[1], length = 2) ]
    }
 
-   if(length(returnArg) == 0) 
+   if(length(returnArg) == 0)
+         # use the regular function from RCodeGen
      return(createNativeProxy(fun, name, typeMap))
    else
      cuResult = TRUE
@@ -243,7 +244,7 @@ function(fun, name = routineName(fun, removeVersion = TRUE), argNames = names(fu
 }
 
 
-# Move these into RCIndex
+# Move these into RCIndex or RCodeGen
   
 
 isOutPointerType =
@@ -264,7 +265,7 @@ function(parm, routineName = "")
   isConst =  grepl("const", name)  &&  !grepl("*", name, fixed = TRUE)
   isStruct =  grepl("struct", name)  &&  !grepl("*", name, fixed = TRUE)
 #  used to include !isStruct &&   but for cudaMalloc3D, this is a problem. What will this break.
-  return(getName(ty) != "char *" && !isConst && !(name %in%  c("const char", "const void", "void", "CUfunction"))) # , "CUdevice"
+  return(getName(ty) != "char *" && !isConst && !(name %in%  c("const char", "const void", "void", "xxxCUfunction"))) # , "CUdevice"
 
   
   elTy = getCanonicalType(getPointeeType(ty))
@@ -274,6 +275,9 @@ function(parm, routineName = "")
 
 
 checkStatusCode =
+    #
+    #
+    #
 function(typeName)
 {  
   c("if(ans)",
