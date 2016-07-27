@@ -1,0 +1,9 @@
+There are two CUDA APIs - driver and run-time.
+When programming in C, the run-time presents a slightly higher level of abstraction
+and simpler programming model. The driver API provides more control over some operations.
+Importantly, the driver API allows us to dynamically load and unload modules.
+Since we are running in an interactive R session, and not a single compiled program that runs
+sequentially and terminates,  this ability to load and unload modules is essential.
+
+Importantly, while the RCUDA package provides bindings to both APIs, 
+the higher-level functions allow us to ignore the differences. % Rephrase.
